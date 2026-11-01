@@ -1,0 +1,15 @@
+input,textarea{font:inherit;border:1px solid #cbdce3;border-radius:7px;padding:11px 12px;color:var(--navy);background:white;min-width:0;max-width:100%}
+textarea{resize:vertical;min-height:90px}
+input:focus-visible,textarea:focus-visible{outline:3px solid #52c2c7;outline-offset:3px}
+.login-form{display:grid;gap:15px;margin:23px 0}
+.login-form label,.form-grid label{display:grid;gap:8px;font-size:12px;color:#4c6477}
+.login-form .button{justify-content:center;min-height:44px}
+.form-message{color:#a34241;font-size:12px;line-height:1.7;min-height:1em}
+.demo-access{border-top:1px solid var(--border);padding-top:18px;display:grid;gap:10px}
+.demo-access p{margin:0 0 8px!important}
+.demo-access small{font-size:11px;color:#587185;line-height:1.7;overflow-wrap:anywhere}
+.demo-access .button{justify-content:center}
+.mobile-exit{display:none}
+.skip-link{position:fixed;top:-60px;left:16px;z-index:100;background:#fff;padding:12px;color:var(--teal)}
+.skip-link:focus{top:8px}
+@media(max-width:700px){.mobile-exit{display:inline-flex}.topbar-actions{gap:9px}.topbar-actions .mobile-exit{font-size:10px;min-height:36px;padding:7px 10px}.welcome-card{width:100%;padding:28px}.welcome-card h1{font-size:28px}}
