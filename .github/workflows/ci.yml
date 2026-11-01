@@ -1,0 +1,54 @@
+name: SmartCare CI
+
+"on": [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Java backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Compile and test with Maven
+        run: mvn --batch-mode --no-transfer-progress -f pom.xml verify
+
+  frontend:
+    name: Patient interface
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+
+      - name: Check required files
+        run: |
+          test -f frontend/patient/index.html
+          test -f frontend/patient/styles.css
+          test -f frontend/patient/manifest.webmanifest
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check frontend/patient/app.js
+          node --check frontend/patient/sw.js
+
+  simulator:
+    name: Python syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check simulator syntax
+        run: |
+          test -f SmartCare/simulator/simulator.py
+          python3 -m compileall -q SmartCare/simulator
