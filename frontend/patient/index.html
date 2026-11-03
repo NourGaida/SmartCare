@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#008c95">
+  <meta name="description" content="SmartCare patient dashboard prototype. Live demonstration readings, history, alerts and device status.">
+  <title>SmartCare · Patient portal</title>
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="../shared/forms.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <svg class="icon-definitions" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.4 5.4 0 0 0-7.6 0L12 5.8l-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6L12 21l8.8-8.8a5.4 5.4 0 0 0 0-7.6Z"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.4"/><rect x="14" y="3" width="7" height="7" rx="1.4"/><rect x="3" y="14" width="7" height="7" rx="1.4"/><rect x="14" y="14" width="7" height="7" rx="1.4"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></symbol>
+    <symbol id="i-device" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="3"/><path d="M9 2v3m6-3v3M9 19v3m6-3v3M2 9h3m-3 6h3m14-6h3m-3 6h3M9 12h2l1-2 2 4 1-2"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 2S4 11 4 15a8 8 0 0 0 16 0c0-4-8-13-8-13Z"/><path d="M8 15a4 4 0 0 0 4 4"/></symbol>
+    <symbol id="i-signal" viewBox="0 0 24 24"><path d="M4 18v2m5-7v7m5-12v12m5-17v17" stroke-width="3"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M4 15v5h16v-5"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M10 3H4v18h6m-1-9h12m-4-4 4 4-4 4"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L20 5"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6 6a8 8 0 0 1 13 3M5 15a8 8 0 0 0 13 3"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v.1"/></symbol>
+    <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M3 8a15 15 0 0 1 18 0M6 12a10 10 0 0 1 12 0m-9 4a5 5 0 0 1 6 0m-3 4v.1"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 4 12 8-12 8Z"/></symbol>
+  </svg>
+  <div class="app-shell" id="app-shell" hidden>
+    <aside class="sidebar" aria-label="Main navigation">
+      <a class="brand" href="#dashboard" aria-label="SmartCare dashboard"><img src="./icon.svg" alt="" width="35" height="35"><span>SmartCare<span class="brand-dot">.</span></span></a>
+      <div class="portal-label">PATIENT PORTAL</div>
+      <nav class="navigation">
+        <a href="#dashboard" data-route="dashboard"><svg class="icon"><use href="#i-grid"/></svg><span>Dashboard</span></a>
+        <a href="#history" data-route="history"><svg class="icon"><use href="#i-clock"/></svg><span>History</span></a>
+        <a href="#alerts" data-route="alerts"><svg class="icon"><use href="#i-bell"/></svg><span>Alerts</span><span id="nav-alert-count" class="nav-count" hidden>0</span></a>
+        <a href="#device" data-route="device"><svg class="icon"><use href="#i-device"/></svg><span>Device</span></a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="sidebar-note"><span class="live-dot"></span><span>Demo workspace<br><small>No real patient data</small></span></div>
+        <button class="logout" id="logout"><svg class="icon"><use href="#i-logout"/></svg>Exit demo</button>
+        <div class="profile"><span class="avatar">JD</span><div><strong>Jamie Davis</strong><small>Demo patient · SC-001</small></div></div>
+      </div>
+    </aside>
+    <div class="main-column">
+      <header class="topbar"><div class="breadcrumb">Patient portal <span>/</span> <strong id="breadcrumb-current">Overview</strong></div><div class="topbar-actions"><button class="button button-outline mobile-exit" id="mobile-logout">Exit demo</button><span class="demo-label"><span></span> DEMO MODE</span><button class="icon-button" id="alerts-shortcut" aria-label="Open alerts"><svg class="icon"><use href="#i-bell"/></svg><span class="notification-dot" id="notification-dot" hidden></span></button><span class="avatar small-avatar" aria-label="Jamie Davis, demo patient">JD</span></div></header>
+      <main id="main-content" tabindex="-1">
+        <div class="page-heading"><div><div class="eyebrow" id="page-eyebrow">YOUR DAILY OVERVIEW</div><h1 id="page-title">My dashboard</h1><p id="page-description">Your latest readings, all in one place.</p></div><div class="heading-tools"><span class="date-label" id="current-date"></span><button class="button button-subtle" id="stream-toggle" aria-pressed="false"><svg class="icon"><use href="#i-pause"/></svg><span>Pause demo</span></button></div></div>
+        <div class="notice" id="status-notice" role="status" hidden></div>
+        <section id="view-dashboard" class="view" aria-label="Dashboard">
+          <div class="reading-meta"><span class="live-status" id="live-label"><span class="live-dot"></span>Live readings</span><span id="last-update">Updated just now</span></div>
+          <div class="metric-grid">
+            <article class="metric-card"><div class="metric-top"><span class="metric-icon heart-icon"><svg class="icon"><use href="#i-heart"/></svg></span><span>Heart rate</span><span class="metric-unit">BPM</span></div><div class="metric-value"><strong id="heart-value">78</strong><span>bpm</span><svg class="sparkline rose-line" viewBox="0 0 112 38" aria-hidden="true"><path d="M0 24 8 23 14 27 22 21 30 22 38 16 45 20 52 17 59 24 66 19 74 21 82 11 90 17 99 14 106 18 112 14"/></svg></div><div class="metric-footer"><span class="tiny-dot rose-dot"></span>Latest valid reading</div></article>
+            <article class="metric-card"><div class="metric-top"><span class="metric-icon oxygen-icon"><svg class="icon"><use href="#i-drop"/></svg></span><span>Blood oxygen</span><span class="metric-unit">SpO₂</span></div><div class="metric-value"><strong id="oxygen-value">97</strong><span>%</span><svg class="sparkline blue-line" viewBox="0 0 112 38" aria-hidden="true"><path d="M0 22 12 22 20 17 30 17 39 20 48 20 58 14 68 14 78 18 88 18 99 13 112 13"/></svg></div><div class="metric-footer"><span class="tiny-dot blue-dot"></span>Latest valid reading</div></article>
+            <article class="metric-card"><div class="metric-top"><span class="metric-icon quality-icon"><svg class="icon"><use href="#i-signal"/></svg></span><span>Signal quality</span></div><div class="quality-value"><strong id="quality-value">Good</strong><span class="quality-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div><div class="metric-footer" id="quality-description"><span class="tiny-dot green-dot"></span>Clear signal from your device</div></article>
+          </div>
+          <div class="dashboard-grid">
+            <article class="panel chart-panel"><div class="panel-header"><div><h2 id="chart-title">Heart rate over time</h2><p id="chart-subtitle">A closer look at your recent readings.</p></div><div class="segmented" aria-label="Chart time range"><button data-range="15" class="selected" aria-pressed="true">15 min</button><button data-range="60" aria-pressed="false">1 hour</button><button data-range="today" aria-pressed="false">Today</button></div></div><div class="chart-metric-tabs" aria-label="Measurement displayed"><button class="chart-tab selected" data-metric="hr" aria-pressed="true"><span class="tiny-dot teal-dot"></span>Heart rate</button><button class="chart-tab" data-metric="spo2" aria-pressed="false"><span class="tiny-dot blue-dot"></span>Blood oxygen</button><span class="chart-unit" id="chart-unit">bpm</span></div><div class="chart-container"><svg id="reading-chart" viewBox="0 0 700 284" role="img" aria-labelledby="chart-title chart-summary"></svg><div id="chart-tooltip" class="chart-tooltip" hidden></div></div><div class="chart-bottom"><p id="chart-summary">Illustrative demo readings. Missing samples appear as gaps.</p><span class="source-label">DEMO STREAM</span></div></article>
+            <div class="right-column"><article class="panel device-panel"><div class="panel-header compact"><h2><svg class="icon"><use href="#i-device"/></svg>Connected device</h2><a class="icon-button" href="#device" aria-label="View device details"><svg class="icon"><use href="#i-arrow"/></svg></a></div><div class="device-identity"><span class="device-illustration"><svg class="icon"><use href="#i-device"/></svg></span><div><strong>SmartCare sensor</strong><span class="device-connection" id="device-connection"><span class="tiny-dot green-dot"></span>Connected</span></div></div><dl class="device-details"><div><dt><svg class="icon"><use href="#i-device"/></svg>Device ID</dt><dd>SC-DEMO-001</dd></div><div><dt><svg class="icon"><use href="#i-signal"/></svg>Signal quality</dt><dd id="device-quality">Good</dd></div><div><dt><svg class="icon"><use href="#i-refresh"/></svg>Last received</dt><dd id="device-last-received">Just now</dd></div></dl></article>
+              <article class="panel alerts-panel"><div class="panel-header compact"><h2><svg class="icon"><use href="#i-bell"/></svg>Recent alerts</h2><a href="#alerts" class="text-link">View all</a></div><div id="recent-alert-content" class="empty-alert"><span class="check-circle"><svg class="icon"><use href="#i-check"/></svg></span><strong>No new alerts</strong><p>New alerts from your care team<br>will appear here.</p></div><div class="quick-actions"><a class="button button-outline" href="#history">View history</a><button class="button button-primary" data-export><svg class="icon"><use href="#i-download"/></svg>Export CSV</button></div></article>
+            </div>
+          </div>
+          <div class="demo-footnote"><svg class="icon"><use href="#i-info"/></svg><span>This is a prototype with simulated readings. It does not provide a medical diagnosis.</span></div>
+        </section>
+        <section id="view-history" class="view" aria-label="Measurement history" hidden><article class="panel"><div class="panel-header"><div><h2>Measurement history</h2><p>Browse and export the readings in this demo session.</p></div><button class="button button-primary" data-export><svg class="icon"><use href="#i-download"/></svg>Export CSV</button></div><div class="table-toolbar"><label>Time range <select id="history-range"><option value="15">Last 15 minutes</option><option value="60">Last hour</option><option value="today">Today</option><option value="all" selected>All demo readings</option></select></label><label>Signal quality <select id="history-quality"><option value="all">All readings</option><option value="good">Good signal</option><option value="invalid">Invalid signal</option></select></label><span id="history-total" class="muted"></span></div><div class="table-scroll"><table><thead><tr><th scope="col">Date & time</th><th scope="col">Heart rate</th><th scope="col">Blood oxygen</th><th scope="col">Signal quality</th><th scope="col">Source</th></tr></thead><tbody id="history-body"></tbody></table></div><div class="pagination"><span id="page-label"></span><div><button class="button button-outline" id="previous-page">Previous</button><button class="button button-outline" id="next-page">Next</button></div></div></article></section>
+        <section id="view-alerts" class="view" aria-label="Patient alerts" hidden><article class="panel"><div class="panel-header"><div><h2>Your alerts</h2><p>Review alerts and the reason they were created.</p></div><button class="button button-outline" id="demo-alert"><svg class="icon"><use href="#i-bell"/></svg>Preview an alert</button></div><div id="alert-list" class="alert-list"></div></article><p class="section-note">Demonstration alerts are created manually here. In the connected app, the backend will create and manage alert episodes.</p></section>
+        <section id="view-device" class="view" aria-label="Device settings" hidden><div class="device-page-grid"><article class="panel"><div class="panel-header"><div><h2>SmartCare sensor</h2><p>Your demonstration device.</p></div><span class="status-chip" id="device-page-status">Connected</span></div><div class="device-large"><svg class="icon"><use href="#i-device"/></svg><div><strong>ESP32 + MAX30102</strong><p>Heart rate and blood oxygen sensor</p></div></div><dl class="full-details"><div><dt>Device identifier</dt><dd>SC-DEMO-001</dd></div><div><dt>Assigned patient</dt><dd>Jamie Davis · Demo account</dd></div><div><dt>Data source</dt><dd>Browser simulation</dd></div><div><dt>Update interval</dt><dd>1 second</dd></div><div><dt>Model service</dt><dd>Not connected</dd></div></dl></article><article class="panel demo-controls"><div class="panel-header"><div><h2>Try the interface</h2><p>Preview the states your app needs to handle.</p></div><svg class="icon"><use href="#i-info"/></svg></div><button class="scenario" data-scenario="normal"><span class="scenario-icon"><svg class="icon"><use href="#i-check"/></svg></span><span><strong>Good signal</strong><small>Resume simulated readings.</small></span><svg class="icon"><use href="#i-arrow"/></svg></button><button class="scenario" data-scenario="poor"><span class="scenario-icon amber"><svg class="icon"><use href="#i-signal"/></svg></span><span><strong>Poor signal</strong><small>Mark new readings as invalid; show chart gaps.</small></span><svg class="icon"><use href="#i-arrow"/></svg></button><button class="scenario" data-scenario="offline"><span class="scenario-icon slate"><svg class="icon"><use href="#i-wifi"/></svg></span><span><strong>Disconnected device</strong><small>Preview data older than 30 seconds.</small></span><svg class="icon"><use href="#i-arrow"/></svg></button><button class="scenario" data-scenario="empty"><span><strong>Empty readings</strong><small>Preview this demonstration state. Reload demo data to recover.</small></span></button><button class="scenario" data-scenario="error"><span><strong>Data loading error</strong><small>Preview this demonstration state. Reload demo data to recover.</small></span></button><button class="scenario" data-scenario="loading"><span><strong>Loading readings</strong><small>Preview this demonstration state. Reload demo data to recover.</small></span></button><div class="inline-note">These controls affect demo data only. They do not operate a real sensor.</div></article></div></section>
+        <footer class="page-footer"><span>SmartCare <span class="footer-separator">/</span> A little clarity, every day.</span><span>Patient portal · Prototype v1.0</span></footer>
+      </main>
+    </div>
+  </div>
+  <section class="welcome-screen" id="welcome-screen"><div class="welcome-card">
+    <img src="./icon.svg" width="54" height="54" alt="">
+    <div class="eyebrow">SMARTCARE PATIENT PORTAL</div><h1>Your readings.<br>A clearer picture.</h1>
+    <p>Demonstration mode · Jamie Davis is a fictional patient. This public demo has no secure authentication and uses no real medical data.</p>
+    <form id="login-form" class="login-form">
+      <label>Email address<input id="login-email" type="email" required maxlength="120" autocomplete="username"></label>
+      <label>Demo password<input id="login-password" type="password" required maxlength="100" autocomplete="current-password"></label>
+      <p id="login-error" class="form-message" role="status" aria-live="polite"></p>
+      <button class="button button-primary" id="login-submit">Sign in to demo</button>
+    </form>
+    <div class="demo-access"><button class="button button-outline" id="enter-demo">Use fictional patient account</button>
+    <small>patient@smartcare.demo · Password: demo-patient</small></div>
+    <small>Session data stays in memory and is cleared when you exit or reload.</small>
+  </div></section>
+  <dialog id="alert-dialog"><div class="dialog-heading"><h2>Alert details</h2><button class="icon-button" id="close-dialog" aria-label="Close alert details"><svg class="icon"><use href="#i-close"/></svg></button></div><div id="alert-dialog-content"></div><button class="button button-primary" id="dialog-done">Done</button></dialog>
+  <div class="toast" id="toast" role="status" hidden></div>
+</body>
+</html>

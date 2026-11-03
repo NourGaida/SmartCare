@@ -17,6 +17,8 @@ target/
 Thumbs.db
 
 # Local environment files
+.venv-simulator/
+__pycache__/
 .env
 .env.*
 !.env.example

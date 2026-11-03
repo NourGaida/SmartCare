@@ -1,6 +1,6 @@
-name: CI
+name: SmartCare CI
 
-on: [push, pull_request]
+"on": [push, pull_request, workflow_dispatch]
 
 permissions:
   contents: read
@@ -10,22 +10,62 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '25'
           cache: maven
+
       - name: Build and test
         run: mvn --batch-mode --no-transfer-progress verify
+
+  frontend:
+    name: Patient and supervision interfaces
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check required files
+        run: |
+          test -f frontend/patient/index.html
+          test -f frontend/patient/styles.css
+          test -f frontend/patient/manifest.webmanifest
+          test -f frontend/supervision/index.html
+          test -f frontend/supervision/styles.css
+          test -f frontend/supervision/manifest.webmanifest
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check frontend/patient/app.js
+          node --check frontend/patient/sw.js
+          for file in frontend/shared/*.mjs frontend/patient/*.mjs frontend/supervision/*.mjs frontend/supervision/sw.js frontend/supervision/fixtures/*.mjs; do
+            node --check "$file" || exit 1
+          done
+
+      - name: Test frontend roles, episodes and static resources
+        run: node --test frontend/tests/frontend.test.mjs
 
   simulator:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
       - name: Install simulator dependencies
         run: python -m pip install -r SmartCare/simulator/requirements.txt
+
       - name: Check simulator syntax
-        run: python -m compileall -q SmartCare/simulator/simulator.py
+        run: |
+          test -f SmartCare/simulator/simulator.py
+          python -m compileall -q SmartCare/simulator
+
+      - name: Test simulator scenarios
+        run: python -m unittest discover -s SmartCare/simulator/tests -v
