@@ -26,7 +26,7 @@
 
    
 <build>
-    <sourceDirectory>backend/src/main/java</sourceDirectory>
+    <sourceDirectory>MiddleWare/src/main/java</sourceDirectory>
     <finalName>smartcare</finalName>
 
     <plugins>
@@ -41,7 +41,7 @@
             <artifactId>maven-war-plugin</artifactId>
             <version>3.4.0</version>
             <configuration>
-                <warSourceDirectory>backend/src/main/webapp</warSourceDirectory>
+                <warSourceDirectory>MiddleWare/src/main/webapp</warSourceDirectory>
             </configuration>
         </plugin>
     </plugins>
