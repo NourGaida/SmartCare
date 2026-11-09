@@ -64,8 +64,8 @@ jobs:
 
       - name: Check simulator syntax
         run: |
-          test -f SmartCare/simulator/simulator.py
-          python -m compileall -q SmartCare/simulator
+          test -f IoT/simulator/simulator.py
+          python -m compileall -q IoT/simulator
 
       - name: Test simulator scenarios
-        run: python -m unittest discover -s SmartCare/simulator/tests -v
+        run: python -m unittest discover -s IoT/simulator/tests -v
