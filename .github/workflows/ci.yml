@@ -60,7 +60,7 @@ jobs:
           python-version: '3.12'
 
       - name: Install simulator dependencies
-        run: python -m pip install -r SmartCare/simulator/requirements.txt
+        run: python -m pip install -r IoT/simulator/requirements.txt
 
       - name: Check simulator syntax
         run: |
