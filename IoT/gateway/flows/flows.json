@@ -1,0 +1,234 @@
+[
+    {
+        "id": "f6f2187d.f17ca8",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "3cc11d24.ff01a2",
+        "type": "comment",
+        "z": "f6f2187d.f17ca8",
+        "name": "WARNING: please check you have started this container with a volume that is mounted to /data\\n otherwise any flow changes are lost when you redeploy or upgrade the container\\n (e.g. upgrade to a more recent node-red docker image).\\n  If you are using named volumes you can ignore this warning.\\n Double click or see info side panel to learn how to start Node-RED in Docker to save your work",
+        "info": "\nTo start docker with a bind mount volume (-v option), for example:\n\n```\ndocker run -it -p 1880:1880 -v /home/user/node_red_data:/data --name mynodered nodered/node-red\n```\n\nwhere `/home/user/node_red_data` is a directory on your host machine where you want to store your flows.\n\nIf you do not do this then you can experiment and redploy flows, but if you restart or upgrade the container the flows will be disconnected and lost. \n\nThey will still exist in a hidden data volume, which can be recovered using standard docker techniques, but that is much more complex than just starting with a named volume as described above.",
+        "x": 350,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "b262732981d75555",
+        "type": "mqtt in",
+        "z": "f6f2187d.f17ca8",
+        "name": "SmartCare Raw Measurements",
+        "topic": "smartcare/v1/raw/#",
+        "qos": "1",
+        "datatype": "auto-detect",
+        "broker": "68fe7d386ed6ba1e",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 370,
+        "y": 340,
+        "wires": [
+            [
+                "4a8242d66e5e395d"
+            ]
+        ]
+    },
+    {
+        "id": "e74e33f5fbe56343",
+        "type": "json",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 250,
+        "y": 1080,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "634650b2c62500e5",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "name": "Valid Measurements",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 180,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "4a8242d66e5e395d",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "Validate SmartCare Measurements",
+        "func": "const data = msg.payload;\n\nfunction reject(reason) {\n    msg.payload = {\n        deviceId: data?.deviceId ?? null,\n        reason: reason,\n        receivedAtUtc: new Date().toISOString(),\n        originalMessage: data\n    };\n\n    return [null, msg];\n}\n\n// 1. Validate JSON structure\nif (!data || typeof data !== \"object\" || Array.isArray(data)) {\n    return reject(\"invalid_json\");\n}\n\n// 2. Validate schema version\nif (data.schemaVersion !== 1) {\n    return reject(\"invalid_schema_version\");\n}\n\n// 3. Validate identifiers\nif (\n    typeof data.deviceId !== \"string\" ||\n    !data.deviceId ||\n    typeof data.bootId !== \"string\" ||\n    !data.bootId ||\n    !Number.isSafeInteger(data.sequence) ||\n    data.sequence < 1\n) {\n    return reject(\"invalid_identifiers\");\n}\n\n// 4. Validate MQTT topic\nif (msg.topic !== `smartcare/v1/raw/${data.deviceId}`) {\n    return reject(\"topic_device_mismatch\");\n}\n\n// 5. Validate timestamp\nif (\n    typeof data.acquiredAtUtc !== \"string\" ||\n    !Number.isFinite(Date.parse(data.acquiredAtUtc))\n) {\n    return reject(\"invalid_timestamp\");\n}\n\n// 6. Validate quality\nif (![\"good\", \"invalid\"].includes(data.quality)) {\n    return reject(\"invalid_quality\");\n}\n\n// 7. Validate sensor readings\nif (data.quality === \"good\") {\n    if (\n        typeof data.heartRate !== \"number\" ||\n        !Number.isFinite(data.heartRate) ||\n        typeof data.spo2 !== \"number\" ||\n        !Number.isFinite(data.spo2)\n    ) {\n        return reject(\"invalid_measurements\");\n    }\n\n    // Technical plausibility checks, not medical thresholds\n    if (\n        data.heartRate <= 0 ||\n        data.heartRate > 300 ||\n        data.spo2 < 0 ||\n        data.spo2 > 100\n    ) {\n        return reject(\"out_of_range\");\n    }\n} else {\n    if (\n        data.heartRate !== null ||\n        data.spo2 !== null ||\n        typeof data.reason !== \"string\" ||\n        !data.reason\n    ) {\n        return reject(\"invalid_missing_data_format\");\n    }\n}\n\n// 8. Detect duplicates within this Node-RED instance\nconst key = `${data.deviceId}:${data.bootId}`;\nconst lastSequence = flow.get(key);\n\nif (lastSequence !== undefined && data.sequence <= lastSequence) {\n    return reject(\"duplicate_or_old_sequence\");\n}\n\nflow.set(key, data.sequence);\n\n// Valid message\nreturn [msg, null];\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 480,
+        "wires": [
+            [
+                "634650b2c62500e5",
+                "aa6481577a2f55e5"
+            ],
+            [
+                "bfa610828098c118",
+                "dfc05d5fa0ebf0ab"
+            ]
+        ]
+    },
+    {
+        "id": "bfa610828098c118",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "name": "Rejected Measurements",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 550,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "aa6481577a2f55e5",
+        "type": "change",
+        "z": "f6f2187d.f17ca8",
+        "name": "Set Validated Topic",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "\"smartcare/v1/validated/\" & payload.deviceId",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 230,
+        "y": 760,
+        "wires": [
+            [
+                "3d98bcb0f1c6472b"
+            ]
+        ]
+    },
+    {
+        "id": "dfc05d5fa0ebf0ab",
+        "type": "change",
+        "z": "f6f2187d.f17ca8",
+        "name": "Set Rejected Topic",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "\"smartcare/v1/rejected/\" & payload.deviceId",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 570,
+        "y": 700,
+        "wires": [
+            [
+                "e535560928733768"
+            ]
+        ]
+    },
+    {
+        "id": "3d98bcb0f1c6472b",
+        "type": "mqtt out",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "topic": "",
+        "qos": "1",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "68fe7d386ed6ba1e",
+        "x": 230,
+        "y": 860,
+        "wires": []
+    },
+    {
+        "id": "e535560928733768",
+        "type": "mqtt out",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "topic": "",
+        "qos": "1",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "68fe7d386ed6ba1e",
+        "x": 510,
+        "y": 820,
+        "wires": []
+    },
+    {
+        "id": "68fe7d386ed6ba1e",
+        "type": "mqtt-broker",
+        "name": "SmartCare Mosquitto",
+        "broker": "smartcare-mosquitto",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    }
+]

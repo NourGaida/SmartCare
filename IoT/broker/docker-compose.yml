@@ -1,4 +1,3 @@
-
 services:
   mosquitto:
     image: eclipse-mosquitto:2.0
@@ -12,5 +11,23 @@ services:
       - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
       - mosquitto_data:/mosquitto/data
 
+  nodered:
+    image: nodered/node-red:latest
+    container_name: smartcare-nodered
+    restart: unless-stopped
+
+    ports:
+      - "127.0.0.1:1880:1880"
+
+    volumes:
+      - smartcare_nodered_data:/data
+
+    depends_on:
+      - mosquitto
+
 volumes:
   mosquitto_data:
+
+  smartcare_nodered_data:
+    external: true
+    name: smartcare_nodered_data
