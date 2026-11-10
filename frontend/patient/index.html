@@ -7,12 +7,15 @@
   <meta name="description" content="SmartCare patient dashboard prototype. Live demonstration readings, history, alerts and device status.">
   <title>SmartCare · Patient portal</title>
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <meta name="apple-mobile-web-app-title" content="Patient">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="../shared/forms.css">
   <script type="module" src="./app.js"></script>
 </head>
 <body>
+  <div id="connectivity-notice" class="connection-notice" role="status" hidden></div>
   <a class="skip-link" href="#main-content">Skip to content</a>
   <svg class="icon-definitions" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
     <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.4 5.4 0 0 0-7.6 0L12 5.8l-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6L12 21l8.8-8.8a5.4 5.4 0 0 0 0-7.6Z"/></symbol>

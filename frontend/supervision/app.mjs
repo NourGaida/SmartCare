@@ -2,9 +2,11 @@ import { createDemoAuth, DEMO_ACCOUNTS } from '../shared/auth.mjs';
 import { AccessError } from '../shared/domain.mjs';
 import { downloadCSV, formatTime } from '../shared/ui.mjs';
 import { createSupervisionAdapter } from './adapter.mjs';
+import { mountConnectivity } from '../shared/connectivity.mjs';
 import * as views from './views.mjs';
 
 const $ = selector => document.querySelector(selector);
+mountConnectivity($('#connectivity-notice'));
 const auth = createDemoAuth(['professional', 'administrator']);
 let adapter = null;
 let revision = 0;

@@ -2,10 +2,23 @@
 
 ## Route réellement présente
 
-SmartCareApplication déclare /api et HealthSource expose **GET /api/health**,
-réponse {"status":"ok"}. Le contexte du WAR ajoute généralement /smartcare.
+Vérification des sources au 10 novembre 2026 :
+SmartCareApplication déclare /api ; HealthSource expose **GET /api/health**,
+réponse {"status":"ok"}. DatabaseHealthSource expose **GET /api/health/database**,
+avec réponse 200 si MongoDB et le schéma sont prêts, 503 sinon.
+Ces classes se trouvent dans MiddleWare/src/main/java/com/smartcare/api.
+Le contexte du WAR ajoute généralement /smartcare.
 Aucune route d'authentification, patient, mesure, alerte ou administration n'est
 encore implémentée ici. La démonstration ne prétend pas les appeler.
+Il n'y a pas de point d'entrée WebSocket ni de mécanisme de session de test dans
+les sources examinées. Il s'agit d'un constat sur le code, pas d'une validation
+d'un serveur déployé. Les tests de persistance MongoDB ne testent pas ces accès.
+Les chemins génériques /users, /devices, /measurements, /scores, /alerts et
+/configuration annoncés dans le README racine n'ont pas de ressource REST
+correspondante dans le code à cette date.
+
+Les scénarios d'accès et les dépendances précises de la personne A envers la
+personne B sont dans [access-verification.md](access-verification.md).
 
 ## Routes proposées, non implémentées
 

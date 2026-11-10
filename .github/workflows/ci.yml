@@ -43,12 +43,15 @@ jobs:
         run: |
           node --check frontend/patient/app.js
           node --check frontend/patient/sw.js
-          for file in frontend/shared/*.mjs frontend/patient/*.mjs frontend/supervision/*.mjs frontend/supervision/sw.js frontend/supervision/fixtures/*.mjs; do
+          for file in frontend/shared/*.mjs frontend/patient/*.mjs frontend/supervision/*.mjs frontend/supervision/sw.js frontend/supervision/fixtures/*.mjs frontend/tests/*.mjs frontend/tests/fixtures/*.mjs frontend/tests/integration/*.mjs; do
             node --check "$file" || exit 1
           done
 
       - name: Test frontend roles, episodes and static resources
-        run: node --test frontend/tests/frontend.test.mjs
+        run: node --test frontend/tests/frontend.test.mjs frontend/tests/access-demo.test.mjs
+
+      - name: Report server access scenarios awaiting Person B
+        run: node --test frontend/tests/integration/access-server.test.mjs
 
   simulator:
     runs-on: ubuntu-latest

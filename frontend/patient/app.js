@@ -1,10 +1,13 @@
 // SmartCare patient interface. All readings are synthetic and held in memory.
 import { createPatientAdapter } from './adapter.mjs';
 import { DEMO_ACCOUNTS } from '../shared/auth.mjs';
-import { chartSegments, isStale, readingsCSV } from '../shared/domain.mjs';
+import { chartSegments, isStale } from '../shared/domain.mjs';
+import { downloadCSV } from '../shared/ui.mjs';
+import { mountConnectivity } from '../shared/connectivity.mjs';
 const adapter = createPatientAdapter();
 const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];
+mountConnectivity($('#connectivity-notice'));
 const time = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' });
 const fullTime = new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit' });
 const now = Date.now();
@@ -189,9 +192,7 @@ function toast(message) { $('#toast').textContent = message; $('#toast').hidden 
 function exportCSV() {
   const rows = state.route === 'history' ? historyRows().slice().reverse() : chartRows();
   if (!rows.length) { toast('No readings to export for this selection.'); return; }
-  const csv = readingsCSV(rows);
-  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
-  const link = document.createElement('a'); link.href = url; link.download = `smartcare-demo-${new Date().toISOString().slice(0, 10)}.csv`; document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+  downloadCSV(rows, 'smartcare-demo-' + new Date().toISOString().slice(0, 10) + '.csv');
   toast(`${rows.length.toLocaleString('en-GB')} demo readings exported as CSV.`);
 }
 function addReading() { state.lastReceived = adapter.nextReading(state.scenario !== 'poor').timestamp; }
