@@ -56,7 +56,7 @@ Ce document est un **livrable obligatoire** devant être complété et mis à jo
 | **Backend / API REST / Middleware** (`MiddleWare/src`, `pom.xml`) | 18 % |82 % | 0 % |
 | **Sécurité (IAM / Keycloak / mTLS)** | 15 % | 85 % | 0 % |
 | **Frontend / PWA** (`frontend/`) | 8 % | 92 % | 0 % |
-| **Scripts d'Infra / Déploiement** (`.github/workflows`) | ________ % | ________ % | 0 % |
+| **Scripts d'Infra / Déploiement** (`.github/workflows`) | 13 % | 87 % | 0 % |
 
 ---
 
