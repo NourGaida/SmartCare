@@ -1,6 +1,6 @@
 // Exact static allowlist only: no API, WebSocket, session, CSV or measurement caching.
-const CACHE = 'smartcare-supervision-static-v2';
-const STATIC = ["index.html","app.mjs","adapter.mjs","views.mjs","styles.css","icon.svg","icon-192.png","icon-512.png","manifest.webmanifest","fixtures/administrative.mjs","fixtures/clinical.mjs","../patient/styles.css","../patient/icon.svg","../shared/auth.mjs","../shared/domain.mjs","../shared/ui.mjs","../shared/forms.css"].map(file => new URL(file, self.registration.scope).href);
+const CACHE = 'smartcare-supervision-static-v3';
+const STATIC = ["index.html","app.mjs","adapter.mjs","views.mjs","styles.css","icon.svg","icon-192.png","icon-512.png","manifest.webmanifest","fixtures/administrative.mjs","fixtures/clinical.mjs","../patient/styles.css","../patient/icon.svg","../shared/auth.mjs","../shared/demo-updates.mjs","../shared/connectivity.mjs","../shared/domain.mjs","../shared/ui.mjs","../shared/forms.css"].map(file => new URL(file, self.registration.scope).href);
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(STATIC)).then(() => self.skipWaiting()));
 });

@@ -294,6 +294,7 @@ function worker(app) {
 }
 
 test('both manifests, icons, HTML/CSS references and module imports resolve to static files', () => {
+  const identities = new Set(), starts = new Set(), icons = new Set();
   for (const filename of readdirSync(root, { recursive: true }).filter(file => /\.(js|mjs)$/.test(file))) {
     const source = readFileSync(resolve(root, filename), 'utf8');
     for (const match of source.matchAll(/\b(?:from\s*|import\s*\()\s*['"](\.[^'"]+)['"]/g)) {
@@ -302,6 +303,10 @@ test('both manifests, icons, HTML/CSS references and module imports resolve to s
   }
   for (const app of ['patient', 'supervision']) {
     const manifest = JSON.parse(readFileSync(resolve(root, app, 'manifest.webmanifest')));
+    const base = new URL('https://demo.test/frontend/' + app + '/manifest.webmanifest');
+    identities.add(new URL(manifest.id, base).href);
+    starts.add(new URL(manifest.start_url, base).href);
+    icons.add(new URL(manifest.icons[0].src, base).href);
     assert.equal(manifest.scope, './');
     for (const icon of manifest.icons) {
       const png = readFileSync(resolve(root, app, icon.src));
@@ -315,7 +320,13 @@ test('both manifests, icons, HTML/CSS references and module imports resolve to s
     assert.match(html, /name="viewport"/);
     assert.match(html, /type="email"/);
     assert.match(html, /type="password"/);
+    assert.match(html, /id="connectivity-notice"/);
   }
+  assert.equal(identities.size, 2, 'Each PWA needs its own resolved identity.');
+  assert.equal(starts.size, 2, 'Launch URLs must be distinct.');
+  assert.equal(icons.size, 2, 'Each PWA must own its icon URL.');
+  assert.notDeepEqual(readFileSync(resolve(root, 'patient/icon-192.png')),
+    readFileSync(resolve(root, 'supervision/icon-192.png')), 'Install icons must be visually distinguishable.');
 });
 
 test('service workers cache distinct static resources, handle root offline and ignore API, query and non-GET requests', async () => {
@@ -333,7 +344,14 @@ test('service workers cache distinct static resources, handle root offline and i
       const relative = new URL(url).pathname.replace('/frontend/', '');
       assert.ok(existsSync(resolve(root, relative)), relative);
     }
-    for (const url of ['https://demo.test/api/readings', 'https://demo.test/frontend/' + app + '/app.js?token=demo']) {
+    for (const url of [
+      'https://demo.test/api/readings', 'https://demo.test/api/health/database',
+      'https://demo.test/smartcare/api/me/measurements', 'https://demo.test/smartcare/api/me/alerts',
+      'https://demo.test/smartcare/api/patients/patient-001/measurements/export',
+      'https://demo.test/frontend/' + app + '/history.json',
+      'https://demo.test/frontend/' + app + '/export.csv',
+      'https://demo.test/frontend/' + app + '/app.js?token=demo'
+    ]) {
       runtime.listeners.fetch({ request: { method: 'GET', url }, respondWith: () => assert.fail('Must not cache API or query requests') });
     }
     runtime.listeners.fetch({ request: { method: 'POST', url: 'https://demo.test/api/login' },
@@ -346,5 +364,15 @@ test('service workers cache distinct static resources, handle root offline and i
     runtime.listeners.fetch({ request: { method: 'GET', url: 'https://demo.test/frontend/' + app + '/' },
       respondWith: promise => { response = promise; } });
     assert.equal((await response).status, 200);
+  }
+});
+
+test('production frontend does not persist sessions, readings or alerts in browser storage', () => {
+  for (const folder of ['shared', 'patient', 'supervision']) {
+    for (const filename of readdirSync(resolve(root, folder), { recursive: true }).filter(file => /\.(js|mjs)$/.test(file))) {
+      const source = readFileSync(resolve(root, folder, filename), 'utf8');
+      assert.doesNotMatch(source, /\b(?:localStorage|sessionStorage|indexedDB)\b/, filename);
+      if (!filename.endsWith('sw.js')) assert.doesNotMatch(source, /\bcaches\s*\./, filename);
+    }
   }
 });

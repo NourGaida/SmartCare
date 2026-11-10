@@ -12,4 +12,30 @@ input:focus-visible,textarea:focus-visible{outline:3px solid #52c2c7;outline-off
 .mobile-exit{display:none}
 .skip-link{position:fixed;top:-60px;left:16px;z-index:100;background:#fff;padding:12px;color:var(--teal)}
 .skip-link:focus{top:8px}
+.connection-notice{position:relative;z-index:30;background:#fff4df;border-bottom:1px solid #e4c791;color:#79551f;padding:14px 24px;font-size:13px;line-height:1.7;overflow-wrap:anywhere}
+@media(min-width:701px){.sidebar{top:var(--connection-notice-height,0px)}}
+/* Keep long identifiers and controls inside a 360px viewport. Tables scroll locally. */
+.panel,.welcome-card,.page-heading>div,.filter-bar,.form-grid,.patient-card-header>div{min-width:0}
+.welcome-card,.page-heading h1,.patient-code,.patient-card h2,.inline-message{overflow-wrap:anywhere}
+@media(max-width:700px){
+  .connection-notice{padding:12px 16px;font-size:12px}
+  .login-form input,.login-form select,.login-form textarea,.form-grid input,.form-grid select,.filter-bar input,.filter-bar select{font-size:16px}
+  .button{white-space:normal;line-height:1.5;min-height:44px}
+  .panel-header{flex-wrap:wrap}
+  .panel-header p,.section-note,.inline-note,.chart-bottom p{font-size:11px;line-height:1.7}
+  .table-scroll{max-width:100%;overscroll-behavior-x:contain}
+  .pagination{flex-wrap:wrap;font-size:11px}
+  .status-chip{white-space:normal;line-height:1.5}
+  .navigation a{font-size:11px;min-height:48px}
+  .sidebar{height:84px}
+  .main-column{padding-bottom:94px}
+  .metric-footer,.reading-meta,.device-details>div,.device-details dd,.page-footer,.demo-footnote{font-size:11px;line-height:1.6}
+  .metric-top,.device-connection,.chart-tab,.chart-unit,.segmented button{font-size:11px}
+  .panel-header p,.table-toolbar label,.table-toolbar select,th,td,.status-chip{font-size:12px}
+  .pagination .button{min-height:40px;font-size:12px}
+  .patient-card dd{min-width:0;max-width:65%}
+  .toast{bottom:100px;font-size:12px}
+  main:focus-visible{outline:2px solid var(--teal);outline-offset:-2px}
+}
+@media(max-width:390px){.quality-bars{display:none}}
 @media(max-width:700px){.mobile-exit{display:inline-flex}.topbar-actions{gap:9px}.topbar-actions .mobile-exit{font-size:10px;min-height:36px;padding:7px 10px}.welcome-card{width:100%;padding:28px}.welcome-card h1{font-size:28px}}

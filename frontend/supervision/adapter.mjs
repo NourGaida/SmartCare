@@ -1,15 +1,19 @@
 import { administrativeFixtures } from './fixtures/administrative.mjs';
 import { requireRole, requirePatientAccess, assignedPatientIds, acknowledge,
-  filterReadings, paginate, AccessError } from '../shared/domain.mjs';
+  filterReadings, paginate, readingsCSV, AccessError } from '../shared/domain.mjs';
+import { createDemoUpdates } from '../shared/demo-updates.mjs';
 
 const copy = value => JSON.parse(JSON.stringify(value));
 const ROLES = ['patient', 'professional', 'administrator'];
 
 export function createSupervisionAdapter(auth, {
   now = () => Date.now(),
+  administrativeData = administrativeFixtures(now()),
+  updates = createDemoUpdates(),
   loadClinical = async () => (await import('./fixtures/clinical.mjs')).clinicalFixtures(now())
 } = {}) {
-  let registry = administrativeFixtures(now());
+  let registry = copy(administrativeData);
+  const subscriptions = new Set();
   let clinical = null;
   let preview = 'normal';
   let nextAccount = 1;
@@ -73,6 +77,15 @@ export function createSupervisionAdapter(auth, {
     },
     async getHistory(id, filters = {}, page = 1) {
       return paginate((await this.getMeasurements(id, filters)).reverse(), page);
+    },
+    async exportCSV(id, filters = {}) {
+      return readingsCSV(await this.getMeasurements(id, filters));
+    },
+    subscribeUpdates(id, receive) {
+      patient(id); // Reject before registering a listener or loading any clinical data.
+      const stop = updates.subscribe(id, receive, () => patient(id));
+      subscriptions.add(stop);
+      return () => { stop(); subscriptions.delete(stop); };
     },
     async getAlerts({ patientId, state = 'all' } = {}) {
       professional();
@@ -166,6 +179,7 @@ export function createSupervisionAdapter(auth, {
         : { ...registry.model, simulated: true });
     },
     logout() {
+      subscriptions.forEach(stop => stop()); subscriptions.clear();
       auth.logout();
       if (clinical) { clinical.readings = {}; clinical.alerts = []; }
       clinical = null; registry = null;
