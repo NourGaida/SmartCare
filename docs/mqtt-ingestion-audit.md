@@ -280,13 +280,18 @@ Please confirm/correct these points:
 
 ## 8. Phase 2 decisions
 
-1. **Pre-sync policy — RESOLVED 2026-11-14:** Reject measurements until the device clock is synced. Require a valid `acquiredAtUtc` and a synced `clockStatus`; no schema change. Confirm the exact synced status value with C.
-2. **Subscription wildcard:** Use `smartcare/v1/validated/+` only if `deviceId` is guaranteed to be one topic segment; otherwise use `#` or enforce the segment rule upstream.
-3. **Timestamp parser:** Prefer a strict `Instant.parse`-compatible policy and reject date-only/no-offset values, or deliberately emulate the gateway’s broader `Date.parse` behaviour.
-4. **Numeric strictness:** Reject non-integral HR/SpO2, and enforce the same technical ranges as the gateway (HR 1–300, SpO2 0–100) in the receiver.
-5. **Duplicate authority:** Keep the backend unique index as the authoritative duplicate check; treat gateway-filtered duplicates as an optimisation, not a guarantee.
-6. **Existing INFO log:** Should Phase 2 narrow `MeasurementRepository`’s duplicate log from `deviceId/bootId/sequence/clockStatus` to only `deviceId/sequence`? This is a change to existing code and needs approval.
-7. **`source`/`clockStatus` handling:** Decide whether to preserve arbitrary strings or enforce allowed values in the receiver.
+Approved 2026-11-14. These decisions supersede the open questions above.
+
+1. **Pre-sync:** Accept only if `clockStatus` is in `MQTT_ACCEPTED_CLOCK_STATUS` (environment variable, default `synced`, comma-separated, case-sensitive). Otherwise reject with reason `clock_not_synced`. No schema change.
+2. **Subscription/topic:** Subscribe to `smartcare/v1/validated/#`. The handler requires the topic to be exactly the configured prefix plus one non-empty segment equal to the payload `deviceId`. Anything else is rejected with reason `topic_mismatch`; it is counted, never silently ignored.
+3. **Timestamps:** Use strict `Instant.parse` (ISO-8601 with offset). Anything else is rejected with reason `invalid_timestamp`. Store in UTC at millisecond precision.
+4. **Numbers:** Reject non-integral `heartRate`/`spo2`; never truncate. For good readings enforce heart rate 1–300 and SpO2 0–100. Null values are allowed only where the `Measurement` rules allow them (quality not `good`, with a reason).
+5. **Identifiers/source:** `deviceId` and `bootId` must be nonblank strings. `sequence` must be a non-negative integer; because the existing `Measurement` and Mongo validator require `>= 1`, value `0` is rejected rather than stored. Keep `source` as sent: it must be a nonblank string, with no allowed-set check. The allowed `source` values remain an open question for C.
+6. **Extra fields:** Ignore extra fields such as `patientId`; never store them and never use them for ownership.
+7. **Duplicates:** The Mongo unique index remains the only authority. Gateway filtering is an optimisation.
+8. **Counters/health:** Add a `rejectedByReason` map (`reason -> count`) to the ingestion counters and to `GET /api/health/ingestion`, beside the other counters.
+9. **Test limitation:** Node-RED could not be run, so do not claim a gateway-to-receiver end-to-end test. Verify by publishing directly to the validated topic and state that limitation in the PR draft.
+10. **Execution:** Follow the rest of the Phase 2 specification, one commit per logical step, tests first. Stop after Phase 2.
 
 ## 9. Audit status summary
 
@@ -299,4 +304,4 @@ Please confirm/correct these points:
 | 4. `acquiredAtUtc`/`clockStatus` | CONFIRMED for simulator; pre-sync policy decided: reject until synced |
 | 5. Payload-to-`Measurement` mapping | CONFIRMED; several gateway/backend mismatches must be handled by the receiver |
 
-**Phase 1 stops here.** No Phase 2 source, test, schema, or gateway changes have been made. The pre-sync timestamp decision is recorded; Phase 2 awaits explicit approval.
+**Phase 2 approved 2026-11-14.** The decisions in section 8 are recorded; implementation follows, with no gateway or schema changes.
