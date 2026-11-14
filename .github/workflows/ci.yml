@@ -8,6 +8,18 @@ permissions:
 jobs:
   java:
     runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:8
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 }).ok'"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      MONGODB_URI: mongodb://localhost:27017
     steps:
       - uses: actions/checkout@v4
 
@@ -19,6 +31,15 @@ jobs:
 
       - name: Build and test
         run: mvn --batch-mode --no-transfer-progress verify
+
+      - name: Fail when tests are skipped
+        run: |
+          skipped=$(sed -n 's/.*<testsuite[^>]* skipped="\([0-9]*\)".*/\1/p' target/surefire-reports/*.xml | awk '{s+=$1} END {print s+0}')
+          echo "Skipped tests: $skipped"
+          if [ "$skipped" -gt 0 ]; then
+            echo "::error::$skipped test(s) were skipped; MongoDB integration tests must run in CI."
+            exit 1
+          fi
 
   frontend:
     name: Patient and supervision interfaces
