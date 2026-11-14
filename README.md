@@ -49,7 +49,7 @@ The target architecture: an ESP32 with a MAX30102 sensor publishes physiological
         ├──► business rules ──► alerts        (planned)
         └──► Python anomaly service ──► scores (planned)
 
- PWAs: patient · supervision (professional / administrator)
+ PWAs: frontoffice (patient) · backoffice (professional / administrator)
 ```
 
 Design principles:
@@ -65,19 +65,19 @@ Design principles:
 
 | Component | Status | Where |
 | --- | --- | --- |
-| Python MQTT simulator (7 scenarios + `all`) | Implemented, tested | `IoT/simulator/` |
-| Mosquitto broker and Node-RED (Docker Compose) | Implemented | `IoT/broker/` |
-| Node-RED validation gateway | Implemented, verified locally | `IoT/gateway/flows/flows.json` |
-| MongoDB persistence (schema validators, indexes, deduplication, repository) | Implemented, tested | `MiddleWare/src/main/java/com/smartcare/persistence/` |
-| Health endpoints (`/health`, `/health/database`) | Implemented | `MiddleWare/src/main/java/com/smartcare/api/` |
-| Patient PWA (demo data) | Implemented, demo only | `frontend/patient/` |
-| Supervision PWA (professional and administrator, demo data) | Implemented, demo only | `frontend/supervision/` |
+| Python MQTT simulator (7 scenarios + `all`) | Implemented, tested | `iot/simulator/` |
+| Mosquitto broker and Node-RED (Docker Compose) | Implemented | `iot/broker/` |
+| Node-RED validation gateway | Implemented, verified locally | `iot/gateway/flows/flows.json` |
+| MongoDB persistence (schema validators, indexes, deduplication, repository) | Implemented, tested | `middleware/core/src/main/java/com/smartcare/persistence/` |
+| Health endpoints (`/health`, `/health/database`) | Implemented | `middleware/api/src/main/java/com/smartcare/api/` |
+| Patient PWA (demo data) | Implemented, demo only | `frontends/frontoffice/` |
+| Supervision PWA (professional and administrator, demo data) | Implemented, demo only | `frontends/backoffice/` |
 | Continuous integration (Java, frontend, simulator) | Implemented | `.github/workflows/ci.yml` |
-| Backend ingestion of validated MQTT messages | Planned | not in `MiddleWare/` yet |
-| REST resources for users, devices, measurements, alerts, scores, configuration | Planned | see [`frontend/api-proposal.md`](frontend/api-proposal.md) |
+| Backend ingestion of validated MQTT messages | Planned | not in `middleware/` yet |
+| REST resources for users, devices, measurements, alerts, scores, configuration | Planned | see [`frontends/docs/api-proposal.md`](frontends/docs/api-proposal.md) |
 | Authentication, role-based authorization, audit log | Planned | frontend uses a non-secure demo login |
 | Business rules and alert creation | Planned | |
-| Python anomaly service (scores) | Planned | only [`IoT/docs/model-card.md`](IoT/docs/model-card.md) exists |
+| Python anomaly service (scores) | Planned | only [`iot/docs/model-card.md`](iot/docs/model-card.md) exists |
 | ESP32 + MAX30102 firmware | Planned | the simulator stands in for the device |
 | Frontend ↔ backend integration (REST, WebSocket) | Planned | adapters currently use in-memory fixtures |
 
@@ -88,32 +88,39 @@ Design principles:
 ```
 SmartCare/
 ├── .github/workflows/ci.yml        # CI: Java, frontend, simulator
-├── IoT/
+├── broker/                         # placeholder README; C-owned broker files stay in iot/broker/
+├── docs/                           # cross-cutting documentation, prompts
+│   ├── README.md
+│   └── prompts/
+├── frontends/
+│   ├── frontoffice/                # patient PWA
+│   ├── backoffice/                 # professional + administrator PWA
+│   ├── shared/                     # demo auth, domain rules, UI helpers
+│   ├── tests/                      # Node test suites and integration driver example
+│   ├── docs/
+│   │   ├── api-proposal.md         # proposed (not implemented) REST/WebSocket routes
+│   │   └── access-verification.md  # access-control scenarios and their status
+│   └── README.md
+├── iot/
 │   ├── broker/                     # docker-compose.yml (Mosquitto + Node-RED), mosquitto.conf
 │   ├── gateway/                    # Node-RED validation flow (flows/flows.json) + README
 │   ├── simulator/                  # Python MQTT simulator, requirements.txt, tests/
-│   └── docs/                       # message-contract.md, data-collection.md,
-│                                   # model-card.md, SmartCare_Scope_Statement.pdf
-├── MiddleWare/                     # Jakarta EE backend (Maven WAR sources)
-│   └── src/
-│       ├── main/java/com/smartcare/
-│       │   ├── api/                # SmartCareApplication, HealthSource, DatabaseHealthSource
-│       │   └── persistence/        # MongoProvider, SchemaInitializer, Measurement, repository...
-│       ├── main/webapp/WEB-INF/beans.xml
-│       └── test/java/com/smartcare/persistence/
-├── frontend/
-│   ├── patient/                    # patient PWA
-│   ├── supervision/                # professional + administrator PWA
-│   ├── shared/                     # demo auth, domain rules, UI helpers
-│   ├── tests/                      # Node test suites
-│   ├── api-proposal.md             # proposed (not implemented) REST/WebSocket routes
-│   └── access-verification.md      # access-control scenarios and their status
-├── ATTRIBUTION.md                  # origin of code and AI-usage declaration
-├── pom.xml
+│   ├── docs/                       # message-contract.md, data-collection.md,
+│   │                               # model-card.md, SmartCare_Scope_Statement.pdf
+│   └── README.md
+├── middleware/                     # Jakarta EE backend (Maven reactor)
+│   ├── core/                       # persistence layer and CDI beans
+│   ├── iam/                        # identity and access module scaffolding
+│   ├── api/                        # JAX-RS application and health endpoints (WAR)
+│   ├── pom.xml
+│   └── README.md
+├── scripts/                        # demo and recovery helpers
+│   └── README.md
+├── attribution.md                  # origin of code and AI-usage declaration
 └── README.md
 ```
 
-Component documentation: [`IoT/gateway/README.md`](IoT/gateway/README.md), [`IoT/simulator/README.md`](IoT/simulator/README.md), [`frontend/README.md`](frontend/README.md), [`IoT/docs/message-contract.md`](IoT/docs/message-contract.md).
+Component documentation: [`middleware/README.md`](middleware/README.md), [`frontends/README.md`](frontends/README.md), [`iot/README.md`](iot/README.md), [`iot/gateway/README.md`](iot/gateway/README.md), [`iot/simulator/README.md`](iot/simulator/README.md), [`docs/README.md`](docs/README.md), [`scripts/README.md`](scripts/README.md), [`broker/README.md`](broker/README.md), [`iot/docs/message-contract.md`](iot/docs/message-contract.md).
 
 ---
 
@@ -136,7 +143,7 @@ Commands below are PowerShell (the team's development environment is Windows 11)
 
 ```powershell
 docker volume create smartcare_nodered_data   # once: the volume is declared as external
-docker compose -f IoT/broker/docker-compose.yml up -d
+docker compose -f iot/broker/docker-compose.yml up -d
 ```
 
 - Mosquitto: `127.0.0.1:1883` (anonymous access, local development only)
@@ -145,18 +152,18 @@ docker compose -f IoT/broker/docker-compose.yml up -d
 ### 4.2 Import the gateway flow
 
 1. Open http://127.0.0.1:1880, then menu → **Import**.
-2. Select `IoT/gateway/flows/flows.json` and import it.
+2. Select `iot/gateway/flows/flows.json` and import it.
 3. Open the **SmartCare Mosquitto** broker node and check: server `smartcare-mosquitto`, port `1883`, no credentials.
 4. Click **Deploy** and confirm the MQTT nodes show *connected*.
 
-Details and troubleshooting: [`IoT/gateway/README.md`](IoT/gateway/README.md).
+Details and troubleshooting: [`iot/gateway/README.md`](iot/gateway/README.md).
 
 ### 4.3 Run the simulator
 
 ```powershell
 py -3 -m venv .venv-simulator
-.\.venv-simulator\Scripts\python.exe -m pip install -r IoT/simulator/requirements.txt
-.\.venv-simulator\Scripts\python.exe IoT/simulator/simulator.py --scenario normal
+.\.venv-simulator\Scripts\python.exe -m pip install -r iot/simulator/requirements.txt
+.\.venv-simulator\Scripts\python.exe iot/simulator/simulator.py --scenario normal
 ```
 
 Scenarios: `normal`, `spike`, `sustained`, `missing`, `duplicates`, `disconnect`, `invalid`, `all`. Options: `--host`, `--port`, `--device-id`, `--seed`.
@@ -170,9 +177,9 @@ docker exec -it smartcare-mosquitto mosquitto_sub -h localhost -t "smartcare/v1/
 ### 4.4 Build and deploy the backend
 
 ```powershell
-mvn clean package            # produces target\smartcare.war
+mvn -f middleware/pom.xml clean package            # produces middleware\api\target\smartcare.war
 $wildfly = "<path-to-wildfly-42.0.0.Final>"
-& "$wildfly\bin\jboss-cli.bat" --connect --command="deploy <path-to-repo>\target\smartcare.war --force"
+& "$wildfly\bin\jboss-cli.bat" --connect --command="deploy <path-to-repo>\middleware\api\target\smartcare.war --force"
 curl http://localhost:8080/smartcare/api/health          # {"status":"ok"}
 curl http://localhost:8080/smartcare/api/health/database # 200 if MongoDB and schema are ready, 503 otherwise
 ```
@@ -185,7 +192,7 @@ The URL is composed of `/smartcare` (WAR name), `/api` (`@ApplicationPath`) and 
 py -3 -m http.server 8080 --bind 127.0.0.1
 ```
 
-Then open http://127.0.0.1:8080/frontend/patient/ and http://127.0.0.1:8080/frontend/supervision/. Do not open the files with `file://`: modules and service workers need HTTP. If WildFly is running on port 8080, use another port (for example 8081). Demo accounts are listed in [`frontend/README.md`](frontend/README.md).
+Then open http://127.0.0.1:8080/frontends/frontoffice/ and http://127.0.0.1:8080/frontends/backoffice/. Do not open the files with `file://`: modules and service workers need HTTP. If WildFly is running on port 8080, use another port (for example 8081). Demo accounts are listed in [`frontends/README.md`](frontends/README.md).
 
 ---
 
@@ -216,13 +223,13 @@ Example raw measurement (JSON, UTF-8, QoS 1, no retain):
 }
 ```
 
-A logical measurement is identified by `(deviceId, bootId, sequence)`. QoS 1 can redeliver, so the backend deduplicates on this key. There is no `patientId` in the message: the device-to-patient association is owned by the backend. The contract is *observed from the simulator* and still has to be validated by the team; see [`IoT/docs/message-contract.md`](IoT/docs/message-contract.md).
+A logical measurement is identified by `(deviceId, bootId, sequence)`. QoS 1 can redeliver, so the backend deduplicates on this key. There is no `patientId` in the message: the device-to-patient association is owned by the backend. The contract is *observed from the simulator* and still has to be validated by the team; see [`iot/docs/message-contract.md`](iot/docs/message-contract.md).
 
 ---
 
 ## 6. Backend and data model
 
-The backend (`MiddleWare/`, Maven WAR, Jakarta EE 11, JAX-RS, MongoDB sync driver) currently provides the persistence layer and two health endpoints.
+The backend (`middleware/`, Maven reactor with `core`, `iam` and `api`, Jakarta EE 11, JAX-RS, MongoDB sync driver) currently provides the persistence layer and two health endpoints. The `api` module produces the WAR.
 
 `SchemaInitializer` creates the following MongoDB collections with JSON-schema validators and indexes (database `smartcare`):
 
@@ -246,7 +253,7 @@ Base path: `/smartcare/api`
 | --- | --- | --- |
 | GET | `/health` | Implemented: `{"status":"ok"}` |
 | GET | `/health/database` | Implemented: 200 when MongoDB and the schema are ready, 503 otherwise |
-| various | `/auth`, `/me`, `/patients`, `/alerts`, `/admin/*`, `/events` (WebSocket) | **Proposed, not implemented**: [`frontend/api-proposal.md`](frontend/api-proposal.md) |
+| various | `/auth`, `/me`, `/patients`, `/alerts`, `/admin/*`, `/events` (WebSocket) | **Proposed, not implemented**: [`frontends/docs/api-proposal.md`](frontends/docs/api-proposal.md) |
 
 The generic resources `/users`, `/devices`, `/measurements`, `/scores`, `/alerts` and `/configuration` from the original design are not implemented yet.
 
@@ -256,10 +263,10 @@ The generic resources `/users`, `/devices`, `/measurements`, `/scores`, `/alerts
 
 Two native HTML/CSS/JavaScript applications, no npm install and no build step:
 
-- **Patient** (`frontend/patient/`): dashboard (heart rate, SpO₂, quality, charts), paginated history with CSV export, alerts, device status.
-- **Supervision** (`frontend/supervision/`): professional view (assigned patients, details, alerts and acknowledgement) and administrator view (accounts, assignments, devices, service and model status; no clinical data).
+- **Patient** (`frontends/frontoffice/`): dashboard (heart rate, SpO₂, quality, charts), paginated history with CSV export, alerts, device status.
+- **Supervision** (`frontends/backoffice/`): professional view (assigned patients, details, alerts and acknowledgement) and administrator view (accounts, assignments, devices, service and model status; no clinical data).
 
-The two apps have separate manifests, scopes, icons and service-worker caches. They currently run on in-memory demo fixtures: the login is a **non-secure demonstration** with public credentials, and nothing is persisted in `localStorage`, `sessionStorage`, IndexedDB or caches. Real backend integration (REST, WebSocket, server-side authorization) is pending; see [`frontend/access-verification.md`](frontend/access-verification.md) for the access scenarios waiting on it.
+The two apps have separate manifests, scopes, icons and service-worker caches. They currently run on in-memory demo fixtures: the login is a **non-secure demonstration** with public credentials, and nothing is persisted in `localStorage`, `sessionStorage`, IndexedDB or caches. Real backend integration (REST, WebSocket, server-side authorization) is pending; see [`frontends/docs/access-verification.md`](frontends/docs/access-verification.md) for the access scenarios waiting on it.
 
 ---
 
@@ -294,14 +301,14 @@ Known development-only settings: Mosquitto allows anonymous access and has no TL
 
 | Suite | Command | Notes |
 | --- | --- | --- |
-| Simulator | `python -m pytest IoT/simulator/tests -v` | No broker required |
-| Frontend | `node --test frontend/tests/frontend.test.mjs frontend/tests/access-demo.test.mjs` | Node 22, no dependencies |
-| Backend | `mvn --batch-mode --no-transfer-progress verify` | The persistence integration tests need MongoDB on `localhost:27017` |
-| Gateway | manual | See [`IoT/gateway/README.md`](IoT/gateway/README.md); no automated gateway test yet |
+| Simulator | `python -m unittest iot.simulator.tests.test_simulator -v` | No broker required |
+| Frontend | `node --test frontends/tests/frontend.test.mjs frontends/tests/access-demo.test.mjs` | Node 22, no dependencies |
+| Backend | `mvn --batch-mode --no-transfer-progress -f middleware/pom.xml verify` | The persistence integration tests need MongoDB on `localhost:27017` |
+| Gateway | manual | See [`iot/gateway/README.md`](iot/gateway/README.md); no automated gateway test yet |
 
-Server-side access scenarios in `frontend/tests/integration/access-server.test.mjs` are reported as *skipped/blocked* until the backend routes exist; they are not counted as passing tests.
+Server-side access scenarios in `frontends/tests/integration/access-server.test.mjs` are reported as *skipped/blocked* until the backend routes exist; they are not counted as passing tests.
 
-GitHub Actions (`.github/workflows/ci.yml`) runs three jobs on every push and pull request: **java** (`mvn verify`, JDK 25), **frontend** (file checks, `node --check`, `node --test`) and **simulator** (syntax check and pytest).
+GitHub Actions (`.github/workflows/ci.yml`) runs three jobs on every push and pull request: **java** (`mvn -f middleware/pom.xml verify`, JDK 25), **frontend** (file checks, `node --check`, `node --test`) and **simulator** (syntax check and unittest).
 
 ---
 
@@ -310,7 +317,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs three jobs on every push and pu
 - `main` is the evaluated branch. Integrate early and often; do not leave work on isolated branches.
 - Open a Pull Request for each feature, reviewed and approved by another team member, then merge into `main`.
 - Never commit `target/`, logs, IDE metadata, `.env` files (except `.env.example`), passwords, API keys or database credentials.
-- [`ATTRIBUTION.md`](ATTRIBUTION.md) must stay at the repository root and be updated every sprint with the origin of code and the use of AI assistants.
+- [`attribution.md`](attribution.md) must stay at the repository root and be updated every sprint with the origin of code and the use of AI assistants.
 
 ---
 
@@ -320,4 +327,4 @@ GitHub Actions (`.github/workflows/ci.yml`) runs three jobs on every push and pu
 - Measurements and anomaly scores are experimental estimates, not diagnoses.
 - No real device yet: data comes from the simulator.
 - The backend does not yet consume MQTT, expose business endpoints or enforce authentication; the PWAs run on demo data.
-- The frontend has not been checked in a real browser, on a physical phone, or installed as a PWA (see [`frontend/README.md`](frontend/README.md)).
+- The frontend has not been checked in a real browser, on a physical phone, or installed as a PWA (see [`frontends/README.md`](frontends/README.md)).
