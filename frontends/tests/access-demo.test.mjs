@@ -4,8 +4,8 @@ import assert from 'node:assert/strict';
 import { createDemoAuth, DEMO_ACCOUNTS } from '../shared/auth.mjs';
 import { AccessError } from '../shared/domain.mjs';
 import { createDemoUpdates } from '../shared/demo-updates.mjs';
-import { createPatientAdapter } from '../patient/adapter.mjs';
-import { createSupervisionAdapter } from '../supervision/adapter.mjs';
+import { createPatientAdapter } from '../frontoffice/adapter.mjs';
+import { createSupervisionAdapter } from '../backoffice/adapter.mjs';
 import { mountConnectivity } from '../shared/connectivity.mjs';
 import { accessCases, accessFixtures } from './fixtures/access.mjs';
 

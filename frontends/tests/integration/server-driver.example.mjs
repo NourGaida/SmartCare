@@ -1,6 +1,6 @@
 // Contract for Person B's REAL server test adapter; deliberately not a mock.
 // Implement in a separate local file and point SMARTCARE_SERVER_DRIVER at that file.
-// Read frontend/access-verification.md before wiring real URLs and session handling.
+// Read frontends/docs/access-verification.md before wiring real URLs and session handling.
 export async function createServerDriver() {
   const missing = operation => { throw new Error('Person B integration is not implemented: ' + operation); };
   return {

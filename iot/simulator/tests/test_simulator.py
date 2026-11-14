@@ -5,7 +5,7 @@ from contextlib import redirect_stdout
 from datetime import datetime, timedelta, timezone
 from unittest.mock import Mock, patch
 
-from IoT.simulator import simulator
+from iot.simulator import simulator
 
 
 class FakeClock:

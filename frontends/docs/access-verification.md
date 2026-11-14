@@ -8,7 +8,7 @@ Les autorisations et l'authentification serveur appartiennent à la personne B.
 - GET /api/health : HealthSource.
 - GET /api/health/database : DatabaseHealthSource, 200 ou 503.
 - Préfixe /api : SmartCareApplication ; contexte du WAR généralement /smartcare.
-- Les sources se trouvent dans MiddleWare/src/main/java/com/smartcare/api.
+- Les sources se trouvent dans middleware/api/src/main/java/com/smartcare/api.
 - Aucune route de session, historique, export, ni classe WebSocket n'est présente.
 - Les sessions frontend sont des objets en mémoire, pas des sessions serveur.
 - Les tests MongoDB existants concernent la persistance, sans valider ces accès.
@@ -19,7 +19,7 @@ Les propositions de routes dans api-proposal.md restent à valider.
 
 ## Données et matrice communes
 
-tests/fixtures/access.mjs crée patient-001 et patient-002, un professionnel pro-001
+frontends/tests/fixtures/access.mjs crée patient-001 et patient-002, un professionnel pro-001
 affecté uniquement à patient-001 et un administrateur admin-001. Chaque patient a
 une mesure portant un deviceId marqueur différent. Ce sont des données fictives.
 Un compte patient-002 supplémentaire sert de témoin de livraison live autorisée.
@@ -35,7 +35,7 @@ Un compte patient-002 supplémentaire sert de témoin de livraison live autoris�
 ## Tests frontend exécutables maintenant
 
 ~~~powershell
-node --test frontend/tests/frontend.test.mjs frontend/tests/access-demo.test.mjs
+node --test frontends/tests/frontend.test.mjs frontends/tests/access-demo.test.mjs
 ~~~
 
 Les tests passent par les adaptateurs réellement utilisés par la démo, avec une
@@ -52,7 +52,7 @@ un WebSocket et ces tests ne prouvent pas la sécurité du serveur**.
 ## Tests d'intégration préparés, actuellement bloqués
 
 ~~~powershell
-node --test frontend/tests/integration/access-server.test.mjs
+node --test frontends/tests/integration/access-server.test.mjs
 ~~~
 
 Résultat attendu aujourd'hui : 15 SKIP/BLOCKED, avec la dépendance précise affichée
@@ -66,7 +66,7 @@ dans chaque scénario. Le CI les rapporte séparément des réussites frontend.
 | Commun aux 15 | Quatre sessions réelles : A, B témoin live, professionnel et admin ; provisionnement/nettoyage isolé des fixtures ; cookies/token et CSRF selon contrat. |
 | Témoins live | Injection déterministe de mesures A et B et livraison constatée aux deux abonnements autorisés ; le silence d'un serveur inactif ne doit pas faire réussir un refus. |
 
-Le driver exemple est dans tests/integration/server-driver.example.mjs. Il expose
+Le driver exemple est dans frontends/tests/integration/server-driver.example.mjs. Il expose
 setup, login, history, csv, live, inject et cleanup ; ses méthodes sont volontairement
 non implémentées et ne génèrent aucune fausse réponse. Les marqueurs doivent provenir
 des octets REST/CSV et frames WebSocket reçus, pas être ajoutés par le driver.
@@ -77,7 +77,7 @@ un fichier local, puis le sélectionner explicitement :
 
 ~~~powershell
 $env:SMARTCARE_SERVER_DRIVER = 'C:\chemin\vers\server-driver.mjs'
-node --test frontend/tests/integration/access-server.test.mjs
+node --test frontends/tests/integration/access-server.test.mjs
 Remove-Item Env:\SMARTCARE_SERVER_DRIVER
 ~~~
 

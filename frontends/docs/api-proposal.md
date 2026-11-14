@@ -6,7 +6,7 @@ Vérification des sources au 10 novembre 2026 :
 SmartCareApplication déclare /api ; HealthSource expose **GET /api/health**,
 réponse {"status":"ok"}. DatabaseHealthSource expose **GET /api/health/database**,
 avec réponse 200 si MongoDB et le schéma sont prêts, 503 sinon.
-Ces classes se trouvent dans MiddleWare/src/main/java/com/smartcare/api.
+Ces classes se trouvent dans middleware/api/src/main/java/com/smartcare/api.
 Le contexte du WAR ajoute généralement /smartcare.
 Aucune route d'authentification, patient, mesure, alerte ou administration n'est
 encore implémentée ici. La démonstration ne prétend pas les appeler.

@@ -6,11 +6,11 @@ import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 import { createDemoAuth, DEMO_ACCOUNTS } from '../shared/auth.mjs';
 import { AccessError, chartSegments, filterReadings, paginate, readingsCSV, isStale } from '../shared/domain.mjs';
-import { createPatientAdapter } from '../patient/adapter.mjs';
-import { createSupervisionAdapter } from '../supervision/adapter.mjs';
-import { administrativeFixtures } from '../supervision/fixtures/administrative.mjs';
-import { clinicalFixtures } from '../supervision/fixtures/clinical.mjs';
-import * as views from '../supervision/views.mjs';
+import { createPatientAdapter } from '../frontoffice/adapter.mjs';
+import { createSupervisionAdapter } from '../backoffice/adapter.mjs';
+import { administrativeFixtures } from '../backoffice/fixtures/administrative.mjs';
+import { clinicalFixtures } from '../backoffice/fixtures/clinical.mjs';
+import * as views from '../backoffice/views.mjs';
 
 const NOW = Date.UTC(2026, 10, 1, 12);
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -284,7 +284,7 @@ function worker(app) {
   const cache = { addAll: async urls => { writes.push(...urls); },
     put: async (key, value) => { cached.set(key, value); },
     match: async key => cached.get(key) };
-  const context = { URL, self: { registration: { scope: 'https://demo.test/frontend/' + app + '/' },
+  const context = { URL, self: { registration: { scope: 'https://demo.test/frontends/' + app + '/' },
     addEventListener: (type, handler) => { listeners[type] = handler; },
     skipWaiting: () => {}, clients: { claim: () => {} } },
     caches: { open: async () => cache, keys: async () => [], delete: async () => true },
@@ -301,9 +301,9 @@ test('both manifests, icons, HTML/CSS references and module imports resolve to s
       assert.ok(existsSync(resolve(dirname(resolve(root, filename)), match[1])), filename + ': ' + match[1]);
     }
   }
-  for (const app of ['patient', 'supervision']) {
+  for (const app of ['frontoffice', 'backoffice']) {
     const manifest = JSON.parse(readFileSync(resolve(root, app, 'manifest.webmanifest')));
-    const base = new URL('https://demo.test/frontend/' + app + '/manifest.webmanifest');
+    const base = new URL('https://demo.test/frontends/' + app + '/manifest.webmanifest');
     identities.add(new URL(manifest.id, base).href);
     starts.add(new URL(manifest.start_url, base).href);
     icons.add(new URL(manifest.icons[0].src, base).href);
@@ -325,50 +325,50 @@ test('both manifests, icons, HTML/CSS references and module imports resolve to s
   assert.equal(identities.size, 2, 'Each PWA needs its own resolved identity.');
   assert.equal(starts.size, 2, 'Launch URLs must be distinct.');
   assert.equal(icons.size, 2, 'Each PWA must own its icon URL.');
-  assert.notDeepEqual(readFileSync(resolve(root, 'patient/icon-192.png')),
-    readFileSync(resolve(root, 'supervision/icon-192.png')), 'Install icons must be visually distinguishable.');
+  assert.notDeepEqual(readFileSync(resolve(root, 'frontoffice/icon-192.png')),
+    readFileSync(resolve(root, 'backoffice/icon-192.png')), 'Install icons must be visually distinguishable.');
 });
 
 test('service workers cache distinct static resources, handle root offline and ignore API, query and non-GET requests', async () => {
-  const sources = ['patient', 'supervision'].map(app => readFileSync(resolve(root, app, 'sw.js'), 'utf8'));
+  const sources = ['frontoffice', 'backoffice'].map(app => readFileSync(resolve(root, app, 'sw.js'), 'utf8'));
   assert.ok(sources[0].includes('smartcare-patient-static-'));
   assert.ok(sources[1].includes('smartcare-supervision-static-'));
   assert.ok(!sources[1].includes("startsWith('smartcare-patient"));
-  for (const app of ['patient', 'supervision']) {
+  for (const app of ['frontoffice', 'backoffice']) {
     const runtime = worker(app);
     let installation;
     runtime.listeners.install({ waitUntil: promise => { installation = promise; } });
     await installation;
     for (const url of runtime.writes) {
       assert.match(url, /\.(html|css|js|mjs|png|svg|webmanifest)$/);
-      const relative = new URL(url).pathname.replace('/frontend/', '');
+      const relative = new URL(url).pathname.replace('/frontends/', '');
       assert.ok(existsSync(resolve(root, relative)), relative);
     }
     for (const url of [
       'https://demo.test/api/readings', 'https://demo.test/api/health/database',
       'https://demo.test/smartcare/api/me/measurements', 'https://demo.test/smartcare/api/me/alerts',
       'https://demo.test/smartcare/api/patients/patient-001/measurements/export',
-      'https://demo.test/frontend/' + app + '/history.json',
-      'https://demo.test/frontend/' + app + '/export.csv',
-      'https://demo.test/frontend/' + app + '/app.js?token=demo'
+      'https://demo.test/frontends/' + app + '/history.json',
+      'https://demo.test/frontends/' + app + '/export.csv',
+      'https://demo.test/frontends/' + app + '/app.js?token=demo'
     ]) {
       runtime.listeners.fetch({ request: { method: 'GET', url }, respondWith: () => assert.fail('Must not cache API or query requests') });
     }
     runtime.listeners.fetch({ request: { method: 'POST', url: 'https://demo.test/api/login' },
       respondWith: () => assert.fail('Must not cache POST') });
     let response;
-    runtime.listeners.fetch({ request: { method: 'GET', url: 'https://demo.test/frontend/' + app + '/' },
+    runtime.listeners.fetch({ request: { method: 'GET', url: 'https://demo.test/frontends/' + app + '/' },
       respondWith: promise => { response = promise; } });
     assert.equal((await response).status, 200);
     runtime.context.fetch = async () => { throw new Error('offline'); };
-    runtime.listeners.fetch({ request: { method: 'GET', url: 'https://demo.test/frontend/' + app + '/' },
+    runtime.listeners.fetch({ request: { method: 'GET', url: 'https://demo.test/frontends/' + app + '/' },
       respondWith: promise => { response = promise; } });
     assert.equal((await response).status, 200);
   }
 });
 
 test('production frontend does not persist sessions, readings or alerts in browser storage', () => {
-  for (const folder of ['shared', 'patient', 'supervision']) {
+  for (const folder of ['shared', 'frontoffice', 'backoffice']) {
     for (const filename of readdirSync(resolve(root, folder), { recursive: true }).filter(file => /\.(js|mjs)$/.test(file))) {
       const source = readFileSync(resolve(root, folder, filename), 'utf8');
       assert.doesNotMatch(source, /\b(?:localStorage|sessionStorage|indexedDB)\b/, filename);

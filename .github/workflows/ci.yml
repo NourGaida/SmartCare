@@ -30,11 +30,11 @@ jobs:
           cache: maven
 
       - name: Build and test
-        run: mvn --batch-mode --no-transfer-progress verify
+        run: mvn --batch-mode --no-transfer-progress -f middleware/pom.xml verify
 
       - name: Fail when tests are skipped
         run: |
-          skipped=$(sed -n 's/.*<testsuite[^>]* skipped="\([0-9]*\)".*/\1/p' target/surefire-reports/*.xml | awk '{s+=$1} END {print s+0}')
+          skipped=$(sed -n 's/.*<testsuite[^>]* skipped="\([0-9]*\)".*/\1/p' middleware/*/target/surefire-reports/*.xml | awk '{s+=$1} END {print s+0}')
           echo "Skipped tests: $skipped"
           if [ "$skipped" -gt 0 ]; then
             echo "::error::$skipped test(s) were skipped; MongoDB integration tests must run in CI."
@@ -42,7 +42,7 @@ jobs:
           fi
 
   frontend:
-    name: Patient and supervision interfaces
+    name: Frontoffice and backoffice interfaces
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -53,26 +53,26 @@ jobs:
 
       - name: Check required files
         run: |
-          test -f frontend/patient/index.html
-          test -f frontend/patient/styles.css
-          test -f frontend/patient/manifest.webmanifest
-          test -f frontend/supervision/index.html
-          test -f frontend/supervision/styles.css
-          test -f frontend/supervision/manifest.webmanifest
+          test -f frontends/frontoffice/index.html
+          test -f frontends/frontoffice/styles.css
+          test -f frontends/frontoffice/manifest.webmanifest
+          test -f frontends/backoffice/index.html
+          test -f frontends/backoffice/styles.css
+          test -f frontends/backoffice/manifest.webmanifest
 
       - name: Check JavaScript syntax
         run: |
-          node --check frontend/patient/app.js
-          node --check frontend/patient/sw.js
-          for file in frontend/shared/*.mjs frontend/patient/*.mjs frontend/supervision/*.mjs frontend/supervision/sw.js frontend/supervision/fixtures/*.mjs frontend/tests/*.mjs frontend/tests/fixtures/*.mjs frontend/tests/integration/*.mjs; do
+          node --check frontends/frontoffice/app.js
+          node --check frontends/frontoffice/sw.js
+          for file in frontends/shared/*.mjs frontends/frontoffice/*.mjs frontends/backoffice/*.mjs frontends/backoffice/sw.js frontends/backoffice/fixtures/*.mjs frontends/tests/*.mjs frontends/tests/fixtures/*.mjs frontends/tests/integration/*.mjs; do
             node --check "$file" || exit 1
           done
 
       - name: Test frontend roles, episodes and static resources
-        run: node --test frontend/tests/frontend.test.mjs frontend/tests/access-demo.test.mjs
+        run: node --test frontends/tests/frontend.test.mjs frontends/tests/access-demo.test.mjs
 
       - name: Report server access scenarios awaiting Person B
-        run: node --test frontend/tests/integration/access-server.test.mjs
+        run: node --test frontends/tests/integration/access-server.test.mjs
 
   simulator:
     runs-on: ubuntu-latest
@@ -85,13 +85,12 @@ jobs:
 
       - name: Install simulator dependencies
         run: |
-          python -m pip install -r IoT/simulator/requirements.txt
-          python -m pip install pytest
+          python -m pip install -r iot/simulator/requirements.txt
 
       - name: Check simulator syntax
         run: |
-          test -f IoT/simulator/simulator.py
-          python -m compileall -q IoT/simulator
+          test -f iot/simulator/simulator.py
+          python -m compileall -q iot/simulator
 
       - name: Test simulator scenarios
-        run: python -m pytest IoT/simulator/tests -v
+        run: python -m unittest iot.simulator.tests.test_simulator -v

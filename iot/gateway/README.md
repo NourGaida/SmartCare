@@ -32,7 +32,7 @@ Both outputs are published to the Mosquitto broker. Other SmartCare services can
 ## Repository files
 
 ```text
-IoT/
+iot/
 ├── broker/
 │   └── mosquitto.conf
 ├── gateway/
@@ -58,7 +58,7 @@ The commands below assume the local Docker containers are named `smartcare-mosqu
 
 ## 1. Start Mosquitto
 
-The project broker configuration is in `IoT/broker/mosquitto.conf`:
+The project broker configuration is in `iot/broker/mosquitto.conf`:
 
 ```conf
 listener 1883 0.0.0.0
@@ -72,7 +72,7 @@ For a local development setup, you can start Mosquitto from the **repository roo
 ```powershell
 docker run -d --name smartcare-mosquitto `
   -p 1883:1883 `
-  -v "${PWD}/IoT/broker/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro" `
+  -v "${PWD}/iot/broker/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro" `
   -v smartcare-mosquitto-data:/mosquitto/data `
   eclipse-mosquitto:2
 ```
@@ -111,7 +111,7 @@ The named `/data` volume preserves Node-RED changes between container restarts. 
 
 1. Open Node-RED at **http://localhost:1880**.
 2. Open the top-right menu → **Import**.
-3. Select `IoT/gateway/flows/flows.json` from this repository.
+3. Select `iot/gateway/flows/flows.json` from this repository.
 4. Import the flow into a workspace.
 5. Open the **SmartCare Mosquitto** broker configuration node and verify:
    - **Server:** `smartcare-mosquitto` when both containers share a Docker network.
@@ -211,7 +211,7 @@ Using stdin (`-s`) avoids PowerShell/Docker quote-escaping issues when publishin
 Run the SmartCare Python simulator using its supported CLI options and point it at the broker on `localhost:1883`. You can inspect its options with:
 
 ```powershell
-python IoT/simulator/simulator.py --help
+python iot/simulator/simulator.py --help
 ```
 
 Subscribe to `smartcare/v1/validated/#` and confirm that correctly formed messages arrive. The simulator supports test scenarios including normal readings, spikes, invalid readings, duplicates, and disconnections.
@@ -221,7 +221,7 @@ Subscribe to `smartcare/v1/validated/#` and confirm that correctly formed messag
 From the repository root, with the Python environment activated:
 
 ```powershell
-python -m pytest IoT/simulator/tests -v
+python -m unittest iot.simulator.tests.test_simulator -v
 ```
 
 At the time this gateway flow was exported, the simulator test run reported **27 passed and 22 subtests passed**. These are simulator tests, not a complete automated test suite for the Node-RED gateway.
@@ -245,7 +245,7 @@ At the time this gateway flow was exported, the simulator test run reported **27
 - Mosquitto receives raw measurements.
 - Node-RED routes accepted measurements to `validated`.
 - Node-RED routes invalid measurements to `rejected` with a reason.
-- The flow is exported to `IoT/gateway/flows/flows.json`.
+- The flow is exported to `iot/gateway/flows/flows.json`.
 
 **Still to be integrated or verified:**
 

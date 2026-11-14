@@ -27,5 +27,5 @@ __pycache__/
 node_modules/
 
 # Local SmartCare backups
-IoT/gateway/nodered-data-backup/
-IoT/broker/docker-compose.yml.backup
+iot/gateway/nodered-data-backup/
+iot/broker/docker-compose.yml.backup

@@ -11,7 +11,7 @@ Depuis la racine du dépôt, dans PowerShell :
 
 ```powershell
 py -3 -m venv .venv-simulator
-.\.venv-simulator\Scripts\python.exe -m pip install -r SmartCare/simulator/requirements.txt
+.\.venv-simulator\Scripts\python.exe -m pip install -r iot/simulator/requirements.txt
 ```
 
 Pour choisir explicitement Python 3.8, remplacer `py -3` par `py -3.8`
@@ -23,14 +23,14 @@ Un broker MQTT doit écouter sur `localhost:1883`. Chaque commande ci-dessous
 s'exécute depuis la racine du dépôt :
 
 ```powershell
-.\.venv-simulator\Scripts\python.exe SmartCare/simulator/simulator.py --scenario normal
-.\.venv-simulator\Scripts\python.exe SmartCare/simulator/simulator.py --scenario spike
-.\.venv-simulator\Scripts\python.exe SmartCare/simulator/simulator.py --scenario sustained
-.\.venv-simulator\Scripts\python.exe SmartCare/simulator/simulator.py --scenario missing
-.\.venv-simulator\Scripts\python.exe SmartCare/simulator/simulator.py --scenario duplicates
-.\.venv-simulator\Scripts\python.exe SmartCare/simulator/simulator.py --scenario disconnect
-.\.venv-simulator\Scripts\python.exe SmartCare/simulator/simulator.py --scenario invalid
-.\.venv-simulator\Scripts\python.exe SmartCare/simulator/simulator.py --scenario all
+.\.venv-simulator\Scripts\python.exe iot/simulator/simulator.py --scenario normal
+.\.venv-simulator\Scripts\python.exe iot/simulator/simulator.py --scenario spike
+.\.venv-simulator\Scripts\python.exe iot/simulator/simulator.py --scenario sustained
+.\.venv-simulator\Scripts\python.exe iot/simulator/simulator.py --scenario missing
+.\.venv-simulator\Scripts\python.exe iot/simulator/simulator.py --scenario duplicates
+.\.venv-simulator\Scripts\python.exe iot/simulator/simulator.py --scenario disconnect
+.\.venv-simulator\Scripts\python.exe iot/simulator/simulator.py --scenario invalid
+.\.venv-simulator\Scripts\python.exe iot/simulator/simulator.py --scenario all
 ```
 
 Options : `--scenario` (défaut : `all`), `--host` (défaut : `localhost`),
@@ -38,7 +38,7 @@ Options : `--scenario` (défaut : `all`), `--host` (défaut : `localhost`),
 `--seed` (défaut : `42`). Exemple personnalisé :
 
 ```powershell
-.\.venv-simulator\Scripts\python.exe SmartCare/simulator/simulator.py --scenario normal --host localhost --port 1883 --device-id sc-002 --seed 123
+.\.venv-simulator\Scripts\python.exe iot/simulator/simulator.py --scenario normal --host localhost --port 1883 --device-id sc-002 --seed 123
 ```
 
 | Scénario | Résultat attendu |
@@ -90,15 +90,15 @@ du message par le backend.
 Depuis la racine sous Windows :
 
 ```powershell
-.\.venv-simulator\Scripts\python.exe -m compileall -q SmartCare/simulator
-.\.venv-simulator\Scripts\python.exe -m unittest discover -s SmartCare/simulator/tests -v
+.\.venv-simulator\Scripts\python.exe -m compileall -q iot/simulator
+.\.venv-simulator\Scripts\python.exe -m unittest iot.simulator.tests.test_simulator -v
 ```
 
 Le travail `simulator` du CI garde le contrôle de syntaxe, installe
 `requirements.txt`, puis exécute :
 
 ```sh
-python3 -m unittest discover -s SmartCare/simulator/tests -v
+python -m unittest iot.simulator.tests.test_simulator -v
 ```
 
 Les tests vérifient les scénarios, les cadences, la reproductibilité, le format

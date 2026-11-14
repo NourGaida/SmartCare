@@ -16,8 +16,8 @@ py -3 -m http.server 8080 --bind 127.0.0.1
 Garder ce terminal ouvert. Dans un deuxième terminal :
 
 ~~~powershell
-Start-Process 'http://127.0.0.1:8080/frontend/patient/'
-Start-Process 'http://127.0.0.1:8080/frontend/supervision/'
+Start-Process 'http://127.0.0.1:8080/frontends/frontoffice/'
+Start-Process 'http://127.0.0.1:8080/frontends/backoffice/'
 ~~~
 
 Les applications utilisent le même serveur statique et des chemins distincts.
@@ -120,15 +120,15 @@ gardent leur contenu en cas d'échec.
 
 | Fichier / dossier | Responsabilité |
 | --- | --- |
-| patient/index.html, styles.css | Structure et design patient, connexion et navigation accessible. |
-| patient/app.js | Événements, navigation, rendu et cadence du flux fictif. |
-| patient/fixtures.mjs | Mesures et alertes patient fictives. |
-| patient/adapter.mjs | Login/logout, lectures, historique, alertes et appareil. |
-| supervision/app.mjs | Session, navigation par rôle, formulaires et compteurs. |
-| supervision/views.mjs | Fonctions de rendu et composants, textes variables échappés. |
-| supervision/adapter.mjs | Accès, gardes de rôle/affectation, mutations en mémoire. |
-| supervision/fixtures/administrative.mjs | Registre et opérations, sans données physiologiques. |
-| supervision/fixtures/clinical.mjs | Séries/épisodes fictifs, importés après les contrôles professionnels. |
+| frontoffice/index.html, styles.css | Structure et design patient, connexion et navigation accessible. |
+| frontoffice/app.js | Événements, navigation, rendu et cadence du flux fictif. |
+| frontoffice/fixtures.mjs | Mesures et alertes patient fictives. |
+| frontoffice/adapter.mjs | Login/logout, lectures, historique, alertes et appareil. |
+| backoffice/app.mjs | Session, navigation par rôle, formulaires et compteurs. |
+| backoffice/views.mjs | Fonctions de rendu et composants, textes variables échappés. |
+| backoffice/adapter.mjs | Accès, gardes de rôle/affectation, mutations en mémoire. |
+| backoffice/fixtures/administrative.mjs | Registre et opérations, sans données physiologiques. |
+| backoffice/fixtures/clinical.mjs | Séries/épisodes fictifs, importés après les contrôles professionnels. |
 | shared/auth.mjs | Adaptateur de connexion de démo, sans persistance. |
 | shared/domain.mjs | Autorisations, acquittement, filtre, pagination, fraîcheur, segmentation et CSV. |
 | shared/ui.mjs, forms.css | Échappement, courbes, export et formulaires communs. |
@@ -145,8 +145,8 @@ ligne est nécessaire pour le cache statique.
 
 ## Intégration backend
 
-Voir [api-proposal.md](api-proposal.md). GET /api/health et GET /api/health/database
-existent actuellement dans MiddleWare, relativement au contexte du WAR
+Voir [api-proposal.md](docs/api-proposal.md). GET /api/health et GET /api/health/database
+existent actuellement dans middleware, relativement au contexte du WAR
 (/smartcare par défaut). Toutes les autres routes
 sont **à valider avec la personne B**.
 
@@ -159,16 +159,16 @@ La résolution des épisodes reste indépendante et gérée par le backend.
 Les lignes de vue utilisent timestamp en millisecondes, hr en bpm, spo2 en %,
 quality, reason, deviceId et source. L'adaptateur réel devra convertir les DTO
 validés du backend ; le navigateur ne se connecte pas directement à MQTT.
-Le [contrat MQTT observé](../IoT/docs/message-contract.md) décrit le simulateur.
+Le [contrat MQTT observé](../iot/docs/message-contract.md) décrit le simulateur.
 
 ## Vérifications
 
 Node.js 22, sans dépendances, depuis la racine :
 
 ~~~powershell
-node --test frontend/tests/frontend.test.mjs frontend/tests/access-demo.test.mjs
-node --test frontend/tests/integration/access-server.test.mjs
-Get-ChildItem frontend -Recurse -File -Include *.js,*.mjs | ForEach-Object { node --check $_.FullName; if ($LASTEXITCODE -ne 0) { throw "JavaScript syntax check failed" } }
+node --test frontends/tests/frontend.test.mjs frontends/tests/access-demo.test.mjs
+node --test frontends/tests/integration/access-server.test.mjs
+Get-ChildItem frontends -Recurse -File -Include *.js,*.mjs | ForEach-Object { node --check $_.FullName; if ($LASTEXITCODE -ne 0) { throw "JavaScript syntax check failed" } }
 git diff --check
 ~~~
 
@@ -198,7 +198,7 @@ des données du premier patient et l'absence de celles du second.
 
 Les 15 scénarios contre le vrai serveur sont séparés et affichés comme SKIP/BLOCKED,
 jamais comme tests d'autorisation réussis. Ils attendent les routes, sessions et
-le protocole de la personne B. Voir [access-verification.md](access-verification.md)
+le protocole de la personne B. Voir [access-verification.md](docs/access-verification.md)
 pour la matrice, les preuves positives exigées et le contrat du driver à raccorder.
 
 Nouveaux fichiers importants :
@@ -230,8 +230,8 @@ Cette revue du code et des composants ne remplace pas un contrôle visuel.
 
 ## Vérifier les deux installations sur téléphone
 
-Les manifests ont des identités et scopes résolus distincts, sous /frontend/patient/
-et /frontend/supervision/. Les icônes sont propres à chaque application ; la
+Les manifests ont des identités et scopes résolus distincts, sous /frontends/frontoffice/
+et /frontends/backoffice/. Les icônes sont propres à chaque application ; la
 supervision porte un badge S. Les noms complets sont SmartCare Patient et
 SmartCare Supervision, et les libellés courts Patient et Supervision.
 
@@ -247,8 +247,8 @@ py -3 -m http.server 8080 --bind 0.0.0.0
 ipconfig
 ~~~
 
-Ouvrir sur le téléphone http://ADRESSE-IP-DU-PC:8080/frontend/patient/ puis
-http://ADRESSE-IP-DU-PC:8080/frontend/supervision/.
+Ouvrir sur le téléphone http://ADRESSE-IP-DU-PC:8080/frontends/frontoffice/ puis
+http://ADRESSE-IP-DU-PC:8080/frontends/backoffice/.
 Cette adresse HTTP privée sert uniquement à regarder l'interface ; elle ne suffit
 pas pour valider service workers et installation PWA.
 
@@ -279,7 +279,7 @@ pas pour valider service workers et installation PWA.
 
 **Téléphone physique : non testé, reste à faire.** Aucun navigateur compatible
 n'était accessible dans l'environnement de développement. Pour le contrôle Java,
-utiliser JDK 25 et Maven : mvn --batch-mode --no-transfer-progress verify.
+utiliser JDK 25 et Maven : mvn --batch-mode --no-transfer-progress -f middleware/pom.xml verify.
 Les tests MongoDB nécessitent une base de test locale sur localhost:27017.
 
 ## Résultats du 10 novembre 2026
