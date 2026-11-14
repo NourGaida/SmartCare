@@ -170,8 +170,9 @@ Pre-sync status:
 
 - Current repository evidence only shows `clockStatus="synced"` and a valid timestamp. No device firmware or pre-sync sample is present.
 - If a device cannot provide `acquiredAtUtc` before clock sync, the current gateway rejects the message as `invalid_timestamp`; it never reaches `validated`. The backend schema also cannot store a missing `acquiredAt` without a schema change.
-- If a device provides a fallback timestamp but `clockStatus="unsynced"` or similar, the gateway accepts it and the backend can store it because `clockStatus` only needs to be nonblank. No schema change is needed for that case.
-- Whether pre-sync measurements must be accepted, and with what timestamp/status, is **UNKNOWN**. This is the main stop-and-ask item for C/user.
+- If a device provides a fallback timestamp but `clockStatus="unsynced"` or similar, the gateway accepts it and the backend could store it because `clockStatus` only needs to be nonblank. No schema change would be needed for that case.
+- Whether a device can omit `acquiredAtUtc` before clock sync remains **UNKNOWN**; if it can, the current gateway rejects those messages before the backend.
+- **Decision 2026-11-14: reject until synced.** Phase 2 will accept a measurement only when `acquiredAtUtc` is valid and `clockStatus` indicates the clock is synced. Missing/invalid timestamps and pre-sync measurements are rejected. No schema change is required. Confirm with C that `"synced"` is the expected synced value.
 
 ## 5. Payload-to-`Measurement` mapping and rejection differences
 
@@ -269,17 +270,17 @@ Please confirm/correct these points:
 1. The deployed gateway is exactly `iot/gateway/flows/flows.json`; no local Node-RED edit changes the validated payload or adds fields.
 2. `smartcare/v1/validated/{deviceId}` is the only topic the backend should consume, with QoS 1 and no retain.
 3. `deviceId` is always one MQTT topic segment (no `/`, `+`, `#`, or NUL). If not, should the backend subscribe to `smartcare/v1/validated/#` instead of `validated/+`?
-4. `acquiredAtUtc` is always present and parseable before a measurement is published. If a device can publish before clock sync, what should it send for `acquiredAtUtc` and `clockStatus`? Should the backend accept, reject, or store a fallback?
-5. `clockStatus` is always present. Is `"synced"` the only expected value, or can the backend see other values?
+4. Pre-sync measurements will be rejected until the clock is synced. Does the device ever publish before sync, and what exact `clockStatus` value indicates that the clock is synced? Should the receiver require the literal `"synced"`?
+5. `clockStatus` is always present. Is `"synced"` the only expected value, or can the backend see other values for measurements that are still safe to store?
 6. `source` is always present and is a string. Should the backend preserve it, ignore it, or enforce an allowed set?
 7. `heartRate` and `spo2` are integers (not floats) when non-null. Should the backend reject float values rather than truncate?
 8. The gateway’s in-memory `duplicate_or_old_sequence` filter is acceptable as a first-line filter, while the backend unique index remains authoritative. Confirm that late/out-of-order messages may be dropped by the gateway.
 9. A payload may contain extra fields such as `patientId`; the backend must ignore/reject them and never use them for ownership.
 10. The gateway debug nodes (`Valid Measurements`, `Rejected Measurements`) are acceptable for the current local setup; they can print payloads to Node-RED’s debug sidebar.
 
-## 8. Decisions needed before Phase 2
+## 8. Phase 2 decisions
 
-1. **Pre-sync policy:** If `acquiredAtUtc` can be missing/invalid before clock sync, accept a fallback with a non-synced `clockStatus`, or reject until sync? The current schema cannot store a missing `acquiredAt`; the current gateway rejects it before the backend.
+1. **Pre-sync policy — RESOLVED 2026-11-14:** Reject measurements until the device clock is synced. Require a valid `acquiredAtUtc` and a synced `clockStatus`; no schema change. Confirm the exact synced status value with C.
 2. **Subscription wildcard:** Use `smartcare/v1/validated/+` only if `deviceId` is guaranteed to be one topic segment; otherwise use `#` or enforce the segment rule upstream.
 3. **Timestamp parser:** Prefer a strict `Instant.parse`-compatible policy and reject date-only/no-offset values, or deliberately emulate the gateway’s broader `Date.parse` behaviour.
 4. **Numeric strictness:** Reject non-integral HR/SpO2, and enforce the same technical ranges as the gateway (HR 1–300, SpO2 0–100) in the receiver.
@@ -295,7 +296,7 @@ Please confirm/correct these points:
 | 1. Validated payload transformation | CONFIRMED from flow source; runtime delivery INFERRED |
 | 2. `bootId`/`sequence` behaviour | CONFIRMED by source and live capture |
 | 3. Topic/QoS/retain/auth/TLS | CONFIRMED |
-| 4. `acquiredAtUtc`/`clockStatus` | CONFIRMED for simulator; pre-sync behaviour UNKNOWN |
+| 4. `acquiredAtUtc`/`clockStatus` | CONFIRMED for simulator; pre-sync policy decided: reject until synced |
 | 5. Payload-to-`Measurement` mapping | CONFIRMED; several gateway/backend mismatches must be handled by the receiver |
 
-**Phase 1 stops here.** No Phase 2 source, test, schema, or gateway changes have been made. The pre-sync timestamp question needs confirmation before implementation.
+**Phase 1 stops here.** No Phase 2 source, test, schema, or gateway changes have been made. The pre-sync timestamp decision is recorded; Phase 2 awaits explicit approval.
