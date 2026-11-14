@@ -23,6 +23,9 @@ __pycache__/
 .env.*
 !.env.example
 
+# Node dependencies
+node_modules/
+
 # Local SmartCare backups
 IoT/gateway/nodered-data-backup/
 IoT/broker/docker-compose.yml.backup

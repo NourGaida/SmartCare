@@ -58,9 +58,36 @@ Ce document est un **livrable obligatoire** devant être complété et mis à jo
 | **Frontend / PWA** (`frontend/`) | 8 % | 92 % | 0 % |
 | **Scripts d'Infra / Déploiement** (`.github/workflows`) | 13 % | 87 % | 0 % |
 
+*   **AI-generated vs human-written share (this work):** TO_FILL_BY_HUMAN
+
 ---
 
-## ✍️ 5. Engagement sur l'Honneur
+## 📦 5. Bibliothèques (générées depuis `pom.xml`, `package.json` et les fichiers `requirements`)
+
+| Bibliothèque / outil | Version | Licence (si connue) | Fichier source |
+| :--- | :--- | :--- | :--- |
+| Jakarta EE API (`jakarta.platform:jakarta.jakartaee-api`) | 11.0.0 | EPL-2.0 OR GPL-2.0 with Classpath Exception | `pom.xml` (scope `provided`) |
+| MongoDB Java sync driver (`org.mongodb:mongodb-driver-sync`) | 5.5.1 | Apache-2.0 | `pom.xml` |
+| JUnit Jupiter (`org.junit.jupiter:junit-jupiter`) | 5.11.4 | EPL-2.0 | `pom.xml` (scope `test`) |
+| Maven Compiler Plugin | 3.14.1 | Apache-2.0 | `pom.xml` (build) |
+| Maven WAR Plugin | 3.4.0 | Apache-2.0 | `pom.xml` (build) |
+| Maven Surefire Plugin | 3.5.2 | Apache-2.0 | `pom.xml` (build) |
+| Eclipse Paho MQTT Python client (`paho-mqtt`) | 2.1.0 | EPL-2.0 OR EDL-1.0 | `IoT/simulator/requirements.txt` |
+| Node.js built-in test runner | Node.js 22 (CI) | Node.js licence | `frontend/tests/*.mjs`; no `package.json` exists in the repository |
+
+No npm dependency file (`package.json`) is present: the frontend is plain HTML/CSS/ES modules and its tests use Node's built-in test runner.
+
+---
+
+## 🤖 6. Prompts (OpenCode)
+
+| Date | Outil | Modèle | Portée | Fichiers modifiés | Prompt |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| 2026-11-14 | OpenCode | Big Pickle | Généré à partir de notre spécification écrite après inspection du dépôt : timeout MongoDB configurable, service MongoDB en CI, règles `.gitignore`, scripts de récupération/démonstration, attribution et vérification | `MiddleWare/src/main/java/com/smartcare/persistence/MongoProvider.java`, `MiddleWare/src/main/java/com/smartcare/api/DatabaseHealthSource.java`, `MiddleWare/src/test/java/com/smartcare/persistence/MongoProviderTest.java`, `MiddleWare/src/test/java/com/smartcare/api/DatabaseHealthSourceTest.java`, `.github/workflows/ci.yml`, `.gitignore`, `scripts/check-recovery.ps1`, `scripts/demo-duplicate.js`, `ATTRIBUTION.md`, `docs/prompts/2026-11-14-close-mongo-pr.md`, `docs/prompts/pr-mongo-data-layer.md` | [docs/prompts/2026-11-14-close-mongo-pr.md](docs/prompts/2026-11-14-close-mongo-pr.md) |
+
+---
+
+## ✍️ 7. Engagement sur l'Honneur
 En validant ce fichier sur notre dépôt GitHub, nous certifions sur l'honneur que les déclarations ci-dessus sont exactes, sincères et reflètent fidèlement notre processus de développement. Nous sommes conscients que la falsification de ce document ou la non-maîtrise technique du code déclaré comme "écrit par l'équipe" lors des soutenances entraînera une **pénalité immédiate et sévère sur la note globale**.
 
 *   [x] **Lu et approuvé par l'ensemble des membres de l'équipe.**
