@@ -13,23 +13,39 @@ import org.bson.Document;
 @Path("/health/database")
 public class DatabaseHealthSource {
 
-    @Inject
-    MongoProvider mongoProvider;
+    private final MongoProvider mongoProvider;
+    private final SchemaInitializer schemaInitializer;
+
+    protected DatabaseHealthSource() {
+        // Required by CDI/JAX-RS when it creates the resource through the no-arg constructor.
+        this.mongoProvider = null;
+        this.schemaInitializer = null;
+    }
 
     @Inject
-    SchemaInitializer schemaInitializer;
+    public DatabaseHealthSource(MongoProvider mongoProvider, SchemaInitializer schemaInitializer) {
+        this.mongoProvider = mongoProvider;
+        this.schemaInitializer = schemaInitializer;
+    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response health() {
+        DatabaseHealth health = check();
+        return Response.status(health.status())
+                .type(MediaType.APPLICATION_JSON)
+                .entity(health.body())
+                .build();
+    }
+
+    // Kept separate from health() so unit tests can assert the HTTP status and body
+    // without needing a JAX-RS runtime delegate to build a Response.
+    DatabaseHealth check() {
         boolean healthy = ping() && schemaReady();
         if (healthy) {
-            return Response.ok("{\"status\":\"ok\"}", MediaType.APPLICATION_JSON).build();
+            return new DatabaseHealth(Response.Status.OK.getStatusCode(), "{\"status\":\"ok\"}");
         }
-        return Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                .type(MediaType.APPLICATION_JSON)
-                .entity("{\"status\":\"error\"}")
-                .build();
+        return new DatabaseHealth(Response.Status.SERVICE_UNAVAILABLE.getStatusCode(), "{\"status\":\"error\"}");
     }
 
     private boolean ping() {
@@ -48,5 +64,8 @@ public class DatabaseHealthSource {
         } catch (RuntimeException e) {
             return false;
         }
+    }
+
+    record DatabaseHealth(int status, String body) {
     }
 }
