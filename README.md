@@ -49,7 +49,7 @@ The target architecture: an ESP32 with a MAX30102 sensor publishes physiological
         ├──► business rules ──► alerts        (planned)
         └──► Python anomaly service ──► scores (planned)
 
- PWAs: patient · supervision (professional / administrator)
+ PWAs: frontoffice (patient) · backoffice (professional / administrator)
 ```
 
 Design principles:
@@ -88,32 +88,39 @@ Design principles:
 ```
 SmartCare/
 ├── .github/workflows/ci.yml        # CI: Java, frontend, simulator
+├── broker/                         # placeholder README; C-owned broker files stay in iot/broker/
+├── docs/                           # cross-cutting documentation, prompts
+│   ├── README.md
+│   └── prompts/
+├── frontends/
+│   ├── frontoffice/                # patient PWA
+│   ├── backoffice/                 # professional + administrator PWA
+│   ├── shared/                     # demo auth, domain rules, UI helpers
+│   ├── tests/                      # Node test suites and integration driver example
+│   ├── docs/
+│   │   ├── api-proposal.md         # proposed (not implemented) REST/WebSocket routes
+│   │   └── access-verification.md  # access-control scenarios and their status
+│   └── README.md
 ├── iot/
 │   ├── broker/                     # docker-compose.yml (Mosquitto + Node-RED), mosquitto.conf
 │   ├── gateway/                    # Node-RED validation flow (flows/flows.json) + README
 │   ├── simulator/                  # Python MQTT simulator, requirements.txt, tests/
-│   └── docs/                       # message-contract.md, data-collection.md,
-│                                   # model-card.md, SmartCare_Scope_Statement.pdf
-├── middleware/                     # Jakarta EE backend (Maven WAR sources)
-│   └── src/
-│       ├── main/java/com/smartcare/
-│       │   ├── api/                # SmartCareApplication, HealthSource, DatabaseHealthSource
-│       │   └── persistence/        # MongoProvider, SchemaInitializer, Measurement, repository...
-│       ├── main/webapp/WEB-INF/beans.xml
-│       └── test/java/com/smartcare/persistence/
-├── frontend/
-│   ├── patient/                    # patient PWA
-│   ├── supervision/                # professional + administrator PWA
-│   ├── shared/                     # demo auth, domain rules, UI helpers
-│   ├── tests/                      # Node test suites
-│   ├── api-proposal.md             # proposed (not implemented) REST/WebSocket routes
-│   └── access-verification.md      # access-control scenarios and their status
-├── ATTRIBUTION.md                  # origin of code and AI-usage declaration
-├── pom.xml
+│   ├── docs/                       # message-contract.md, data-collection.md,
+│   │                               # model-card.md, SmartCare_Scope_Statement.pdf
+│   └── README.md
+├── middleware/                     # Jakarta EE backend (Maven reactor)
+│   ├── core/                       # persistence layer and CDI beans
+│   ├── iam/                        # identity and access module scaffolding
+│   ├── api/                        # JAX-RS application and health endpoints (WAR)
+│   ├── pom.xml
+│   └── README.md
+├── scripts/                        # demo and recovery helpers
+│   └── README.md
+├── attribution.md                  # origin of code and AI-usage declaration
 └── README.md
 ```
 
-Component documentation: [`iot/gateway/README.md`](iot/gateway/README.md), [`iot/simulator/README.md`](iot/simulator/README.md), [`frontends/README.md`](frontends/README.md), [`iot/docs/message-contract.md`](iot/docs/message-contract.md).
+Component documentation: [`middleware/README.md`](middleware/README.md), [`frontends/README.md`](frontends/README.md), [`iot/README.md`](iot/README.md), [`iot/gateway/README.md`](iot/gateway/README.md), [`iot/simulator/README.md`](iot/simulator/README.md), [`docs/README.md`](docs/README.md), [`scripts/README.md`](scripts/README.md), [`broker/README.md`](broker/README.md), [`iot/docs/message-contract.md`](iot/docs/message-contract.md).
 
 ---
 
@@ -222,7 +229,7 @@ A logical measurement is identified by `(deviceId, bootId, sequence)`. QoS 1 can
 
 ## 6. Backend and data model
 
-The backend (`middleware/`, Maven WAR, Jakarta EE 11, JAX-RS, MongoDB sync driver) currently provides the persistence layer and two health endpoints.
+The backend (`middleware/`, Maven reactor with `core`, `iam` and `api`, Jakarta EE 11, JAX-RS, MongoDB sync driver) currently provides the persistence layer and two health endpoints. The `api` module produces the WAR.
 
 `SchemaInitializer` creates the following MongoDB collections with JSON-schema validators and indexes (database `smartcare`):
 
@@ -310,7 +317,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs three jobs on every push and pu
 - `main` is the evaluated branch. Integrate early and often; do not leave work on isolated branches.
 - Open a Pull Request for each feature, reviewed and approved by another team member, then merge into `main`.
 - Never commit `target/`, logs, IDE metadata, `.env` files (except `.env.example`), passwords, API keys or database credentials.
-- [`ATTRIBUTION.md`](ATTRIBUTION.md) must stay at the repository root and be updated every sprint with the origin of code and the use of AI assistants.
+- [`attribution.md`](attribution.md) must stay at the repository root and be updated every sprint with the origin of code and the use of AI assistants.
 
 ---
 

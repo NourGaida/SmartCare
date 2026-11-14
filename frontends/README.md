@@ -1,8 +1,13 @@
-# SmartCare — patient et supervision
+# SmartCare — frontoffice et backoffice
 
 Deux applications HTML/CSS/JavaScript natifs, sans installation npm ni compilation.
-L'interface reste en anglais, comme le patient existant. La supervision reprend
-ses couleurs turquoise, cartes, typographies, icônes et espacements.
+`frontends/frontoffice/` sert le portail patient ; `frontends/backoffice/` sert
+le portail professionnel et administrateur. L'interface reste en anglais, comme le
+patient existant. Le backoffice reprend ses couleurs turquoise, cartes, typographies,
+icônes et espacements.
+
+Le code partagé est dans `frontends/shared/`, les suites Node dans
+`frontends/tests/` et les documents de conception dans `frontends/docs/`.
 
 ## Lancer sous Windows
 
@@ -146,7 +151,7 @@ ligne est nécessaire pour le cache statique.
 ## Intégration backend
 
 Voir [api-proposal.md](docs/api-proposal.md). GET /api/health et GET /api/health/database
-existent actuellement dans middleware, relativement au contexte du WAR
+existent actuellement dans `middleware/`, relativement au contexte du WAR
 (/smartcare par défaut). Toutes les autres routes
 sont **à valider avec la personne B**.
 
