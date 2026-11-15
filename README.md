@@ -43,7 +43,7 @@ The target architecture: an ESP32 with a MAX30102 sensor publishes physiological
         ▼            ▼
   validated/{id}  rejected/{id}
         │
-        ▼   (planned)
+        ▼
  WildFly · Jakarta EE backend ──► MongoDB
         │
         ├──► business rules ──► alerts        (planned)
@@ -69,11 +69,11 @@ Design principles:
 | Mosquitto broker and Node-RED (Docker Compose) | Implemented | `iot/broker/` |
 | Node-RED validation gateway | Implemented, verified locally | `iot/gateway/flows/flows.json` |
 | MongoDB persistence (schema validators, indexes, deduplication, repository) | Implemented, tested | `middleware/core/src/main/java/com/smartcare/persistence/` |
-| Health endpoints (`/health`, `/health/database`) | Implemented | `middleware/api/src/main/java/com/smartcare/api/` |
+| Backend ingestion of validated MQTT messages | Implemented, integration-tested | `middleware/core/src/main/java/com/smartcare/ingestion/` |
+| Health endpoints (`/health`, `/health/database`, `/health/ingestion`) | Implemented | `middleware/api/src/main/java/com/smartcare/api/` |
 | Patient PWA (demo data) | Implemented, demo only | `frontends/frontoffice/` |
 | Supervision PWA (professional and administrator, demo data) | Implemented, demo only | `frontends/backoffice/` |
 | Continuous integration (Java, frontend, simulator) | Implemented | `.github/workflows/ci.yml` |
-| Backend ingestion of validated MQTT messages | Planned | not in `middleware/` yet |
 | REST resources for users, devices, measurements, alerts, scores, configuration | Planned | see [`frontends/docs/api-proposal.md`](frontends/docs/api-proposal.md) |
 | Authentication, role-based authorization, audit log | Planned | frontend uses a non-secure demo login |
 | Business rules and alert creation | Planned | |
@@ -109,12 +109,12 @@ SmartCare/
 │   │                               # model-card.md, SmartCare_Scope_Statement.pdf
 │   └── README.md
 ├── middleware/                     # Jakarta EE backend (Maven reactor)
-│   ├── core/                       # persistence layer and CDI beans
+│   ├── core/                       # persistence, MQTT ingestion and CDI beans
 │   ├── iam/                        # identity and access module scaffolding
 │   ├── api/                        # JAX-RS application and health endpoints (WAR)
 │   ├── pom.xml
 │   └── README.md
-├── scripts/                        # demo and recovery helpers
+├── scripts/                        # demo, recovery and MQTT publish helpers
 │   └── README.md
 ├── attribution.md                  # origin of code and AI-usage declaration
 └── README.md
@@ -182,9 +182,10 @@ $wildfly = "<path-to-wildfly-42.0.0.Final>"
 & "$wildfly\bin\jboss-cli.bat" --connect --command="deploy <path-to-repo>\middleware\api\target\smartcare.war --force"
 curl http://localhost:8080/smartcare/api/health          # {"status":"ok"}
 curl http://localhost:8080/smartcare/api/health/database # 200 if MongoDB and schema are ready, 503 otherwise
+curl http://localhost:8080/smartcare/api/health/ingestion # broker state and ingestion counters
 ```
 
-The URL is composed of `/smartcare` (WAR name), `/api` (`@ApplicationPath`) and the resource `@Path`.
+The URL is composed of `/smartcare` (WAR name), `/api` (`@ApplicationPath`) and the resource `@Path`. The MQTT receiver starts with the application and uses the environment variables in [section 9](#9-configuration); a missing broker does not block deployment.
 
 ### 4.5 Run the frontend
 
@@ -223,13 +224,13 @@ Example raw measurement (JSON, UTF-8, QoS 1, no retain):
 }
 ```
 
-A logical measurement is identified by `(deviceId, bootId, sequence)`. QoS 1 can redeliver, so the backend deduplicates on this key. There is no `patientId` in the message: the device-to-patient association is owned by the backend. The contract is *observed from the simulator* and still has to be validated by the team; see [`iot/docs/message-contract.md`](iot/docs/message-contract.md).
+A logical measurement is identified by `(deviceId, bootId, sequence)`. QoS 1 can redeliver, so the backend deduplicates on this key. There is no `patientId` in the message: the device-to-patient association is owned by the backend. The backend subscribes to `smartcare/v1/validated/#`, revalidates the payload (including schema version, identifiers, topic, timestamp, quality, ranges and clock status), and stores accepted measurements. The contract is *observed from the simulator* and still has to be validated by the team; see [`iot/docs/message-contract.md`](iot/docs/message-contract.md).
 
 ---
 
 ## 6. Backend and data model
 
-The backend (`middleware/`, Maven reactor with `core`, `iam` and `api`, Jakarta EE 11, JAX-RS, MongoDB sync driver) currently provides the persistence layer and two health endpoints. The `api` module produces the WAR.
+The backend (`middleware/`, Maven reactor with `core`, `iam` and `api`, Jakarta EE 11, JAX-RS, MongoDB sync driver, Eclipse Paho MQTT v3) currently provides the persistence layer, the validated-topic MQTT receiver and three health endpoints. The `api` module produces the WAR.
 
 `SchemaInitializer` creates the following MongoDB collections with JSON-schema validators and indexes (database `smartcare`):
 
@@ -253,6 +254,7 @@ Base path: `/smartcare/api`
 | --- | --- | --- |
 | GET | `/health` | Implemented: `{"status":"ok"}` |
 | GET | `/health/database` | Implemented: 200 when MongoDB and the schema are ready, 503 otherwise |
+| GET | `/health/ingestion` | Implemented: 200/503 plus broker state and ingestion counters |
 | various | `/auth`, `/me`, `/patients`, `/alerts`, `/admin/*`, `/events` (WebSocket) | **Proposed, not implemented**: [`frontends/docs/api-proposal.md`](frontends/docs/api-proposal.md) |
 
 The generic resources `/users`, `/devices`, `/measurements`, `/scores`, `/alerts` and `/configuration` from the original design are not implemented yet.
@@ -278,6 +280,14 @@ All backend configuration is provided through environment variables. Credentials
 | --- | --- | --- |
 | `MONGODB_URI` | MongoDB connection string | `mongodb://localhost:27017` |
 | `MONGODB_DATABASE` | Database name | `smartcare` |
+| `MQTT_ENABLED` | Start the validated-topic receiver | `true` |
+| `MQTT_BROKER_URL` | MQTT broker URI | `tcp://localhost:1883` |
+| `MQTT_TOPIC` | Subscription filter | `smartcare/v1/validated/#` |
+| `MQTT_CLIENT_ID` | Stable Paho client id | `smartcare-middleware` |
+| `MQTT_USERNAME` / `MQTT_PASSWORD` | Optional broker credentials | unset |
+| `MQTT_QOS` | Subscription QoS | `1` |
+| `MQTT_CLEAN_SESSION` | Paho clean-session flag | `false` |
+| `MQTT_ACCEPTED_CLOCK_STATUS` | Comma-separated accepted clock states | `synced` |
 
 The simulator is configured through CLI options (`--host`, `--port`, `--device-id`, `--seed`).
 
@@ -288,7 +298,7 @@ The simulator is configured through CLI options (`--host`, `--port`, `--device-i
 Implemented:
 
 - Secrets supplied through environment variables, never stored in source control.
-- Input validation at the gateway (structure, schema version, ranges, duplicates) and schema validation in MongoDB.
+- Input validation at the gateway (structure, schema version, ranges, duplicates), independent revalidation in the backend ingestion handler, and schema validation in MongoDB.
 - Role guards and assignment checks in the **frontend demo** (not a security boundary).
 
 Planned: authentication and role-based authorization in the backend, ownership checks, device authorization on the MQTT path, audit logging.
@@ -303,12 +313,12 @@ Known development-only settings: Mosquitto allows anonymous access and has no TL
 | --- | --- | --- |
 | Simulator | `python -m unittest iot.simulator.tests.test_simulator -v` | No broker required |
 | Frontend | `node --test frontends/tests/frontend.test.mjs frontends/tests/access-demo.test.mjs` | Node 22, no dependencies |
-| Backend | `mvn --batch-mode --no-transfer-progress -f middleware/pom.xml verify` | The persistence integration tests need MongoDB on `localhost:27017` |
+| Backend | `mvn --batch-mode --no-transfer-progress -f middleware/pom.xml verify` | Integration tests need MongoDB on `localhost:27017` and Mosquitto on `localhost:1883` |
 | Gateway | manual | See [`iot/gateway/README.md`](iot/gateway/README.md); no automated gateway test yet |
 
 Server-side access scenarios in `frontends/tests/integration/access-server.test.mjs` are reported as *skipped/blocked* until the backend routes exist; they are not counted as passing tests.
 
-GitHub Actions (`.github/workflows/ci.yml`) runs three jobs on every push and pull request: **java** (`mvn -f middleware/pom.xml verify`, JDK 25), **frontend** (file checks, `node --check`, `node --test`) and **simulator** (syntax check and unittest).
+GitHub Actions (`.github/workflows/ci.yml`) runs three jobs on every push and pull request: **java** (MongoDB service plus Mosquitto container, `mvn -f middleware/pom.xml verify`, JDK 25), **frontend** (file checks, `node --check`, `node --test`) and **simulator** (syntax check and unittest). The Java job fails if any Surefire test is skipped.
 
 ---
 
@@ -326,5 +336,5 @@ GitHub Actions (`.github/workflows/ci.yml`) runs three jobs on every push and pu
 - Educational prototype; not validated for any clinical use.
 - Measurements and anomaly scores are experimental estimates, not diagnoses.
 - No real device yet: data comes from the simulator.
-- The backend does not yet consume MQTT, expose business endpoints or enforce authentication; the PWAs run on demo data.
+- The backend consumes validated MQTT messages but does not yet expose business endpoints, raise alerts or enforce authentication; the PWAs run on demo data. The gateway-to-receiver path has not been automated end to end, because Node-RED is not available in CI.
 - The frontend has not been checked in a real browser, on a physical phone, or installed as a PWA (see [`frontends/README.md`](frontends/README.md)).

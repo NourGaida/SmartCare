@@ -20,6 +20,18 @@ Optional environment overrides:
 | `SMARTCARE_MONGO_CONTAINER` | `smartcare-mongodb` |
 | `SMARTCARE_RECOVERY_WAIT_SECONDS` | script default |
 
+## `publish-test-message.ps1`
+
+Publishes one message directly to the validated topic, bypassing Node-RED, so the backend receiver can be verified without the gateway.
+
+Requirements: the `smartcare-mosquitto` container is running and the backend is deployed.
+
+```powershell
+.\scripts\publish-test-message.ps1 -DeviceId sc-test -Sequence 1
+```
+
+The script prints the published topic. Use the same `-BootId` and `-Sequence` twice to exercise deduplication. Invalid-quality messages require `-Quality invalid -Reason no_finger`.
+
 ## `demo-duplicate.js`
 
 Inserts the same valid measurement twice, shows the `E11000` error from the `uq_device_boot_sequence` index, then removes only the demo document.

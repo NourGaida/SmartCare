@@ -68,6 +68,8 @@ Ce document est un **livrable obligatoire** devant être complété et mis à jo
 | :--- | :--- | :--- | :--- |
 | Jakarta EE API (`jakarta.platform:jakarta.jakartaee-api`) | 11.0.0 | EPL-2.0 OR GPL-2.0 with Classpath Exception | `middleware/pom.xml` (scope `provided`) |
 | MongoDB Java sync driver (`org.mongodb:mongodb-driver-sync`) | 5.5.1 | Apache-2.0 | `middleware/pom.xml` |
+| Eclipse Paho MQTT v3 Java client (`org.eclipse.paho:org.eclipse.paho.client.mqttv3`) | 1.2.5 | EPL-2.0 OR EDL-1.0 | `middleware/pom.xml` |
+| Eclipse Parsson (`org.eclipse.parsson:parsson`) | 1.1.7 | EPL-2.0 | `middleware/pom.xml` (scope `test`) |
 | JUnit Jupiter (`org.junit.jupiter:junit-jupiter`) | 5.11.4 | EPL-2.0 | `middleware/pom.xml` (scope `test`) |
 | Maven Compiler Plugin | 3.14.1 | Apache-2.0 | `middleware/pom.xml` (build) |
 | Maven WAR Plugin | 3.4.0 | Apache-2.0 | `middleware/api/pom.xml` (build) |
@@ -85,6 +87,7 @@ No npm dependency file (`package.json`) is present: the frontend is plain HTML/C
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | 2026-11-14 | OpenCode | Big Pickle | Généré à partir de notre spécification écrite après inspection du dépôt : timeout MongoDB configurable, service MongoDB en CI, règles `.gitignore`, scripts de récupération/démonstration, attribution et vérification | `middleware/core/src/main/java/com/smartcare/persistence/MongoProvider.java`, `middleware/api/src/main/java/com/smartcare/api/DatabaseHealthSource.java`, `middleware/core/src/test/java/com/smartcare/persistence/MongoProviderTest.java`, `middleware/api/src/test/java/com/smartcare/api/DatabaseHealthSourceTest.java`, `.github/workflows/ci.yml`, `.gitignore`, `scripts/check-recovery.ps1`, `scripts/demo-duplicate.js`, `attribution.md`, `docs/prompts/2026-11-14-close-mongo-pr.md`, `docs/prompts/pr-mongo-data-layer.md` | [docs/prompts/2026-11-14-close-mongo-pr.md](docs/prompts/2026-11-14-close-mongo-pr.md) |
 | 2026-11-14 | OpenCode | Big Pickle | Restructuration du dépôt : renommage des dossiers en minuscules, séparation `frontends/frontoffice` et `frontends/backoffice`, découpage Maven `middleware/core`, `middleware/iam`, `middleware/api`, mise à jour des imports, chemins, CI et documentation | `.github/workflows/ci.yml`, `.gitignore`, `README.md`, `attribution.md`, `broker/README.md`, `docs/README.md`, `docs/prompts/2026-11-14-repo-restructure.md`, `scripts/README.md`, `frontends/**`, `iot/**`, `middleware/**` | [docs/prompts/2026-11-14-repo-restructure.md](docs/prompts/2026-11-14-repo-restructure.md) |
+| 2026-11-15 | OpenCode | Big Pickle | Implémentation de la réception MQTT des messages validés : validation, compteurs, endpoint de santé, tests d'intégration, CI Mosquitto, documentation et script de publication | `.github/workflows/ci.yml`, `README.md`, `attribution.md`, `docs/README.md`, `docs/prompts/2026-11-14-mqtt-receiver.md`, `docs/prompts/pr-mqtt-receiver.md`, `middleware/pom.xml`, `middleware/core/pom.xml`, `middleware/api/pom.xml`, `middleware/core/**`, `middleware/api/**`, `middleware/README.md`, `scripts/README.md`, `scripts/publish-test-message.ps1` | [docs/prompts/2026-11-14-mqtt-receiver.md](docs/prompts/2026-11-14-mqtt-receiver.md) |
 
 ---
 
@@ -92,5 +95,5 @@ No npm dependency file (`package.json`) is present: the frontend is plain HTML/C
 En validant ce fichier sur notre dépôt GitHub, nous certifions sur l'honneur que les déclarations ci-dessus sont exactes, sincères et reflètent fidèlement notre processus de développement. Nous sommes conscients que la falsification de ce document ou la non-maîtrise technique du code déclaré comme "écrit par l'équipe" lors des soutenances entraînera une **pénalité immédiate et sévère sur la note globale**.
 
 *   [x] **Lu et approuvé par l'ensemble des membres de l'équipe.**
-*   **Date de dernière mise à jour :** 14 / 11 / 2026
+*   **Date de dernière mise à jour :** 15 / 11 / 2026
 ________

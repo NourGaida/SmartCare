@@ -4,6 +4,7 @@ import com.mongodb.ErrorCategory;
 import com.mongodb.MongoWriteException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.smartcare.ingestion.MeasurementStore;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.bson.Document;
@@ -17,7 +18,7 @@ import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 
 @ApplicationScoped
-public class MeasurementRepository {
+public class MeasurementRepository implements MeasurementStore {
 
     private static final Logger LOG = Logger.getLogger(MeasurementRepository.class.getName());
 
@@ -39,6 +40,7 @@ public class MeasurementRepository {
         this.schemaInitializer = schemaInitializer;
     }
 
+    @Override
     public SaveResult save(Measurement measurement) {
         schemaInitializer.ensureReady();
         try {
@@ -50,9 +52,7 @@ public class MeasurementRepository {
             }
             duplicatesRejected.incrementAndGet();
             LOG.info("Duplicate measurement rejected: deviceId=" + measurement.deviceId()
-                    + ", bootId=" + measurement.bootId()
-                    + ", sequence=" + measurement.sequence()
-                    + ", clockStatus=" + measurement.clockStatus());
+                    + ", sequence=" + measurement.sequence());
             return SaveResult.DUPLICATE;
         }
     }

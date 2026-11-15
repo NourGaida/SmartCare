@@ -33,7 +33,7 @@ The backend is the authority for ownership, persistence, business rules, alerts,
 | `frontends/shared/` | Shared demo auth, domain rules and UI helpers |
 | `frontends/tests/` | Node test suites and integration driver example |
 | `frontends/docs/` | API proposal and access-verification scenarios |
-| `middleware/core/` | MongoDB persistence layer and CDI beans |
+| `middleware/core/` | MongoDB persistence layer, MQTT ingestion and CDI beans |
 | `middleware/iam/` | Identity and access module scaffolding |
 | `middleware/api/` | JAX-RS application, health endpoints and WAR packaging |
 | `iot/broker/` | Mosquitto and Node-RED Docker Compose configuration |

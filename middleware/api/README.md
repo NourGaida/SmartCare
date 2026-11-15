@@ -6,8 +6,9 @@ The `api` module contains the JAX-RS application and the deployable WAR.
 
 - `SmartCareApplication`: JAX-RS application path.
 - `HealthSource` / `DatabaseHealthSource`: `/health` and `/health/database` endpoints.
+- `IngestionHealthSource`: `/health/ingestion` endpoint with broker connection state and ingestion counters.
 - `WEB-INF/beans.xml`: CDI descriptor for the web module.
-- `DatabaseHealthSourceTest`: database health endpoint tests.
+- `DatabaseHealthSourceTest` / `IngestionHealthSourceTest`: health endpoint tests.
 
 There is no `web.xml`; the application is configured through annotations.
 
@@ -39,9 +40,10 @@ $wildfly = 'C:\path\to\wildfly'
 ```powershell
 curl.exe -i http://localhost:8080/smartcare/api/health
 curl.exe -i http://localhost:8080/smartcare/api/health/database
+curl.exe -i http://localhost:8080/smartcare/api/health/ingestion
 ```
 
-Both are expected to return HTTP 200 when MongoDB is reachable.
+The first two are expected to return HTTP 200 when MongoDB is reachable. `/health/ingestion` returns 200 when MongoDB and the schema are ready and 503 otherwise; its body reports `connected`, `received`, `saved`, `duplicate`, `rejected`, `storeFailed`, `rejectedByReason`, `lastRejectionReason` and `lastMessageAt`.
 
 ## Dependency direction
 
