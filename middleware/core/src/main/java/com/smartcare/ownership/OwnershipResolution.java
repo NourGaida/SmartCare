@@ -1,4 +1,4 @@
-﻿package com.smartcare.ownership;
+package com.smartcare.ownership;
 
 import java.util.Optional;
 
