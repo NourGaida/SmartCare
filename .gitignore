@@ -29,3 +29,6 @@ node_modules/
 # Local SmartCare backups
 iot/gateway/nodered-data-backup/
 iot/broker/docker-compose.yml.backup
+
+cookies*.txt
+login*.json
