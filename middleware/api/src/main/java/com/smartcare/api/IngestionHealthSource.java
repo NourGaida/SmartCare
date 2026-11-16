@@ -88,6 +88,8 @@ public class IngestionHealthSource {
                 .add("duplicate", snapshot.duplicate())
                 .add("rejected", snapshot.rejected())
                 .add("storeFailed", snapshot.storeFailed())
+                .add("unowned", snapshot.unowned())
+                .add("ownershipConflict", snapshot.ownershipConflict())
                 .add("rejectedByReason", reasons.build());
         if (snapshot.lastRejectionReason() == null) {
             body.addNull("lastRejectionReason");

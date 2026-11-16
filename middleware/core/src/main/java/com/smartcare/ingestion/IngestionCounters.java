@@ -19,6 +19,8 @@ public class IngestionCounters {
     private final AtomicLong duplicate = new AtomicLong();
     private final AtomicLong rejected = new AtomicLong();
     private final AtomicLong storeFailed = new AtomicLong();
+    private final AtomicLong unowned = new AtomicLong();
+    private final AtomicLong ownershipConflict = new AtomicLong();
     private final AtomicBoolean connected = new AtomicBoolean();
     private final AtomicReference<String> lastRejectionReason = new AtomicReference<>();
     private final AtomicReference<Instant> lastMessageAt = new AtomicReference<>();
@@ -48,6 +50,14 @@ public class IngestionCounters {
         rejected(reason);
     }
 
+    public void unowned() {
+        unowned.incrementAndGet();
+    }
+
+    public void ownershipConflict() {
+        ownershipConflict.incrementAndGet();
+    }
+
     public void setConnected(boolean value) {
         connected.set(value);
     }
@@ -61,6 +71,8 @@ public class IngestionCounters {
                 duplicate.get(),
                 rejected.get(),
                 storeFailed.get(),
+                unowned.get(),
+                ownershipConflict.get(),
                 lastRejectionReason.get(),
                 lastMessageAt.get(),
                 Collections.unmodifiableMap(reasons));
@@ -73,6 +85,8 @@ public class IngestionCounters {
             long duplicate,
             long rejected,
             long storeFailed,
+            long unowned,
+            long ownershipConflict,
             String lastRejectionReason,
             Instant lastMessageAt,
             Map<String, Long> rejectedByReason) {
