@@ -31,7 +31,7 @@ public class DeviceOwnershipResolver implements OwnershipResolver {
         List<Document> matches = repository.findMatching(
                 measurement.deviceId(), Date.from(measurement.acquiredAt()));
         if (matches.isEmpty()) {
-            return OwnershipResolution.unowned();
+            return OwnershipResolution.notOwned();
         }
         if (matches.size() == 1) {
             return OwnershipResolution.owned(matches.get(0).getString("patientId"));
@@ -42,6 +42,6 @@ public class DeviceOwnershipResolver implements OwnershipResolver {
                 + ", acquiredAt=" + measurement.acquiredAt()
                 + ", matches=" + matches.size()
                 + ", selectedPatientId=" + patientId);
-        return OwnershipResolution.conflict(patientId);
+        return OwnershipResolution.conflicted(patientId);
     }
 }

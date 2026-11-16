@@ -10,6 +10,6 @@ public class NoopOwnershipResolver implements OwnershipResolver {
 
     @Override
     public OwnershipResolution resolve(Measurement measurement) {
-        return OwnershipResolution.unowned();
+        return OwnershipResolution.notOwned();
     }
 }

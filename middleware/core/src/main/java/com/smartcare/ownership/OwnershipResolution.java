@@ -8,11 +8,11 @@ public record OwnershipResolution(Optional<String> patientId, boolean unowned, b
         return new OwnershipResolution(Optional.of(patientId), false, false);
     }
 
-    public static OwnershipResolution unowned() {
+    public static OwnershipResolution notOwned() {
         return new OwnershipResolution(Optional.empty(), true, false);
     }
 
-    public static OwnershipResolution conflict(String patientId) {
+    public static OwnershipResolution conflicted(String patientId) {
         return new OwnershipResolution(Optional.ofNullable(patientId), false, true);
     }
 }
