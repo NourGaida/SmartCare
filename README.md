@@ -1,4 +1,4 @@
-div align="center">🩺 SmartCare
+<div align="center">🩺 SmartCare
 IoT-Based Patient Monitoring & Early Warning System
 SUP'COM · Cloud of Things (COT) · 2026–2027 · Team 9
 
