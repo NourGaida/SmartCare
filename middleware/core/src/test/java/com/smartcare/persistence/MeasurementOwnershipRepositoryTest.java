@@ -1,4 +1,4 @@
-﻿package com.smartcare.persistence;
+package com.smartcare.persistence;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
