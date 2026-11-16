@@ -1,0 +1,34 @@
+{
+  "validation": {
+    "precision": 0.8409090909090909,
+    "recall": 0.8314606741573034,
+    "f1": 0.8361581920903954,
+    "roc_auc": 0.9666226040978189,
+    "average_precision": 0.8997115822687191,
+    "false_positives": 14,
+    "false_negatives": 15
+  },
+  "test": {
+    "precision": 0.8571428571428571,
+    "recall": 0.84,
+    "f1": 0.8484848484848485,
+    "roc_auc": 0.9687016574585636,
+    "average_precision": 0.9218205831173295,
+    "false_positives": 14,
+    "false_negatives": 16
+  },
+  "threshold": 0.07549796548578588,
+  "train_normal_windows": 1638,
+  "features": [
+    "hr_mean",
+    "hr_std",
+    "hr_min",
+    "hr_max",
+    "spo2_mean",
+    "spo2_std",
+    "spo2_min",
+    "spo2_max",
+    "hr_delta",
+    "spo2_delta"
+  ]
+}

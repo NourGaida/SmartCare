@@ -29,3 +29,14 @@ node_modules/
 # Local SmartCare backups
 iot/gateway/nodered-data-backup/
 iot/broker/docker-compose.yml.backup
+
+.venv-mlops/
+
+mlflow.db
+mlflow.db-*
+mlartifacts/
+mlruns/
+mlflow.db
+mlflow.db-*
+mlartifacts/
+mlruns/
