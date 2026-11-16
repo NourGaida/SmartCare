@@ -74,7 +74,7 @@ Design principles:
 | Patient PWA (demo data) | Implemented, demo only | `frontends/frontoffice/` |
 | Supervision PWA (professional and administrator, demo data) | Implemented, demo only | `frontends/backoffice/` |
 | Continuous integration (Java, frontend, simulator) | Implemented | `.github/workflows/ci.yml` |
-| REST resources for users, devices, measurements, alerts, scores, configuration | Planned | see [`frontends/docs/api-proposal.md`](frontends/docs/api-proposal.md) |
+| REST resources for users, devices, measurements, alerts, scores, configuration | Planned | see [`docs/frontend/api-proposal.md`](docs/frontend/api-proposal.md) |
 | Authentication, role-based authorization, audit log | Planned | frontend uses a non-secure demo login |
 | Business rules and alert creation | Planned | |
 | Python anomaly service (scores) | Planned | only [`iot/docs/model-card.md`](iot/docs/model-card.md) exists |
@@ -255,7 +255,7 @@ Base path: `/smartcare/api`
 | GET | `/health` | Implemented: `{"status":"ok"}` |
 | GET | `/health/database` | Implemented: 200 when MongoDB and the schema are ready, 503 otherwise |
 | GET | `/health/ingestion` | Implemented: 200/503 plus broker state and ingestion counters |
-| various | `/auth`, `/me`, `/patients`, `/alerts`, `/admin/*`, `/events` (WebSocket) | **Proposed, not implemented**: [`frontends/docs/api-proposal.md`](frontends/docs/api-proposal.md) |
+| various | `/auth`, `/me`, `/patients`, `/alerts`, `/admin/*`, `/events` (WebSocket) | **Proposed, not implemented**: [`docs/frontend/api-proposal.md`](docs/frontend/api-proposal.md) |
 
 The generic resources `/users`, `/devices`, `/measurements`, `/scores`, `/alerts` and `/configuration` from the original design are not implemented yet.
 
