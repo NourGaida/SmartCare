@@ -104,4 +104,25 @@ class AuthServiceTest {
         SessionService sessions = new SessionService(new SessionRepository(db), SessionSettings.defaults());
         assertTrue(sessions.load(s.sessionId()).isEmpty());
     }
+
+    @Test
+    void loginSucceedsWithHashProducedLikeSeeder() throws Exception {
+        // Seeder must produce server-format PBKDF2 hash: pbkdf2$PBKDF2WithHmacSHA256$210000$<saltB64>$<hashB64>
+        byte[] salt = new byte[16];
+        new java.security.SecureRandom().nextBytes(salt);
+        byte[] derived = javax.crypto.SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
+                .generateSecret(new javax.crypto.spec.PBEKeySpec("secret".toCharArray(), salt, 210_000, 256))
+                .getEncoded();
+        String seederHash = "pbkdf2$PBKDF2WithHmacSHA256$210000$"
+                + java.util.Base64.getEncoder().encodeToString(salt) + "$"
+                + java.util.Base64.getEncoder().encodeToString(derived);
+        db.getCollection("users").insertOne(new Document("userId", "seed1")
+                .append("email", "seed1@example.com")
+                .append("passwordHash", seederHash)
+                .append("role", "PATIENT")
+                .append("active", true)
+                .append("createdAt", new Date()));
+        var s = service().login("seed1@example.com", "secret", "1.2.3.4");
+        assertEquals("seed1", s.userId());
+    }
 }
