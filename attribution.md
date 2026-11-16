@@ -77,7 +77,7 @@ Les pourcentages ci-dessous sont les estimations déclarées par l'équipe. Ils 
 | Sécurité (`middleware/iam/`) | 15 % | 85 % | 0 % |
 | Frontend / PWA (`frontends/`) | 8 % | 92 % | 0 % |
 | Scripts d'infrastructure / CI (`.github/workflows/`) | 13 % | 87 % | 0 % |
-| MLOps (`IoT/mlops/` ou `iot/mlops/`) | À confirmer | À confirmer | À confirmer |
+| MLOps (`IoT/mlops/` ou `iot/mlops/`) |32 % | 68 % | 0 % |
 
 **Note :** Les pourcentages portent sur la provenance du code du projet, hors bibliothèques installées comme dépendances.
 
