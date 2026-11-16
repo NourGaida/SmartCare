@@ -42,7 +42,7 @@ Les descriptions ci-dessous sont des reformulations représentatives des demande
 | Outil | Modèle | Usage |
 | :--- | :--- | :--- |
 | OpenCode | Big Pickle | Assistance à la restructuration du dépôt, au middleware Java, aux scripts et à la CI. |
-| Claude | Sonnet 5.5 — à confirmer | Exemple d'assistant supplémentaire demandé pour la déclaration. Aucune contribution précise ne lui est attribuée sans confirmation de son utilisation effective. |
+| Claude | Sonnet 5.5 | Exemple d'assistant supplémentaire demandé pour la déclaration. Aucune contribution précise ne lui est attribuée sans confirmation de son utilisation effective. |
 
 ---
 
