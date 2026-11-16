@@ -2,10 +2,13 @@ package com.smartcare.ownership;
 
 import com.smartcare.persistence.Measurement;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import java.util.Optional;
+import jakarta.enterprise.inject.Alternative;
 
-@ApplicationScoped
+/**
+ * Test/helper fallback; kept as an explicit CDI alternative so production injection
+ * resolves to {@link DeviceOwnershipResolver}.
+ */
+@Alternative
 public class NoopOwnershipResolver implements OwnershipResolver {
 
     @Override
