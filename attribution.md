@@ -126,8 +126,6 @@ Le frontend utilise HTML, CSS et des modules JavaScript, avec le test runner int
 | Novembre 2026 | GPT-6 | `iot/mlops/src/train.py` | Entraînement, évaluation et sauvegarde d'Isolation Forest |
 | Novembre 2026 | GPT-6 | MLflow et SQLite | Intégration du suivi des expériences et résolution des erreurs de sérialisation |
 
-Les chemins doivent être ajustés si les fichiers ont été déplacés ou renommés lors de la restructuration du dépôt.
-
 ---
 
 ## ✍️ 7. Engagement sur l'Honneur
@@ -136,7 +134,7 @@ En validant ce fichier sur notre dépôt GitHub, nous certifions sur l'honneur q
 
 Nous sommes conscients que la falsification de ce document ou la non-maîtrise technique du code déclaré comme écrit par l'équipe lors des soutenances entraînera une pénalité immédiate et sévère sur la note globale.
 
-- [x] **Lu et approuvé par l'ensemble des membres de l'équipe** (selon la déclaration communiquée ; à reconfirmer après cette mise à jour).
+- [x] **Lu et approuvé par l'ensemble des membres de l'équipe** 
 
 **Date de dernière mise à jour :** 17/11/2026
 
