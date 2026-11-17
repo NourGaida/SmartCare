@@ -1,6 +1,12 @@
 # SmartCare — frontoffice et backoffice
 
 Deux applications HTML/CSS/JavaScript natifs, sans installation npm ni compilation.
+
+L'historique patient utilise GET /smartcare/api/me/measurements, implémenté avec le
+cookie de la session existante. Le [guide frontoffice](frontoffice/README.md)
+explique l'ouverture locale, le JSON fictif partagé avec les tests, les deux
+courbes et les états disponibles. La route serveur lit uniquement les mesures
+MongoDB du patient de la session. Les erreurs affichent un état réessayable.
 `frontends/frontoffice/` sert le portail patient ; `frontends/backoffice/` sert
 le portail professionnel et administrateur. L'interface reste en anglais, comme le
 patient existant. Le backoffice reprend ses couleurs turquoise, cartes, typographies,
@@ -140,7 +146,7 @@ gardent leur contenu en cas d'échec.
 | Chaque manifest.webmanifest, sw.js, icon* | Installation et ressources statiques de l'application. |
 | tests/frontend.test.mjs | Tests Node natifs de rôles, actions, données et ressources. |
 
-Caches distincts : smartcare-patient-static-v4 et smartcare-supervision-static-v4.
+Caches distincts : smartcare-patient-static-v6 et smartcare-supervision-static-v5.
 Les service workers ont des scopes distincts et n'interceptent qu'une liste
 explicite de ressources statiques sans paramètres. API, exports, sessions et
 mesures dynamiques ne sont pas mis en cache. Les modules de fixtures sont du code
@@ -161,9 +167,11 @@ Les comptes serveur proviennent de la base de développement. Voir
 par la personne B. Les portails appellent `POST /api/auth/login`, vérifient la session avec
 `GET /api/session` et envoient `X-CSRF-Token` lors du `POST /api/auth/logout`. Le navigateur
 gère le cookie HttpOnly. En mode serveur, l'écran affiche l'identité et le rôle ouverts par
-le backend. La démo reste accessible via le serveur statique lancé depuis la racine.
+le backend. Pour le patient, une session valide ouvre maintenant l'historique et
+appelle la route des mesures. Le backoffice conserve son écran de session.
+La démo reste accessible via le serveur statique lancé depuis la racine.
 
-Les routes métier pour les mesures, les alertes et le direct restent à valider dans la
+Les autres routes métier, les alertes et le direct restent à valider dans la
 [proposition API](../docs/frontend/api-proposal.md).
 
 Remplacer les factories d'adaptateurs par REST et un WebSocket autorisé. Le backend
@@ -182,7 +190,7 @@ Le [contrat MQTT observé](../iot/docs/message-contract.md) décrit le simulateu
 Node.js 22, sans dépendances, depuis la racine :
 
 ~~~powershell
-node --test frontends/tests/frontend.test.mjs frontends/tests/access-demo.test.mjs
+node --test frontends/tests/frontend.test.mjs frontends/tests/access-demo.test.mjs frontends/tests/patient-history.test.mjs
 node --test frontends/tests/integration/access-server.test.mjs
 Get-ChildItem frontends -Recurse -File -Include *.js,*.mjs | ForEach-Object { node --check $_.FullName; if ($LASTEXITCODE -ne 0) { throw "JavaScript syntax check failed" } }
 git diff --check
@@ -214,7 +222,7 @@ des données du premier patient et l'absence de celles du second.
 
 Les 15 scénarios contre le vrai serveur sont séparés et affichés comme SKIP/BLOCKED,
 jamais comme tests d'autorisation réussis. Ils attendent les routes, sessions et
-le protocole de la personne B. Voir [access-verification.md](docs/access-verification.md)
+le protocole de la personne B. Voir [access-verification.md](../docs/frontend/access-verification.md)
 pour la matrice, les preuves positives exigées et le contrat du driver à raccorder.
 
 Nouveaux fichiers importants :
@@ -239,6 +247,9 @@ seuls le code statique et la démo fictive restent utilisables. La démo peut do
 être recréée hors ligne ; elle ne représente pas une reprise d'historique sauvegardé.
 L'indicateur réseau du navigateur ne garantit pas la disponibilité du futur serveur.
 Une première visite en ligne est nécessaire. Les flux de démo s'arrêtent à la sortie.
+Le nouvel historique patient utilise un JSON fictif demandé sans cache et exclu
+du worker : hors ligne, cet historique affiche une indisponibilité réessayable,
+même si le shell statique et le dashboard fictif restent disponibles.
 
 Les tailles de texte, les formulaires, le retour à la ligne des boutons et les
 largeurs des cartes ont été revus pour 360 px. Les tableaux défilent localement.

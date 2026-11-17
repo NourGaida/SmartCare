@@ -1,6 +1,6 @@
 # Semaine 2 — tests d'accès de la personne A
 
-Hadil Karous, personne A. État du raccordement sur `feature/auth-login`.
+Hadil Karous, personne A. État du raccordement sur `feat/patient-measurement-history`.
 Les autorisations et l'authentification serveur appartiennent à la personne B.
 
 ## Ce qui existe réellement
@@ -10,12 +10,28 @@ Les autorisations et l'authentification serveur appartiennent à la personne B.
 - Préfixe /api : SmartCareApplication ; contexte du WAR généralement /smartcare.
 - Les sources se trouvent dans middleware/api/src/main/java/com/smartcare/api.
 - Le mode serveur utilise les routes de connexion, de session et de déconnexion.
-- Les routes d'historique, d'export et du direct restent nécessaires aux scénarios métier.
-- Les tests MongoDB existants concernent la persistance, sans valider ces accès.
+- GET /api/me/measurements : PatientMeasurementsResource ; le rôle PATIENT est
+  requis et le userId est déduit de la session validée par SecurityFilter.
+- La requête MongoDB filtre le patientId stocké à l'ingestion, ignore tout
+  identifiant client et exclut les mesures sans propriétaire. Elle ne filtre pas
+  sur l'affectation actuelle d'un appareil.
+- Les routes professionnel, export CSV et direct restent nécessaires à la matrice complète.
 
-Il n'est donc pas possible de revendiquer un refus REST/WebSocket du vrai serveur.
+Sept tests Java PatientMeasurementsResourceTest passent avec deux connexions
+fictives et MongoDB réel dans une base temporaire : isolement A/B, paramètres
+forgés, liste vide, mesures invalides, sessions absentes/expirées/révoquées,
+refus professionnel/admin et panne MongoDB. Le filtre et la ressource sont
+appelés avec un contexte JAX-RS simulé, sans déploiement HTTP/WildFly.
+
+Le parcours HTTP patient a aussi été vérifié après redéploiement WildFly sur
+localhost:8080 : connexion existante, session 200, mesures 200, ligne 75 bpm / 98 %
+présente et identifiants forgés ignorés. Le test dédié est
+frontends/tests/integration/patient-history-http.test.mjs ; il ferme sa propre
+session et ne modifie pas les données. Voir le guide frontoffice pour le relancer.
+Le rendu et le cache du navigateur n'ont pas été vérifiés (navigateur indisponible).
+
+Cela ne valide pas encore la matrice HTTP/WebSocket complète ci-dessous.
 Un 404 sur une route inexistante n'est pas une preuve d'autorisation.
-Les propositions de routes dans api-proposal.md restent à valider.
 
 ## Données et matrice communes
 
@@ -60,7 +76,7 @@ dans chaque scénario. Le CI les rapporte séparément des réussites frontend.
 
 | Série bloquée | Éléments à fournir/valider par B |
 | --- | --- |
-| 5 historiques REST | Route réelle, DTO, session authentifiée, déduction du patient, filtres, données de test et modèle d'affectation. |
+| 5 historiques REST | /me/measurements et les sessions existent ; raccorder le driver HTTP et ses fixtures. Pour le professionnel autorisé, il manque /patients/{id}/measurements et son contrôle d'affectation. |
 | 5 exports CSV | Route réelle, mêmes autorisations, paramètres, colonnes et marqueur appareil présent dans le CSV. |
 | 5 mises à jour WebSocket | URL réelle, authentification de connexion, protocole subscribe, acquittement/refus explicite, fermeture et pipeline réel de diffusion. |
 | Commun aux 15 | Quatre sessions réelles : A, B témoin live, professionnel et admin ; provisionnement/nettoyage isolé des fixtures ; cookies/token et CSRF selon contrat. |
