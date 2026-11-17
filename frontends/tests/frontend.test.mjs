@@ -399,6 +399,7 @@ test('service workers cache distinct static resources, handle root offline and i
       'https://demo.test/smartcare/api/me/measurements', 'https://demo.test/smartcare/api/me/alerts',
       'https://demo.test/smartcare/api/patients/patient-001/measurements/export',
       'https://demo.test/frontends/' + app + '/history.json',
+      'https://demo.test/frontends/frontoffice/fixtures/measurement-history.json',
       'https://demo.test/frontends/' + app + '/export.csv',
       'https://demo.test/frontends/' + app + '/app.js?token=demo'
     ]) {

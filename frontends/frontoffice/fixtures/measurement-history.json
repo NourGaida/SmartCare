@@ -1,0 +1,10 @@
+{
+  "measurements": [
+    {"id":"demo-006","deviceId":"SC-DEMO-001","acquiredAtUtc":"2026-11-17T12:00:12Z","heartRate":77,"spo2":98,"quality":"good","reason":null,"source":"simulated"},
+    {"id":"demo-001","deviceId":"SC-DEMO-001","acquiredAtUtc":"2026-11-17T12:00:00Z","heartRate":75,"spo2":98,"quality":"good","reason":null,"source":"simulated"},
+    {"id":"demo-003","deviceId":"SC-DEMO-001","acquiredAtUtc":"2026-11-17T12:00:02Z","heartRate":null,"spo2":null,"quality":"invalid","reason":"no_finger","source":"simulated"},
+    {"id":"demo-002","deviceId":"SC-DEMO-001","acquiredAtUtc":"2026-11-17T12:00:01Z","heartRate":76,"spo2":99,"quality":"good","reason":null,"source":"simulated"},
+    {"id":"demo-005","deviceId":"SC-DEMO-001","acquiredAtUtc":"2026-11-17T12:00:11Z","heartRate":76,"spo2":98,"quality":"good","reason":null,"source":"simulated"},
+    {"id":"demo-004","deviceId":"SC-DEMO-001","acquiredAtUtc":"2026-11-17T12:00:10Z","heartRate":74,"spo2":97,"quality":"good","reason":null,"source":"simulated"}
+  ]
+}

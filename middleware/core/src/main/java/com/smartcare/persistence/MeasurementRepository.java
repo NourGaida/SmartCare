@@ -13,12 +13,15 @@ import jakarta.inject.Inject;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Sorts.ascending;
 
 @ApplicationScoped
 public class MeasurementRepository implements MeasurementStore {
@@ -112,6 +115,19 @@ public class MeasurementRepository implements MeasurementStore {
     public Optional<Measurement> findByKey(String deviceId, String bootId, long sequence) {
         Document document = collection.find(keyFilter(deviceId, bootId, sequence)).first();
         return Optional.ofNullable(document).map(MeasurementMapper::fromDocument);
+    }
+
+    // Ownership is fixed at ingestion time, including when a device is later reassigned.
+    // Never query with null: MongoDB would also match unowned measurements.
+    public List<Measurement> findByPatientId(String patientId) {
+        if (patientId == null || patientId.isBlank()) {
+            throw new IllegalArgumentException("patientId is required");
+        }
+        schemaInitializer.ensureReady();
+        return collection.find(eq("patientId", patientId))
+                .sort(ascending("acquiredAt", "deviceId", "bootId", "sequence"))
+                .map(MeasurementMapper::fromDocument)
+                .into(new ArrayList<>());
     }
 
     public long countByDevice(String deviceId) {
