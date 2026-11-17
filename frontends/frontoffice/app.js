@@ -1,5 +1,7 @@
 // SmartCare patient interface. All readings are synthetic and held in memory.
 import { createPatientAdapter } from './adapter.mjs';
+import { createMeasurementsAdapter } from './measurements-adapter.mjs';
+import { mountHistory } from './history.mjs';
 import { DEMO_ACCOUNTS } from '../shared/auth.mjs';
 import { chartSegments, isStale } from '../shared/domain.mjs';
 import { downloadCSV } from '../shared/ui.mjs';
@@ -8,10 +10,11 @@ const adapter = createPatientAdapter();
 const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];
 mountConnectivity($('#connectivity-notice'));
+const measurementHistory = mountHistory($('#view-history'), { adapter: createMeasurementsAdapter({ mode: 'demo' }) });
 const time = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' });
 const fullTime = new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit' });
 const now = Date.now();
-const state = { route: 'dashboard', range: '15', metric: 'hr', scenario: 'normal', paused: false, inDemo: false, lastReceived: now, page: 1, pageSize: 10, historySnapshot: now, alerts: [], data: [] };
+const state = { route: 'dashboard', range: '15', metric: 'hr', scenario: 'normal', paused: false, inDemo: false, lastReceived: now, alerts: [], data: [] };
 const labels = {
   dashboard: ['YOUR DAILY OVERVIEW', 'My dashboard', 'Your latest readings, all in one place.', 'Overview'],
   history: ['YOUR MEASUREMENTS', 'Reading history', 'A little perspective on your recent readings.', 'History'],
@@ -30,7 +33,7 @@ function navigate() {
   $('#breadcrumb-current').textContent = breadcrumb;
   $$('.view').forEach(view => { view.hidden = view.id !== `view-${state.route}`; });
   $$('[data-route]').forEach(link => { const selected = link.dataset.route === state.route; link.classList.toggle('active', selected); selected ? link.setAttribute('aria-current', 'page') : link.removeAttribute('aria-current'); });
-  if (state.route === 'history') { state.historySnapshot = Date.now(); state.page = 1; renderHistory(); }
+  if (state.route === 'history') measurementHistory.load();
   if (state.route === 'alerts') renderAlerts();
   renderReadings();
 }
@@ -42,11 +45,6 @@ function rangeStart(range, end = Date.now()) {
   return end - Number(range) * 60 * 1000;
 }
 function chartRows() { const end = Date.now(); return state.data.filter(row => row.timestamp >= rangeStart(state.range, end) && row.timestamp <= end); }
-function historyRows() {
-  const start = rangeStart($('#history-range').value, state.historySnapshot);
-  const quality = $('#history-quality').value;
-  return state.data.filter(row => row.timestamp >= start && row.timestamp <= state.historySnapshot && (quality === 'all' || row.quality === quality)).slice().reverse();
-}
 function renderReadings() {
   if (!state.inDemo) return;
   const latest = state.data.at(-1);
@@ -152,17 +150,6 @@ function renderChart() {
   };
   chart.onpointerleave = () => { $('#chart-tooltip').hidden = true; $('#chart-crosshair')?.setAttribute('visibility', 'hidden'); };
 }
-function renderHistory() {
-  const rows = historyRows();
-  const pages = Math.max(1, Math.ceil(rows.length / state.pageSize));
-  state.page = Math.max(1, Math.min(state.page, pages));
-  const offset = (state.page - 1) * state.pageSize;
-  $('#history-body').innerHTML = rows.length ? rows.slice(offset, offset + state.pageSize).map(row => `<tr><td>${fullTime.format(new Date(row.timestamp))}</td><td>${row.hr == null ? '—' : `${row.hr} bpm`}</td><td>${row.spo2 == null ? '—' : `${row.spo2}%`}</td><td><span class="status-chip ${row.quality === 'good' ? '' : 'warning'}">${row.quality === 'good' ? 'Good signal' : 'Poor · invalid'}</span></td><td><span class="source-chip">DEMO</span></td></tr>`).join('') : '<tr><td colspan="5">No readings match these filters. Try another range or signal quality.</td></tr>';
-  $('#history-total').textContent = `${rows.length.toLocaleString('en-GB')} readings · snapshot at ${time.format(new Date(state.historySnapshot))}`;
-  $('#page-label').textContent = rows.length ? `${offset + 1}–${Math.min(offset + state.pageSize, rows.length)} of ${rows.length.toLocaleString('en-GB')}` : '0 readings';
-  $('#previous-page').disabled = state.page <= 1;
-  $('#next-page').disabled = state.page >= pages;
-}
 function renderAlerts() {
   const count = state.alerts.length;
   $('#nav-alert-count').hidden = count === 0;
@@ -190,7 +177,7 @@ function showAlert(id) {
 let toastTimeout;
 function toast(message) { $('#toast').textContent = message; $('#toast').hidden = false; clearTimeout(toastTimeout); toastTimeout = setTimeout(() => { $('#toast').hidden = true; }, 4500); }
 function exportCSV() {
-  const rows = state.route === 'history' ? historyRows().slice().reverse() : chartRows();
+  const rows = chartRows();
   if (!rows.length) { toast('No readings to export for this selection.'); return; }
   downloadCSV(rows, 'smartcare-demo-' + new Date().toISOString().slice(0, 10) + '.csv');
   toast(`${rows.length.toLocaleString('en-GB')} demo readings exported as CSV.`);
@@ -202,7 +189,7 @@ function setScenario(scenario) {
   else if (scenario === 'offline') { state.data = adapter.getReadings(); state.lastReceived = Date.now() - 31000; }
   else { state.data = adapter.getReadings(); addReading(); }
   renderReadings();
-  if (state.route === 'history') renderHistory();
+  if (state.route === 'history') measurementHistory.load();
   const messages = {
     offline: 'Disconnected state previewed. Resume demo to reconnect.',
     poor: 'Poor signal selected. New samples are marked invalid.',
@@ -217,17 +204,15 @@ window.addEventListener('hashchange', navigate);
 $('#alerts-shortcut').addEventListener('click', () => { location.hash = 'alerts'; });
 $$('[data-range]').forEach(button => button.addEventListener('click', () => { state.range = button.dataset.range; $$('[data-range]').forEach(item => { item.classList.toggle('selected', item === button); item.setAttribute('aria-pressed', String(item === button)); }); renderChart(); }));
 $$('[data-metric]').forEach(button => button.addEventListener('click', () => { state.metric = button.dataset.metric; $$('[data-metric]').forEach(item => { item.classList.toggle('selected', item === button); item.setAttribute('aria-pressed', String(item === button)); }); renderChart(); }));
-$$('[data-export]').forEach(button => button.addEventListener('click', exportCSV));
+$$('[data-export]').filter(button => !$('#view-history').contains(button)).forEach(button => button.addEventListener('click', exportCSV));
 $$('[data-scenario]').forEach(button => button.addEventListener('click', () => setScenario(button.dataset.scenario)));
 $('#stream-toggle').addEventListener('click', () => { if (state.paused || state.scenario === 'offline') setScenario('normal'); else { state.paused = true; renderReadings(); } });
-['#history-range', '#history-quality'].forEach(selector => $(selector).addEventListener('change', () => { state.page = 1; state.historySnapshot = Date.now(); renderHistory(); }));
-$('#previous-page').addEventListener('click', () => { state.page--; renderHistory(); });
-$('#next-page').addEventListener('click', () => { state.page++; renderHistory(); });
 $('#demo-alert').addEventListener('click', previewAlert);
 $('#alert-list').addEventListener('click', event => { const button = event.target.closest('[data-alert-id]'); if (button) showAlert(button.dataset.alertId); });
 ['#close-dialog', '#dialog-done'].forEach(selector => $(selector).addEventListener('click', () => $('#alert-dialog').close()));
 
 function logout() {
+  measurementHistory.reset();
   adapter.logout();
   state.inDemo = false; state.data = []; state.alerts = []; state.lastReceived = 0;
   clearTimeout(toastTimeout); $('#toast').hidden = true; $('#toast').textContent = '';
@@ -251,8 +236,9 @@ $('#login-form').addEventListener('submit', async event => {
   $('#login-submit').disabled = true; $('#login-error').textContent = 'Opening demo session…';
   try {
     await adapter.login({ email: $('#login-email').value, password: $('#login-password').value });
+    measurementHistory.reset();
     state.data = adapter.getReadings(); state.alerts = adapter.getAlerts(); state.scenario = 'normal'; state.paused = false;
-    state.lastReceived = Date.now(); state.historySnapshot = Date.now(); state.page = 1; state.range = '15'; state.metric = 'hr'; state.inDemo = true;
+    state.lastReceived = Date.now(); state.range = '15'; state.metric = 'hr'; state.inDemo = true;
     $('#history-range').value = 'all'; $('#history-quality').value = 'all';
     $$('[data-range]').forEach(button => { const selected = button.dataset.range === '15'; button.classList.toggle('selected', selected); button.setAttribute('aria-pressed', String(selected)); });
     $$('[data-metric]').forEach(button => { const selected = button.dataset.metric === 'hr'; button.classList.toggle('selected', selected); button.setAttribute('aria-pressed', String(selected)); });

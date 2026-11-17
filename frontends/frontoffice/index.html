@@ -12,7 +12,7 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="../shared/forms.css">
-  <script type="module" src="../shared/portal.mjs" data-portal="frontoffice"></script>
+  <script type="module" src="./portal.mjs" data-portal="frontoffice"></script>
 </head>
 <body>
   <div id="connectivity-notice" class="connection-notice" role="status" hidden></div>
@@ -72,7 +72,35 @@
           </div>
           <div class="demo-footnote"><svg class="icon"><use href="#i-info"/></svg><span>This is a prototype with simulated readings. It does not provide a medical diagnosis.</span></div>
         </section>
-        <section id="view-history" class="view" aria-label="Measurement history" hidden><article class="panel"><div class="panel-header"><div><h2>Measurement history</h2><p>Browse and export the readings in this demo session.</p></div><button class="button button-primary" data-export><svg class="icon"><use href="#i-download"/></svg>Export CSV</button></div><div class="table-toolbar"><label>Time range <select id="history-range"><option value="15">Last 15 minutes</option><option value="60">Last hour</option><option value="today">Today</option><option value="all" selected>All demo readings</option></select></label><label>Signal quality <select id="history-quality"><option value="all">All readings</option><option value="good">Good signal</option><option value="invalid">Invalid signal</option></select></label><span id="history-total" class="muted"></span></div><div class="table-scroll"><table><thead><tr><th scope="col">Date & time</th><th scope="col">Heart rate</th><th scope="col">Blood oxygen</th><th scope="col">Signal quality</th><th scope="col">Source</th></tr></thead><tbody id="history-body"></tbody></table></div><div class="pagination"><span id="page-label"></span><div><button class="button button-outline" id="previous-page">Previous</button><button class="button button-outline" id="next-page">Next</button></div></div></article></section>
+        <section id="view-history" class="view" aria-label="Measurement history" hidden>
+          <article class="panel">
+            <div class="panel-header">
+              <div><h2>Measurement history</h2><p>Heart rate in bpm and blood oxygen in %. Oldest to newest.</p></div>
+              <div class="history-actions">
+                <button class="button button-outline" id="history-refresh">Reload measurements</button>
+                <button class="button button-primary" data-export disabled><svg class="icon"><use href="#i-download"/></svg>Export CSV</button>
+              </div>
+            </div>
+            <p id="history-origin" class="history-origin"></p>
+            <div id="history-feedback" class="history-feedback" role="status" aria-live="polite">
+              <p id="history-message"></p>
+              <button class="button button-outline" id="history-retry" hidden>Retry</button>
+            </div>
+            <div id="history-content" hidden>
+              <div class="table-toolbar">
+                <label>Time range <select id="history-range"><option value="15">Last 15 minutes</option><option value="60">Last hour</option><option value="today">Today</option><option value="all" selected>All returned readings</option></select></label>
+                <label>Signal quality <select id="history-quality"><option value="all">All readings</option><option value="good">Good signal</option><option value="invalid">Invalid signal</option></select></label>
+                <span id="history-total" class="muted"></span>
+              </div>
+              <div class="history-graphs">
+                <section aria-labelledby="history-heart-title"><h3 id="history-heart-title">Heart rate &middot; bpm</h3><div data-history-chart="hr"></div></section>
+                <section aria-labelledby="history-oxygen-title"><h3 id="history-oxygen-title">Blood oxygen &middot; %</h3><div data-history-chart="spo2"></div></section>
+              </div>
+              <div class="table-scroll"><table><thead><tr><th scope="col">Date &amp; time</th><th scope="col">Heart rate</th><th scope="col">Blood oxygen</th><th scope="col">Signal quality</th><th scope="col">Source</th></tr></thead><tbody id="history-body"></tbody></table></div>
+              <div class="pagination"><span id="page-label"></span><div><button class="button button-outline" id="previous-page">Previous</button><button class="button button-outline" id="next-page">Next</button></div></div>
+            </div>
+          </article>
+        </section>
         <section id="view-alerts" class="view" aria-label="Patient alerts" hidden><article class="panel"><div class="panel-header"><div><h2>Your alerts</h2><p>Review alerts and the reason they were created.</p></div><button class="button button-outline" id="demo-alert"><svg class="icon"><use href="#i-bell"/></svg>Preview an alert</button></div><div id="alert-list" class="alert-list"></div></article><p class="section-note">Demonstration alerts are created manually here. In the connected app, the backend will create and manage alert episodes.</p></section>
         <section id="view-device" class="view" aria-label="Device settings" hidden><div class="device-page-grid"><article class="panel"><div class="panel-header"><div><h2>SmartCare sensor</h2><p>Your demonstration device.</p></div><span class="status-chip" id="device-page-status">Connected</span></div><div class="device-large"><svg class="icon"><use href="#i-device"/></svg><div><strong>ESP32 + MAX30102</strong><p>Heart rate and blood oxygen sensor</p></div></div><dl class="full-details"><div><dt>Device identifier</dt><dd>SC-DEMO-001</dd></div><div><dt>Assigned patient</dt><dd>Jamie Davis · Demo account</dd></div><div><dt>Data source</dt><dd>Browser simulation</dd></div><div><dt>Update interval</dt><dd>1 second</dd></div><div><dt>Model service</dt><dd>Not connected</dd></div></dl></article><article class="panel demo-controls"><div class="panel-header"><div><h2>Try the interface</h2><p>Preview the states your app needs to handle.</p></div><svg class="icon"><use href="#i-info"/></svg></div><button class="scenario" data-scenario="normal"><span class="scenario-icon"><svg class="icon"><use href="#i-check"/></svg></span><span><strong>Good signal</strong><small>Resume simulated readings.</small></span><svg class="icon"><use href="#i-arrow"/></svg></button><button class="scenario" data-scenario="poor"><span class="scenario-icon amber"><svg class="icon"><use href="#i-signal"/></svg></span><span><strong>Poor signal</strong><small>Mark new readings as invalid; show chart gaps.</small></span><svg class="icon"><use href="#i-arrow"/></svg></button><button class="scenario" data-scenario="offline"><span class="scenario-icon slate"><svg class="icon"><use href="#i-wifi"/></svg></span><span><strong>Disconnected device</strong><small>Preview data older than 30 seconds.</small></span><svg class="icon"><use href="#i-arrow"/></svg></button><button class="scenario" data-scenario="empty"><span><strong>Empty readings</strong><small>Preview this demonstration state. Reload demo data to recover.</small></span></button><button class="scenario" data-scenario="error"><span><strong>Data loading error</strong><small>Preview this demonstration state. Reload demo data to recover.</small></span></button><button class="scenario" data-scenario="loading"><span><strong>Loading readings</strong><small>Preview this demonstration state. Reload demo data to recover.</small></span></button><div class="inline-note">These controls affect demo data only. They do not operate a real sensor.</div></article></div></section>
         <footer class="page-footer"><span>SmartCare <span class="footer-separator">/</span> A little clarity, every day.</span><span>Patient portal · Prototype v1.0</span></footer>

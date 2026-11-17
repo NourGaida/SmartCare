@@ -1,6 +1,6 @@
 # Frontend / backend — à valider avec la personne B
 
-## Routes implémentées sur `feature/auth-login`
+## Routes d’authentification intégrées à main
 
 Le WAR préfixe les chemins par `/smartcare`. Les routes de santé sont `GET /api/health`,
 `GET /api/health/database` et `GET /api/health/ingestion`.
@@ -11,7 +11,8 @@ Le WAR préfixe les chemins par `/smartcare`. Les routes de santé sont `GET /ap
 | `GET /api/session` | Renvoie `userId`, `role`, `csrfToken` et `expiresAt`. Les portails vérifient cette réponse après la connexion. |
 | `POST /api/auth/logout` | Invalide la session avec le cookie et l'en-tête `X-CSRF-Token`. |
 
-Les routes métier et le WebSocket restent à implémenter. La connexion serveur est
+L'historique patient décrit ci-dessous est implémenté. Les autres routes métier
+et le WebSocket restent à implémenter. La connexion serveur est
 ouverte depuis les portails servis par le WAR sur la même origine que l'API.
 
 Les scénarios d'accès et les dépendances précises de la personne A envers la
@@ -25,7 +26,6 @@ DTO, erreurs, paramètres, pagination et transport.
 | Méthode / chemin proposé | Usage / adaptateur |
 | --- | --- |
 | GET /api/me/device | Appareil et fraîcheur du patient de la session. |
-| GET /api/me/measurements | Mesures/historique patient, période, qualité et curseur. |
 | GET /api/me/measurements/export | CSV des mêmes filtres, autorisé côté serveur. |
 | GET /api/me/alerts | Épisodes du patient de la session. |
 | GET /api/patients | getAssignedPatients(), uniquement les patients affectés. |
@@ -53,3 +53,47 @@ une URL est modifié. Prévoir cookies HttpOnly/Secure, CSRF, expiration et rév
 À convenir : formats UTC, unités, qualité et états d'épisode, identifiants, versions
 de règle/modèle, preuves facultatives, réponse d'acquittement, enveloppes d'événement,
 reprise après reconnexion et erreurs ne révélant pas un autre patient.
+
+## Historique patient implémenté — 17 novembre 2026
+
+La branche feat/patient-measurement-history raccorde l'écran existant à
+PatientMeasurementsResource et au dépôt MongoDB MeasurementRepository.
+
+- Route implémentée : GET /smartcare/api/me/measurements, sans identifiant patient.
+- Le filtre existant valide le cookie et fournit la session. Seul le rôle PATIENT
+  est admis. Le userId de session correspond au patientId enregistré à l'ingestion.
+- MongoDB est filtré sur ce patientId ; les paramètres client patientId/userId
+  sont ignorés. Les mesures sans propriétaire sont exclues, même pour le même appareil.
+- Cookie de session existant envoyé sur la même origine, cache: no-store.
+- La conversion est isolée dans
+  [normalizeMeasurements](../../frontends/frontoffice/measurements-adapter.mjs).
+- Le [JSON fictif](../../frontends/frontoffice/fixtures/measurement-history.json)
+  est utilisé par les tests et le mode démo, avec une origine fictive visible.
+- Le serveur renvoie l'enveloppe measurements ; champs
+  acquiredAtUtc, heartRate, spo2, quality, reason, deviceId et source.
+- Dates normalisées en millisecondes et triées pour l'interface ; bpm et %
+  conservés sans conversion d'échelle. Les valeurs invalides restent nulles.
+- Liste vide : état vide. Réseau/HTTP/JSON invalide : erreur et Retry. HTTP 401 :
+  effacement puis retour au formulaire de connexion. Aucun fallback fictif en serveur.
+
+Le serveur trie par acquiredAt croissant puis deviceId/bootId/sequence, renvoie
+200 avec une liste vide en l'absence de mesures, 401 pour une session absente,
+expirée ou révoquée, 403 pour un rôle autre que PATIENT et 503 si le dépôt MongoDB
+est indisponible. La réponse porte Cache-Control: no-store.
+
+~~~json
+{"measurements":[{"acquiredAtUtc":"2026-11-17T12:00:00Z","heartRate":75,"spo2":98,"quality":"good","reason":null,"deviceId":"sc-001","source":"simulated"}]}
+~~~
+
+Les nombres sont en bpm et %, sans conversion d'échelle. Les mesures invalides
+conservent heartRate/spo2 à null et leur reason. Aucun identifiant de patient,
+cookie ou document MongoDB brut n'est renvoyé. Une source absente est null.
+
+À compléter avec B : filtres/pagination serveur et limites de volume. Cette
+première route renvoie toutes les mesures appartenant au patient ; le frontend
+filtre et pagine localement les lignes reçues, sans curseur serveur.
+
+PatientMeasurementsResourceTest utilise deux connexions fictives, de vraies
+sessions et une base MongoDB temporaire isolée. Il couvre l'isolation, les
+identifiants forgés, les nulls, les erreurs et les refus d'accès. Le contexte
+JAX-RS est simulé : ce test ne valide pas un déploiement HTTP/WildFly.
