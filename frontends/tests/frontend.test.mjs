@@ -5,6 +5,7 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 import { createDemoAuth, DEMO_ACCOUNTS } from '../shared/auth.mjs';
+import { createServerAuth } from '../shared/server-auth.mjs';
 import { AccessError, chartSegments, filterReadings, paginate, readingsCSV, isStale } from '../shared/domain.mjs';
 import { createPatientAdapter } from '../frontoffice/adapter.mjs';
 import { createSupervisionAdapter } from '../backoffice/adapter.mjs';
@@ -14,6 +15,55 @@ import * as views from '../backoffice/views.mjs';
 
 const NOW = Date.UTC(2026, 10, 1, 12);
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+
+test('server login confirms the cookie session and logout sends the server CSRF token', async () => {
+  const base = 'http://192.168.1.4:8080/smartcare/api/';
+  const calls = [];
+  const replies = [new Response('{}'), Response.json({ userId: 'dev-admin-1', role: 'ADMIN', csrfToken: 'test-csrf' }),
+    new Response(null, { status: 204 })];
+  const auth = createServerAuth(base, async (url, options) => {
+    calls.push({ url: url.href, ...options });
+    return replies.shift();
+  });
+
+  const session = await auth.signIn({ email: ' admin@smartcare.local ', password: 'fictional' }, ['administrator']);
+  assert.equal(session.userId, 'dev-admin-1');
+  assert.equal(session.role, 'administrator');
+  await auth.signOut(session);
+  assert.deepEqual(calls.map(({ url, method }) => [url, method]), [
+    [base + 'auth/login', 'POST'], [base + 'session', 'GET'], [base + 'auth/logout', 'POST']
+  ]);
+  assert.deepEqual(JSON.parse(calls[0].body), { email: 'admin@smartcare.local', password: 'fictional' });
+  assert.equal(calls[2].headers['X-CSRF-Token'], 'test-csrf');
+  assert.ok(calls.every(call => call.credentials === 'same-origin' && call.cache === 'no-store'));
+});
+
+test('server login explains when the password is rejected or the browser loses the session', async () => {
+  const base = 'http://localhost:8080/smartcare/api/';
+  const credentials = { email: 'patient@smartcare.local', password: 'fictional' };
+  const rejected = createServerAuth(base, async () => new Response(null, { status: 401 }));
+  await assert.rejects(rejected.signIn(credentials, ['patient']), /password is incorrect/);
+
+  const lostCookie = createServerAuth(base, async url =>
+    new Response(null, { status: url.pathname.endsWith('/session') ? 401 : 200 }));
+  await assert.rejects(lostCookie.signIn(credentials, ['patient']), /did not establish a session/);
+});
+
+test('server login does not open the wrong portal and closes the new session', async () => {
+  const base = 'http://localhost:8080/smartcare/api/';
+  const auth = createServerAuth(base, async (url, options) => {
+    if (url.pathname.endsWith('/session')) {
+      return Response.json({ userId: 'dev-patient-1', role: 'PATIENT', csrfToken: 'test-csrf' });
+    }
+    if (url.pathname.endsWith('/login')) return new Response('{}');
+    assert.equal(url.pathname, '/smartcare/api/auth/logout');
+    assert.equal(options.headers['X-CSRF-Token'], 'test-csrf');
+    return new Response(null, { status: 204 });
+  });
+  await assert.rejects(auth.signIn({ email: 'patient@smartcare.local', password: 'fictional' },
+    ['professional', 'administrator']), /belongs in the other SmartCare portal/);
+});
+
 async function workspace(role, options = {}) {
   const auth = createDemoAuth(['professional', 'administrator']);
   await auth.login(DEMO_ACCOUNTS[role]);

@@ -50,5 +50,27 @@
 
     <build>
         <finalName>smartcare</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <webResources>
+                        <resource>
+                            <directory>${project.basedir}/../../frontends</directory>
+                            <targetPath>frontends</targetPath>
+                            <includes>
+                                <include>frontoffice/**</include>
+                                <include>backoffice/**</include>
+                                <include>shared/**</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/*.md</exclude>
+                            </excludes>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 </project>

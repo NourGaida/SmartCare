@@ -1,21 +1,18 @@
 # Frontend / backend — à valider avec la personne B
 
-## Route réellement présente
+## Routes implémentées sur `feature/auth-login`
 
-Vérification des sources au 10 novembre 2026 :
-SmartCareApplication déclare /api ; HealthSource expose **GET /api/health**,
-réponse {"status":"ok"}. DatabaseHealthSource expose **GET /api/health/database**,
-avec réponse 200 si MongoDB et le schéma sont prêts, 503 sinon.
-Ces classes se trouvent dans middleware/api/src/main/java/com/smartcare/api.
-Le contexte du WAR ajoute généralement /smartcare.
-Aucune route d'authentification, patient, mesure, alerte ou administration n'est
-encore implémentée ici. La démonstration ne prétend pas les appeler.
-Il n'y a pas de point d'entrée WebSocket ni de mécanisme de session de test dans
-les sources examinées. Il s'agit d'un constat sur le code, pas d'une validation
-d'un serveur déployé. Les tests de persistance MongoDB ne testent pas ces accès.
-Les chemins génériques /users, /devices, /measurements, /scores, /alerts et
-/configuration annoncés dans le README racine n'ont pas de ressource REST
-correspondante dans le code à cette date.
+Le WAR préfixe les chemins par `/smartcare`. Les routes de santé sont `GET /api/health`,
+`GET /api/health/database` et `GET /api/health/ingestion`.
+
+| Méthode / chemin | Contrat utilisé par le frontend |
+| --- | --- |
+| `POST /api/auth/login` | JSON `{email,password}`. Le serveur renvoie un cookie de session HttpOnly. |
+| `GET /api/session` | Renvoie `userId`, `role`, `csrfToken` et `expiresAt`. Les portails vérifient cette réponse après la connexion. |
+| `POST /api/auth/logout` | Invalide la session avec le cookie et l'en-tête `X-CSRF-Token`. |
+
+Les routes métier et le WebSocket restent à implémenter. La connexion serveur est
+ouverte depuis les portails servis par le WAR sur la même origine que l'API.
 
 Les scénarios d'accès et les dépendances précises de la personne A envers la
 personne B sont dans [access-verification.md](access-verification.md).
@@ -27,9 +24,6 @@ DTO, erreurs, paramètres, pagination et transport.
 
 | Méthode / chemin proposé | Usage / adaptateur |
 | --- | --- |
-| POST /api/auth/login | login(email,password), session serveur. |
-| POST /api/auth/logout | logout(), invalider session et flux ouverts. |
-| GET /api/session | Identité, rôle et expiration. |
 | GET /api/me/device | Appareil et fraîcheur du patient de la session. |
 | GET /api/me/measurements | Mesures/historique patient, période, qualité et curseur. |
 | GET /api/me/measurements/export | CSV des mêmes filtres, autorisé côté serveur. |

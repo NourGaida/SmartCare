@@ -12,7 +12,7 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="../shared/forms.css">
-  <script type="module" src="./app.js"></script>
+  <script type="module" src="../shared/portal.mjs" data-portal="frontoffice"></script>
 </head>
 <body>
   <div id="connectivity-notice" class="connection-notice" role="status" hidden></div>
@@ -83,9 +83,9 @@
     <img src="./icon.svg" width="54" height="54" alt="">
     <div class="eyebrow">SMARTCARE PATIENT PORTAL</div><h1>Your readings.<br>A clearer picture.</h1>
     <p>Demonstration mode · Jamie Davis is a fictional patient. This public demo has no secure authentication and uses no real medical data.</p>
-    <form id="login-form" class="login-form">
-      <label>Email address<input id="login-email" type="email" required maxlength="120" autocomplete="username"></label>
-      <label>Demo password<input id="login-password" type="password" required maxlength="100" autocomplete="current-password"></label>
+    <form id="login-form" class="login-form" method="post">
+      <label>Email address<input id="login-email" name="email" type="email" required maxlength="120" autocomplete="username"></label>
+      <label>Demo password<input id="login-password" name="password" type="password" required maxlength="100" autocomplete="current-password"></label>
       <p id="login-error" class="form-message" role="status" aria-live="polite"></p>
       <button class="button button-primary" id="login-submit">Sign in to demo</button>
     </form>

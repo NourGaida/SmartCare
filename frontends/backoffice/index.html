@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="../frontoffice/styles.css">
   <link rel="stylesheet" href="../shared/forms.css">
   <link rel="stylesheet" href="./styles.css">
-  <script type="module" src="./app.mjs"></script>
+  <script type="module" src="../shared/portal.mjs" data-portal="backoffice"></script>
 </head>
 <body>
   <div id="connectivity-notice" class="connection-notice" role="status" hidden></div>
@@ -24,7 +24,7 @@
       <div class="eyebrow">SMARTCARE SUPERVISION</div>
       <h1>A connected view.<br>A little more clarity.</h1>
       <p>Explore a fictional care workspace. This public demonstration has no secure authentication. All accounts, patients and service states are simulated.</p>
-      <form id="login-form" class="login-form">
+      <form id="login-form" class="login-form" method="post">
         <label>Email address<input type="email" name="email" required maxlength="120" autocomplete="username"></label>
         <label>Demo password<input type="password" name="password" required maxlength="100" autocomplete="current-password"></label>
         <p id="login-message" class="form-message" role="status"></p>

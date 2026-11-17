@@ -10,7 +10,8 @@ The `api` module contains the JAX-RS application and the deployable WAR.
 - `WEB-INF/beans.xml`: CDI descriptor for the web module.
 - `DatabaseHealthSourceTest` / `IngestionHealthSourceTest`: health endpoint tests.
 
-There is no `web.xml`; the application is configured through annotations.
+The application uses annotations for REST resources. `WEB-INF/web.xml` defines MIME types
+and directory index handling for the packaged frontend files.
 
 ## Build and package
 
@@ -25,6 +26,10 @@ middleware/api/target/smartcare.war
 ```
 
 The `finalName` is `smartcare`, and the deployed context path is `/smartcare`. A clean build removes any older `smartcare-api-1.0.0.war` left from before the rename.
+
+The WAR includes the two portals under `/smartcare/frontends/frontoffice/` and
+`/smartcare/frontends/backoffice/`. Open them on the same host and port as `/smartcare/api/`
+so the browser can use the server's session cookie. See the [frontend guide](../../frontends/README.md).
 
 ## Deploy
 

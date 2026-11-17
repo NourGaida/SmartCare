@@ -1,6 +1,6 @@
 # Semaine 2 — tests d'accès de la personne A
 
-Hadil Karous, personne A. Constat des sources : 10 novembre 2026.
+Hadil Karous, personne A. État du raccordement sur `feature/auth-login`.
 Les autorisations et l'authentification serveur appartiennent à la personne B.
 
 ## Ce qui existe réellement
@@ -9,8 +9,8 @@ Les autorisations et l'authentification serveur appartiennent à la personne B.
 - GET /api/health/database : DatabaseHealthSource, 200 ou 503.
 - Préfixe /api : SmartCareApplication ; contexte du WAR généralement /smartcare.
 - Les sources se trouvent dans middleware/api/src/main/java/com/smartcare/api.
-- Aucune route de session, historique, export, ni classe WebSocket n'est présente.
-- Les sessions frontend sont des objets en mémoire, pas des sessions serveur.
+- Le mode serveur utilise les routes de connexion, de session et de déconnexion.
+- Les routes d'historique, d'export et du direct restent nécessaires aux scénarios métier.
 - Les tests MongoDB existants concernent la persistance, sans valider ces accès.
 
 Il n'est donc pas possible de revendiquer un refus REST/WebSocket du vrai serveur.
