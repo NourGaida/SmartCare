@@ -37,7 +37,7 @@ SmartCare aims to connect a wearable/edge sensing device to a reliable cloud-bac
 
 ## Architecture
 
-![SmartCare architecture](docs/assets/architecture.svg)
+![SmartCare architecture](docs/assets/architecture.png)
 
 **Data path implemented in the repository:** `Simulator → Mosquitto → Node-RED → validated MQTT → Jakarta EE receiver → MongoDB`. **Designed but not yet connected:** `ESP32/MAX30102`, live ML scoring, backend alert rules and live PWA adapters. The Python rule-based duration detector exists as an independent component, but its end-to-end integration with the backend is not established.
 
@@ -82,7 +82,7 @@ flowchart LR
 
 ## MQTT ingestion and reliability
 
-![Ingestion pipeline](docs/assets/ingestion.svg)
+![Ingestion pipeline](docs/assets/ingestion.png)
 
 ### MQTT topics
 
