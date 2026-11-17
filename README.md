@@ -5,7 +5,7 @@
 
 **SUP'COM · Cloud of Things (COT) · 2026–2027 · Team 9**
 
-[![Java](https://img.shields.io/badge/Backend-Jakarta%20EE%2011-2563eb)](middleware/) [![MQTT](https://img.shields.io/badge/Messaging-MQTT-0f766e)](IoT/) [![MongoDB](https://img.shields.io/badge/Storage-MongoDB-16a34a)](middleware/) [![ML](https://img.shields.io/badge/ML-Isolation%20Forest-7c3aed)](IoT/mlops/) [![Status](https://img.shields.io/badge/Status-Research%20prototype-f59e0b)](#implementation-status)
+[![Java](https://img.shields.io/badge/Backend-Jakarta%20EE%2011-2563eb)](middleware/) [![MQTT](https://img.shields.io/badge/Messaging-MQTT-0f766e)](iot/) [![MongoDB](https://img.shields.io/badge/Storage-MongoDB-16a34a)](middleware/) [![ML](https://img.shields.io/badge/ML-Isolation%20Forest-7c3aed)](iot/mlops/) [![Status](https://img.shields.io/badge/Status-Research%20prototype-f59e0b)](#implementation-status)
 
 *An experimental end-to-end platform for physiological measurement ingestion, monitoring, anomaly detection and future early-warning workflows.*
 
@@ -24,7 +24,7 @@
 - [MLOps and experimental results](#mlops-and-experimental-results)
 - [Repository layout](#repository-layout)
 - [Quick start (Windows PowerShell)](#quick-start-windows-powershell)
-- [Backend health API](#backend-health-api)
+- [Backend API](#backend-api)
 - [Testing and CI](#testing-and-ci)
 - [Security, limitations and roadmap](#security-limitations-and-roadmap)
 - [Team and attribution](#team-and-attribution)
@@ -57,7 +57,7 @@ flowchart LR
     MQ -.-> ML["Real-time ML service (planned)"]
     ML -.-> API["Alert and score APIs (planned)"]
     DB -.-> API
-    API -.-> UI["Patient and supervision PWAs (demo)"]
+    API -.-> UI["Patient and supervision PWAs"]
 ```
 
 
@@ -65,19 +65,20 @@ flowchart LR
 
 | Subsystem | Current state | Evidence in repository |
 |---|---|---|
-| MQTT simulator, seven scenarios | **Implemented** | [`IoT/simulator/`](IoT/simulator/) |
-| Mosquitto + Node-RED Docker stack | **Configured** | [`IoT/broker/docker-compose.yml`](IoT/broker/docker-compose.yml) |
-| Node-RED raw-message validation and routing | **Implemented** | [`IoT/gateway/flows/flows.json`](IoT/gateway/flows/flows.json) |
+| MQTT simulator, seven scenarios | **Implemented** | [`iot/simulator/`](iot/simulator/) |
+| Mosquitto + Node-RED Docker stack | **Configured** | [`iot/broker/docker-compose.yml`](iot/broker/docker-compose.yml) |
+| Node-RED raw-message validation and routing | **Implemented** | [`iot/gateway/flows/flows.json`](iot/gateway/flows/flows.json) |
 | MQTT receiver, revalidation and ingestion counters | **Implemented, integration tests included** | [`middleware/core/.../ingestion/`](middleware/core/src/main/java/com/smartcare/ingestion/) |
 | MongoDB schemas, indexes and deduplicated persistence | **Implemented, tests included** | [`middleware/core/.../persistence/`](middleware/core/src/main/java/com/smartcare/persistence/) |
 | Health endpoints | **Implemented** | [`middleware/api/`](middleware/api/) |
-| Duration-based MQTT anomaly detector | **Implemented as a separate service** | [`IoT/detection/`](IoT/detection/) |
-| Synthetic dataset, feature engineering, Isolation Forest | **Implemented; offline evaluation recorded** | [`IoT/mlops/`](IoT/mlops/) |
-| MLflow tracking | **Integrated into training script** | [`IoT/mlops/src/train.py`](IoT/mlops/src/train.py) |
-| Patient and supervision PWAs | **Demo with in-memory fixtures** | [`frontends/`](frontends/) |
+| Duration-based MQTT anomaly detector | **Implemented as a separate service** | [`iot/detection/`](iot/detection/) |
+| Synthetic dataset, feature engineering, Isolation Forest | **Implemented; offline evaluation recorded** | [`iot/mlops/`](iot/mlops/) |
+| MLflow tracking | **Integrated into training script** | [`iot/mlops/src/train.py`](iot/mlops/src/train.py) |
+| Patient and supervision PWAs | **Server-backed sign-in and separate demo dashboards** | [`frontends/`](frontends/) |
 | ESP32/MAX30102 acquisition | **Planned** | Hardware scope |
 | Real-time ML inference / persisted scores | **Planned** | Model is trained offline only |
-| REST domain endpoints, authentication, alert workflow | **Planned** | [`docs/frontend/api-proposal.md`](docs/frontend/api-proposal.md) |
+| Authentication and sessions | **Implemented** | [`middleware/iam/`](middleware/iam/) and [`middleware/api/`](middleware/api/) |
+| REST domain endpoints and alert workflow | **Planned** | [`docs/frontend/api-proposal.md`](docs/frontend/api-proposal.md) |
 | Frontend live API integration | **Planned** | Current demo adapters |
 
 ## MQTT ingestion and reliability
@@ -124,7 +125,7 @@ The raw/validated messages use **JSON**, **MQTT QoS 1** and **retain=false**. Qo
 3. **Persistence:** `MeasurementRepository` inserts a measurement using the MongoDB unique index. Redeliveries are classified as duplicates instead of creating a second record.
 4. **Observability:** `IngestionCounters` tracks `received`, `saved`, `duplicate`, `rejected`, `storeFailed`, connection state, last message time, last rejection reason and rejection counts by reason.
 
-**Important distinction:** Gateway validation is not a clinical rule engine. The duration detector in `IoT/detection/` and the trained Isolation Forest are separate anomaly-analysis components.
+**Important distinction:** Gateway validation is not a clinical rule engine. The duration detector in `iot/detection/` and the trained Isolation Forest are separate anomaly-analysis components.
 
 ### Simulator test scenarios
 
@@ -143,7 +144,7 @@ Detailed contract and ingestion audit: [`docs/iot/message-contract.md`](docs/iot
 
 ## MongoDB persistence and ingestion records
 
-The `middleware/` Maven reactor contains `core` (ingestion and persistence), `iam` (currently scaffolding) and `api` (JAX-RS WAR). `SchemaInitializer` defines database validators and indexes in database `smartcare`.
+The `middleware/` Maven reactor contains `core` (ingestion and persistence), `iam` (authentication and sessions) and `api` (JAX-RS WAR). `SchemaInitializer` defines database validators and indexes in database `smartcare`.
 
 | Collection | Current purpose |
 |---|---|
@@ -152,6 +153,7 @@ The `middleware/` Maven reactor contains `core` (ingestion and persistence), `ia
 | `device_ownership` | Device-to-owner relationships |
 | `users` | User records |
 | `assignments` | Professional-to-patient assignments |
+| `sessions`, `login_attempts` | Server sessions and counters for failed sign-ins |
 | `scores`, `alerts`, `audit`, `configuration` | **Planned**, not currently initialized |
 
 **Ingestion outcomes:** a valid new record is saved; a previously seen `(deviceId, bootId, sequence)` is counted as a duplicate; an invalid message is rejected with a reason; a storage error is tracked separately. This is critical because MQTT can retransmit messages after connection failures.
@@ -204,7 +206,7 @@ The training script chooses a threshold on **validation** (recorded threshold `0
 
 **Interpretation:** Of 100 anomaly-labeled test windows, 84 were detected and 16 missed; 14 normal windows were flagged incorrectly. These labels come from synthetic scenario/rule generation, so these figures **do not establish clinical sensitivity or generalization to real patients**. The result is an engineering baseline, not a validated medical model.
 
-**Artifacts:** [`IoT/mlops/reports/evaluation.json`](IoT/mlops/reports/evaluation.json), [`IoT/mlops/models/isolation_forest.joblib`](IoT/mlops/models/isolation_forest.joblib). The local joblib bundle stores the estimator, feature ordering and threshold. MLflow logging is implemented in `train.py`; registry deployment and production monitoring are not complete.
+**Artifacts:** [`iot/mlops/reports/evaluation.json`](iot/mlops/reports/evaluation.json), [`iot/mlops/models/isolation_forest.joblib`](iot/mlops/models/isolation_forest.joblib). The local joblib bundle stores the estimator, feature ordering and threshold. MLflow logging is implemented in `train.py`; registry deployment and production monitoring are not complete.
 
 **Next ML priorities:** align offline and online window reset behavior for missing/invalid readings, implement real-time inference over validated MQTT, persist model version + score, compare against the duration detector, add data/model lineage and drift monitoring, and validate on more realistic data.
 
@@ -219,8 +221,8 @@ SmartCare/
 │   ├── frontend/                 # API proposal and access verification
 │   ├── iot/                      # message contract, model card, reports
 │   ├── prompts/                  # AI-assistance provenance
-│   └── assets/                   # README diagrams and result charts (add these)
-├── IoT/                          # NOTE: uppercase I and T in uploaded archive
+│   └── assets/                   # README diagrams and result charts
+├── iot/
 │   ├── broker/                   # Mosquitto + Node-RED Compose
 │   ├── gateway/flows/flows.json
 │   ├── simulator/                # scenarios and tests
@@ -232,40 +234,37 @@ SmartCare/
 │       └── reports/evaluation.json
 ├── middleware/
 │   ├── core/                     # ingestion + MongoDB persistence
-│   ├── iam/                      # scaffold
-│   └── api/                      # health endpoints + WAR
+│   ├── iam/                      # authentication and sessions
+│   └── api/                      # health and authentication endpoints + WAR
 ├── frontends/
-│   ├── frontoffice/              # patient demo PWA
-│   ├── backoffice/               # staff/admin demo PWA
+│   ├── frontoffice/              # patient PWA
+│   ├── backoffice/               # staff/admin PWA
 │   ├── shared/
 │   └── tests/
 └── scripts/
 ```
 
-> [!NOTE]
-> The **uploaded archive uses `IoT/`**, whereas parts of the older documentation refer to `iot/`. Commands and links in this README use the archive's actual casing. On case-sensitive systems, fix remaining legacy references consistently before running CI.
-
 ## Quick start (Windows PowerShell)
 
 ### Prerequisites
 
-Docker Desktop, Python 3.12+ for the simulator/MLOps environment, Node.js 22 for frontend tests, Maven 3.9+, the JDK configured for the backend build, WildFly 42, and MongoDB accessible at `localhost:27017`. The older README specifies JDK 25 for the backend CI job.
+Docker Desktop, Python 3.12+ for the simulator/MLOps environment, Node.js 22 for frontend tests, Maven 3.9+, JDK 25, WildFly 42, and MongoDB accessible at `localhost:27017`.
 
 ### 1. Start Mosquitto and Node-RED
 
 ```powershell
 docker volume create smartcare_nodered_data
-docker compose -f IoT/broker/docker-compose.yml up -d
+docker compose -f iot/broker/docker-compose.yml up -d
 ```
 
-Mosquitto is bound to `127.0.0.1:1883`; Node-RED is available at <http://127.0.0.1:1880>. Import `IoT/gateway/flows/flows.json` using Node-RED **Menu → Import**, configure its broker hostname as `smartcare-mosquitto` and deploy.
+Mosquitto is bound to `127.0.0.1:1883`; Node-RED is available at <http://127.0.0.1:1880>. Import `iot/gateway/flows/flows.json` using Node-RED **Menu → Import**, configure its broker hostname as `smartcare-mosquitto` and deploy.
 
 ### 2. Start the simulator
 
 ```powershell
 py -3 -m venv .venv-simulator
-.\.venv-simulator\Scripts\python.exe -m pip install -r IoT/simulator/requirements.txt
-.\.venv-simulator\Scripts\python.exe IoT/simulator/simulator.py --scenario normal
+.\.venv-simulator\Scripts\python.exe -m pip install -r iot/simulator/requirements.txt
+.\.venv-simulator\Scripts\python.exe iot/simulator/simulator.py --scenario normal
 ```
 
 To observe the gateway output:
@@ -287,7 +286,15 @@ $wildfly = "C:\path\to\wildfly-42.0.0.Final"
 
 After WildFly starts, check `http://localhost:8080/smartcare/api/health`, `/health/database` and `/health/ingestion`. The receiver is configured through environment variables; see below.
 
-### 4. Run the frontend demo
+### 4. Open the portals
+
+WildFly serves the portals on the same origin as the API. Use a local account from
+[`scripts/seed-dev-users.ps1`](scripts/seed-dev-users.ps1) to test server sign-in.
+
+- Patient portal: <http://localhost:8080/smartcare/frontends/frontoffice/>
+- Supervision portal: <http://localhost:8080/smartcare/frontends/backoffice/>
+
+To open the static demo dashboards, run from the repository root:
 
 ```powershell
 py -3 -m http.server 8081 --bind 127.0.0.1
@@ -296,30 +303,33 @@ py -3 -m http.server 8081 --bind 127.0.0.1
 - Patient PWA: <http://127.0.0.1:8081/frontends/frontoffice/>
 - Supervision PWA: <http://127.0.0.1:8081/frontends/backoffice/>
 
-The PWAs currently show **demo data**; successful startup does not imply live backend integration.
+These static-server URLs open the dashboards with demo fixtures.
 
 ### 5. Reproduce the offline ML pipeline
 
 Create a separate environment with the project's ML dependencies (not included as a pinned `requirements.txt` in the uploaded archive), then run:
 
 ```powershell
-python IoT/mlops/src/generate_dataset.py
-python IoT/mlops/src/preprocess.py
+python iot/mlops/src/generate_dataset.py
+python iot/mlops/src/preprocess.py
 # In another terminal, start MLflow tracking:
 python -m mlflow server --backend-store-uri sqlite:///mlflow.db --host 127.0.0.1 --port 5000
 # With MLflow running:
-python IoT/mlops/src/train.py
+python iot/mlops/src/train.py
 ```
 
 MLflow UI: <http://127.0.0.1:5000>. The model training script expects this tracking endpoint; do not run it without the server unless you change the tracking configuration.
 
-## Backend health API
+## Backend API
 
 | Method | URL (WildFly at localhost:8080) | Meaning |
 |---|---|---|
 | `GET` | `/smartcare/api/health` | Application liveness; expected `{"status":"ok"}` |
 | `GET` | `/smartcare/api/health/database` | MongoDB connectivity and schema readiness (200/503) |
 | `GET` | `/smartcare/api/health/ingestion` | MQTT receiver connectivity and ingestion counters (200/503) |
+| `POST` | `/smartcare/api/auth/login` | Sign in and set the session cookie |
+| `GET` | `/smartcare/api/session` | Read the signed-in account, role, expiry, and CSRF token |
+| `POST` | `/smartcare/api/auth/logout` | Invalidate the session using the cookie and `X-CSRF-Token` |
 
 ### Middleware configuration
 
@@ -345,7 +355,7 @@ See [`middleware/README.md`](middleware/README.md) for further details.
 python -m unittest IoT.simulator.tests.test_simulator -v
 
 # Duration detector
-python -m pytest IoT/detection/tests -q
+python -m pytest iot/detection/tests -q
 
 # Frontend
 node --test frontends/tests/frontend.test.mjs frontends/tests/access-demo.test.mjs
@@ -358,9 +368,9 @@ GitHub Actions is defined in [`.github/workflows/ci.yml`](.github/workflows/ci.y
 
 ## Security, limitations and roadmap
 
-**Current limitations:** local Mosquitto permits anonymous access and has no TLS; the frontend login is a demo and is not a server-enforced security boundary; real device acquisition is absent; REST domain APIs, score persistence, alert workflows and real-time ML inference are not connected. The synthetic ML evaluation is not medical validation.
+**Current limitations:** local Mosquitto permits anonymous access and has no TLS. REST domain APIs, score persistence, alert workflows, real-time ML inference, and hardware acquisition are pending. The synthetic ML evaluation is for engineering use only.
 
-**Priority roadmap:** (1) harmonize casing and reproducible environments, (2) automate gateway-to-database end-to-end ingestion tests, (3) integrate real-time MQTT ML scoring with matching feature semantics, (4) persist scores and implement alerts, (5) implement backend authentication, authorization and device ownership checks, (6) connect PWAs to real APIs, (7) validate ESP32/MAX30102 acquisition and secure MQTT, (8) add operational dashboards, drift checks and CI/CD for models.
+**Priority roadmap:** (1) harmonize casing and reproducible environments, (2) automate gateway-to-database end-to-end ingestion tests, (3) integrate real-time MQTT ML scoring with matching feature semantics, (4) persist scores and implement alerts, (5) enforce roles and assignments on the domain APIs, (6) connect PWAs to real APIs, (7) validate ESP32/MAX30102 acquisition and secure MQTT, (8) add operational dashboards, drift checks and CI/CD for models.
 
 ## Team and attribution
 

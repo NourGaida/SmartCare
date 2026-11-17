@@ -118,4 +118,43 @@ class SchemaInitializerTest {
         assertEquals(1, indexNames.stream().filter("uq_device_boot_sequence"::equals).count());
         assertEquals(1, indexNames.stream().filter("ix_patient_time"::equals).count());
     }
+
+    @Test
+    void uqDeviceOpenOwnershipAllowsOnlyOneOpenRecord() {
+        Document openNull = new Document("deviceId", "sc-001")
+                .append("patientId", "patient-A")
+                .append("validFrom", new Date(1_700_000_000_000L))
+                .append("validTo", null);
+        database.getCollection(SchemaInitializer.DEVICE_OWNERSHIP).insertOne(openNull);
+
+        Document anotherOpenNull = new Document("deviceId", "sc-001")
+                .append("patientId", "patient-B")
+                .append("validFrom", new Date(1_700_000_100_000L))
+                .append("validTo", null);
+        assertThrows(MongoWriteException.class,
+                () -> database.getCollection(SchemaInitializer.DEVICE_OWNERSHIP).insertOne(anotherOpenNull));
+
+        Document openMissing = new Document("deviceId", "sc-002")
+                .append("patientId", "patient-A")
+                .append("validFrom", new Date(1_700_000_000_000L));
+        database.getCollection(SchemaInitializer.DEVICE_OWNERSHIP).insertOne(openMissing);
+        Document anotherOpenMissing = new Document("deviceId", "sc-002")
+                .append("patientId", "patient-B")
+                .append("validFrom", new Date(1_700_000_100_000L));
+        assertThrows(MongoWriteException.class,
+                () -> database.getCollection(SchemaInitializer.DEVICE_OWNERSHIP).insertOne(anotherOpenMissing));
+
+        Document closed = new Document("deviceId", "sc-003")
+                .append("patientId", "patient-A")
+                .append("validFrom", new Date(1_700_000_000_000L))
+                .append("validTo", new Date(1_700_000_050_000L));
+        Document openForSameDevice = new Document("deviceId", "sc-003")
+                .append("patientId", "patient-B")
+                .append("validFrom", new Date(1_700_000_100_000L))
+                .append("validTo", null);
+        assertDoesNotThrow(() -> {
+            database.getCollection(SchemaInitializer.DEVICE_OWNERSHIP).insertOne(closed);
+            database.getCollection(SchemaInitializer.DEVICE_OWNERSHIP).insertOne(openForSameDevice);
+        });
+    }
 }

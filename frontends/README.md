@@ -140,7 +140,7 @@ gardent leur contenu en cas d'échec.
 | Chaque manifest.webmanifest, sw.js, icon* | Installation et ressources statiques de l'application. |
 | tests/frontend.test.mjs | Tests Node natifs de rôles, actions, données et ressources. |
 
-Caches distincts : smartcare-patient-static-v3 et smartcare-supervision-static-v3.
+Caches distincts : smartcare-patient-static-v4 et smartcare-supervision-static-v4.
 Les service workers ont des scopes distincts et n'interceptent qu'une liste
 explicite de ressources statiques sans paramètres. API, exports, sessions et
 mesures dynamiques ne sont pas mis en cache. Les modules de fixtures sont du code
@@ -150,10 +150,21 @@ ligne est nécessaire pour le cache statique.
 
 ## Intégration backend
 
-Voir [api-proposal.md](docs/api-proposal.md). GET /api/health et GET /api/health/database
-existent actuellement dans `middleware/`, relativement au contexte du WAR
-(/smartcare par défaut). Toutes les autres routes
-sont **à valider avec la personne B**.
+Le WAR `smartcare.war` sert les deux portails et l'API sur la même origine. Construire et
+déployer le WAR en suivant le [guide du module API](../middleware/api/README.md), puis ouvrir
+`http://localhost:8080/smartcare/frontends/frontoffice/` ou
+`http://localhost:8080/smartcare/frontends/backoffice/`. Depuis un téléphone sur le même
+réseau, utiliser l'adresse IP du PC qui héberge WildFly à la place de `localhost`.
+
+Les comptes serveur proviennent de la base de développement. Voir
+[`scripts/seed-dev-users.ps1`](../scripts/seed-dev-users.ps1) ou utiliser les comptes fournis
+par la personne B. Les portails appellent `POST /api/auth/login`, vérifient la session avec
+`GET /api/session` et envoient `X-CSRF-Token` lors du `POST /api/auth/logout`. Le navigateur
+gère le cookie HttpOnly. En mode serveur, l'écran affiche l'identité et le rôle ouverts par
+le backend. La démo reste accessible via le serveur statique lancé depuis la racine.
+
+Les routes métier pour les mesures, les alertes et le direct restent à valider dans la
+[proposition API](../docs/frontend/api-proposal.md).
 
 Remplacer les factories d'adaptateurs par REST et un WebSocket autorisé. Le backend
 doit déduire le patient depuis la session et appliquer les autorisations sur

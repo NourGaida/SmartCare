@@ -199,8 +199,17 @@ public class SchemaInitializer {
     }
 
     private static List<IndexModel> deviceOwnershipIndexes() {
-        return List.of(new IndexModel(new Document("deviceId", 1).append("validFrom", -1),
-                new IndexOptions().name("ix_ownership_device_time")));
+        // Partial unique index: a device has at most one open record (validTo null).
+        // TODO(Task 5): overlap between closed periods cannot be blocked by an index;
+        // enrollment/revocation code must check for overlapping periods.
+        Document openOwnershipFilter = new Document("validTo", null);
+        return List.of(
+                new IndexModel(new Document("deviceId", 1).append("validFrom", -1),
+                        new IndexOptions().name("ix_ownership_device_time")),
+                new IndexModel(new Document("deviceId", 1),
+                        new IndexOptions().unique(true)
+                                .name("uq_device_open_ownership")
+                                .partialFilterExpression(openOwnershipFilter)));
     }
 
     private static Document usersValidator() {
