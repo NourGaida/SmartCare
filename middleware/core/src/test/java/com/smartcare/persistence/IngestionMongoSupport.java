@@ -42,4 +42,12 @@ public final class IngestionMongoSupport {
         }
         return new MeasurementRepository(database, initializer);
     }
+
+    public static SchemaInitializer newInitializer(MongoDatabase database) {
+        SchemaInitializer initializer = new SchemaInitializer(database);
+        if (!initializer.initialize()) {
+            throw new IllegalStateException("Could not initialize the test schema");
+        }
+        return initializer;
+    }
 }

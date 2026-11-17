@@ -7,8 +7,8 @@ Jakarta EE 11 backend built as a Maven reactor. The parent POM is [`pom.xml`](po
 | Module | Purpose |
 | --- | --- |
 | [`core/`](core/README.md) | MongoDB persistence, MQTT ingestion, repository and CDI beans |
-| [`iam/`](iam/README.md) | Identity and access module scaffolding for planned authentication and authorization |
-| [`api/`](api/README.md) | JAX-RS application, health endpoints and WAR packaging |
+| [`iam/`](iam/README.md) | Password authentication, sessions, and CSRF token handling |
+| [`api/`](api/README.md) | Health and authentication endpoints, request filtering, and WAR packaging |
 
 Dependency direction: `api -> iam -> core`. `core` does not depend on `api`.
 
@@ -48,6 +48,9 @@ The current API exposes:
 - `GET /smartcare/api/health`
 - `GET /smartcare/api/health/database`
 - `GET /smartcare/api/health/ingestion`
+- `POST /smartcare/api/auth/login`
+- `GET /smartcare/api/session`
+- `POST /smartcare/api/auth/logout`
 
 See [`api/README.md`](api/README.md) for details.
 
@@ -73,7 +76,7 @@ Configuration is read from environment variables:
 
 ## CDI and tests
 
-Each module has its own `META-INF/beans.xml` where needed. There is no `web.xml`; the API module uses the Jakarta EE annotations and its `WEB-INF/beans.xml` descriptor.
+Each module defines CDI discovery where needed. Jakarta EE annotations register the API resources. The API module's `WEB-INF/web.xml` configures the bundled portals' static files.
 
 Java tests live in the module that owns the code:
 
