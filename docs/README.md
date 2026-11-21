@@ -100,7 +100,8 @@ Reading order for the `feature/https-pwa` work. Documents marked **planned** are
 17. [Backend live verification through HTTPS](https-pwa/backend-live-verification.md)
 18. [Security hygiene audit](https-pwa/security-hygiene.md)
 19. [Screenshots to capture](https-pwa/screenshots-todo.md)
-20. [Evidence](https-pwa/evidence/)
-21. [CHANGELOG](CHANGELOG.md) · [GLOSSARY](GLOSSARY.md) · [Decision records](decisions/) · [Prompt log](prompts/00-master-prompt.md)
+20. [Phase B PR draft](https-pwa/PR-phase-b.md)
+21. [Evidence](https-pwa/evidence/)
+22. [CHANGELOG](CHANGELOG.md) · [GLOSSARY](GLOSSARY.md) · [Decision records](decisions/) · [Prompt log](prompts/00-master-prompt.md)
 
 Also available: [short HTTPS/PWA architecture note](../https-pwa.md). Planned later: `docs/pwa-audit/` (Lighthouse reports) and `docs/pwa-test-checklist.md` (manual phone checklist).
