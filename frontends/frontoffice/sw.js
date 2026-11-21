@@ -1,6 +1,6 @@
 // Exact static allowlist only: no API, WebSocket, session, CSV or measurement caching.
-const CACHE = 'smartcare-patient-static-v6';
-const STATIC = ["index.html","portal.mjs","app.js","adapter.mjs","measurements-adapter.mjs","history.mjs","server-history.mjs","fixtures.mjs","styles.css","icon.svg","icon-192.png","icon-512.png","manifest.webmanifest","../shared/portal.mjs","../shared/server-portal.mjs","../shared/server-auth.mjs","../shared/auth.mjs","../shared/demo-updates.mjs","../shared/connectivity.mjs","../shared/domain.mjs","../shared/ui.mjs","../shared/forms.css"].map(file => new URL(file, self.registration.scope).href);
+const CACHE = 'smartcare-patient-static-v7';
+const STATIC = ["index.html","portal.mjs","app.js","adapter.mjs","measurements-adapter.mjs","history.mjs","server-history.mjs","fixtures.mjs","styles.css","fonts/dm-sans-latin-v17.woff2","fonts/dm-sans-latin-ext-v17.woff2","fonts/manrope-latin-v23.woff2","fonts/manrope-latin-ext-v23.woff2","icon.svg","icon-192.png","icon-512.png","manifest.webmanifest","../shared/portal.mjs","../shared/server-portal.mjs","../shared/server-auth.mjs","../shared/auth.mjs","../shared/demo-updates.mjs","../shared/connectivity.mjs","../shared/domain.mjs","../shared/ui.mjs","../shared/forms.css"].map(file => new URL(file, self.registration.scope).href);
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(STATIC)).then(() => self.skipWaiting()));
 });

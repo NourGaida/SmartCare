@@ -104,6 +104,8 @@ Les pourcentages ci-dessous sont les estimations déclarées par l'équipe. Ils 
 | mkcert | 1.4.4 | BSD-3-Clause | Autorité locale de certification pour les noms `*.smartcare.local` ; https://github.com/FiloSottile/mkcert |
 | Lighthouse CLI | 12.8.2 | Apache-2.0 | Audit PWA/installabilité ; https://github.com/GoogleChrome/lighthouse |
 | Docker Compose | v5.1.1 | Apache-2.0 | Orchestration locale du proxy HTTPS ; https://docs.docker.com/compose/ |
+| DM Sans (variable, v17, latin + latin-ext) | 17 | SIL Open Font License 1.1 | Police auto-hébergée des deux PWA ; https://fonts.google.com/specimen/DM+Sans |
+| Manrope (variable, v23, latin + latin-ext) | 23 | SIL Open Font License 1.1 | Police auto-hébergée des titres ; https://fonts.google.com/specimen/Manrope |
 
 Les versions Python indiquées correspondent à l'environnement MLOps local et doivent être figées dans un fichier de dépendances avant livraison.
 

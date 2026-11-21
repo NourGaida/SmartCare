@@ -5,7 +5,7 @@
 | A | [00-overview.md](00-overview.md), [01-audit.md](01-audit.md) | Complete |
 | B1 | [02-hostnames.md](02-hostnames.md) | Script written; verification UNVERIFIED (needs admin) |
 | B2 | [03-local-certificates.md](03-local-certificates.md) | Script/doc written; certificate generation UNVERIFIED (needs UAC) |
-| B3 | 04-nginx-tls.md | Pending |
+| B3 | [04-nginx-tls.md](04-nginx-tls.md) | Config/compose/self-hosted fonts written; static checks pass, live HTTPS UNVERIFIED |
 | B4 | 05-session-cookie-security.md | Pending |
 | B5 | 06-wildfly-proxy-headers.md | Pending |
 | B6 | 07-https-verification.md | Pending |

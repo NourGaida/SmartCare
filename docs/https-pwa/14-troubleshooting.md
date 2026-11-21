@@ -13,5 +13,9 @@ Living document. Add a row for every realistic problem found in a step doc; keep
 | B2 | `Local CA not trusted yet` | `mkcert -install` ran without project `CAROOT`. | Set `$env:CAROOT=(Resolve-Path .\certs\ca).Path`, run `mkcert -install`, then `scripts/gen-certs.ps1`. |
 | B2 | `... is NOT ignored by git` | `.gitignore` pattern missing or wrong working directory. | Restore patterns in `certs/README.md`; run scripts from repo root. |
 | B2 | Browser warns after B3 | CA installed in different CAROOT or Firefox NSS store. | Check `mkcert -CAROOT`; reinstall with `TRUST_STORES=system,java,nss`. |
+| B3 | `nginx: [emerg] cannot load certificate` | B2 certs missing or wrong `CAROOT`. | Run `scripts/gen-certs.ps1`; confirm `<REPO>\certs` bind in `docker compose config`. |
+| B3 | `bind: address already in use` on 80/443 | IIS/Apache/other proxy owns the port. | `netstat -ano | findstr :443`; stop owner or approve a new port ADR. |
+| B3 | `502 Bad Gateway` on `/api/` | WildFly stopped or `host.docker.internal` not mapped. | Check `docker ps`; confirm `host.docker.internal=host-gateway` in Compose config. |
+| B3 | Staff CSS/fonts missing | `/frontoffice/` sibling location or `frontends/` bind absent. | Verify `location ^~ /frontoffice/` and read-only `<REPO>\frontends` mount. |
 
 <!-- Placeholder for later phases: TLS handshake failure, HSTS mismatch, cookie not Secure, CSRF 403, SW not controlling page, install prompt missing, phone CA not trusted, .local DNS not resolving. -->

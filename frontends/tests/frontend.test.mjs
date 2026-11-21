@@ -390,7 +390,7 @@ test('service workers cache distinct static resources, handle root offline and i
     runtime.listeners.install({ waitUntil: promise => { installation = promise; } });
     await installation;
     for (const url of runtime.writes) {
-      assert.match(url, /\.(html|css|js|mjs|png|svg|webmanifest)$/);
+      assert.match(url, /\.(html|css|js|mjs|png|svg|woff2|webmanifest)$/);
       const relative = new URL(url).pathname.replace('/frontends/', '');
       assert.ok(existsSync(resolve(root, relative)), relative);
     }
