@@ -23,6 +23,16 @@ Adds the three managed `.smartcare.local` host entries. Requires elevation for r
 .\scripts\setup-hosts.ps1 -IpAddress 192.168.1.4 -DryRun
 ```
 
+## `smoke-https.ps1`
+
+Runs GET checks for every asset referenced by both portal `index.html` files, plus manifests, icons, fonts, `sw.js` and `server-mode.mjs`, against `app.smartcare.local` and `staff.smartcare.local`. It asserts status, MIME type, cache directives and security headers, and exits non-zero on any failure.
+
+```powershell
+.\scripts\smoke-https.ps1
+```
+
+Use `-Repo <REPO>` when running from another directory. The script uses `curl.exe --ssl-no-revoke` and never disables certificate validation.
+
 ## `check-recovery.ps1`
 
 Demonstrates that `/smartcare/api/health/database` fails fast when MongoDB is down and recovers without redeploying the WAR.

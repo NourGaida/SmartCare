@@ -42,16 +42,16 @@
 2. Run the full frontend suite:
 
    ```powershell
-   node --test frontends/tests/frontend.test.mjs frontends/tests/access-demo.test.mjs frontends/tests/patient-history.test.mjs frontends/tests/server-mode.test.mjs
+   node --test frontends/tests/frontend.test.mjs frontends/tests/access-demo.test.mjs frontends/tests/patient-history.test.mjs frontends/tests/server-mode.test.mjs frontends/tests/nginx-headers.test.mjs
    ```
 
-   Expected: 75 tests pass.
+   Expected: 80 tests pass.
 
 3. Recheck static infrastructure:
 
    ```powershell
    docker compose -f docker/compose.https.yml config --quiet
-   docker run --rm -v "${PWD}\docker\nginx-https.conf:/etc/nginx/conf.d/default.conf:ro" -v "${PWD}\certs:/etc/nginx/certs:ro" nginx:stable nginx -t
+    docker run --rm -v "${PWD}\docker\nginx-https.conf:/etc/nginx/conf.d/default.conf:ro" -v "${PWD}\docker\nginx-security-headers.conf:/etc/nginx/snippets/smartcare-security-headers.conf:ro" -v "${PWD}\docker\nginx-mime-types.conf:/etc/nginx/snippets/smartcare-mime-types.conf:ro" -v "${PWD}\certs:/etc/nginx/certs:ro" nginx:stable nginx -t
    docker run --rm -v "${PWD}:/workspace" --entrypoint bash quay.io/wildfly/wildfly:42.0.0.Final-jdk25 -n /workspace/scripts/wildfly-entrypoint.sh
    ```
 
@@ -64,23 +64,31 @@
 5. Check hosts, redirect and headers:
 
    ```powershell
-   curl.exe -kI https://app.smartcare.local/
-   curl.exe -kI https://staff.smartcare.local/
-   curl.exe -sS -o NUL -w '%{http_code} %{redirect_url}\n' http://app.smartcare.local/
+   curl.exe --ssl-no-revoke -sS -D - -o NUL https://app.smartcare.local/
+   curl.exe --ssl-no-revoke -sS -D - -o NUL https://staff.smartcare.local/
+   curl.exe --ssl-no-revoke -sS -o NUL -w '%{http_code} %{redirect_url}\n' http://app.smartcare.local/
    nslookup app.smartcare.local
    ```
 
    Expected: 200 on both HTTPS hosts; 301 from HTTP to HTTPS; HSTS `max-age=300`; exact CSP; no `includeSubDomains`/`preload`.
 
-6. Check API rewrite and session cookie:
+6. Run the live HTTPS asset smoke script:
 
    ```powershell
-   curl.exe -k -i https://app.smartcare.local/api/session
+   PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke-https.ps1
+   ```
+
+   Expected: `SUMMARY pass=39 fail=0`. Every index-referenced asset returns 200 with the expected MIME type, `sw.js` is `no-cache`, 404s are `no-store`, fonts are immutable, and every checked response carries the security headers.
+
+7. Check API rewrite and session cookie:
+
+   ```powershell
+   curl.exe --ssl-no-revoke -i https://app.smartcare.local/api/session
    ```
 
    Expected: not a 404 from `/api/...`; `Set-Cookie: SMARTCARE_SESSION=...; Path=/; HttpOnly; SameSite=Strict; Secure` when the HTTPS WildFly image from B5 is used.
 
-7. Run Lighthouse only after the padlock is trusted:
+8. Run Lighthouse only after the padlock is trusted:
 
    ```powershell
    & 'C:\Program Files\Google\Chrome\Application\chrome.exe' --version
@@ -88,18 +96,23 @@
    npx lighthouse@12.8.2 https://staff.smartcare.local/ --only-categories=pwa,performance,accessibility,best-practices --output=json --output-path=docs\https-pwa\evidence\lighthouse-staff.json --chrome-flags="--headless=new --no-sandbox"
    ```
 
-8. Paste user-side outputs into `docs/https-pwa/evidence/2026-11-21-https-verification.txt`; add the screenshots listed in `screenshots-todo.md`.
-9. Stop here. Do not start Phase C or replace the real `smartcare-wildfly` until the user confirms B1–B6 and approves cutover.
+9. Paste user-side outputs into `docs/https-pwa/evidence/2026-11-21-https-verification.txt`; add the screenshots listed in `screenshots-todo.md`.
+10. Stop here. Do not start Phase C or replace the real `smartcare-wildfly` until the user confirms B1–B6 and approves cutover.
 
 ## Files created or modified
 - `frontends/shared/server-mode.mjs` — new shared D2 predicate.
 - `frontends/shared/portal.mjs`, `frontends/frontoffice/portal.mjs` — use the predicate.
-- `frontends/frontoffice/sw.js`, `frontends/backoffice/sw.js` — precache helper.
+- `frontends/frontoffice/sw.js`, `frontends/backoffice/sw.js` — precache helper and no-404 caching rules.
+- `frontends/shared/sw-kill.js` — dormant one-time maintenance worker.
 - `frontends/tests/server-mode.test.mjs` — D2 regression tests.
-- `.github/workflows/ci.yml` — frontend test command includes the new test.
-- `docs/decisions/ADR-0008-server-mode.md` — D2 decision record.
+- `frontends/tests/nginx-headers.test.mjs` — static nginx header/MIME regression tests.
+- `docker/nginx-https.conf`, `docker/compose.https.yml` — root-accurate asset routing, error no-store, MIME and snippet mounts.
+- `docker/nginx-security-headers.conf`, `docker/nginx-mime-types.conf` — shared nginx snippets.
+- `scripts/smoke-https.ps1` — live GET smoke test for both HTTPS hosts.
+- `.github/workflows/ci.yml` — frontend test command includes both new tests.
+- `docs/decisions/ADR-0008-server-mode.md`, `docs/decisions/ADR-0009-service-worker-kill-switch.md` — decision records.
 - `docs/https-pwa/07-https-verification.md` — this step document.
-- `docs/https-pwa/evidence/2026-11-21-https-verification.txt`, `docs/https-pwa/evidence/2026-11-21-full-verify.txt` — evidence.
+- `docs/https-pwa/evidence/2026-11-21-https-verification.txt`, `docs/https-pwa/evidence/2026-11-21-full-verify.txt`, `docs/https-pwa/evidence/2026-11-21-smoke-https.txt` — evidence.
 - `docs/README.md` — JDK 25/MongoDB test prerequisites.
 - `docs/https-pwa/02-hostnames.md`, `03-local-certificates.md`, evidence files — personal paths replaced with `<REPO>`.
 - `docs/https-pwa/README.md`, `14-troubleshooting.md`, `screenshots-todo.md`, `docs/CHANGELOG.md` — live updates.
@@ -107,15 +120,22 @@
 ## Verification
 - **VERIFIED 2026-11-21** locally:
   - `mvn --batch-mode --no-transfer-progress -f middleware/pom.xml clean verify` → core 54, iam 14, api 14, 0 failures/errors/skipped, `BUILD SUCCESS`.
-  - Frontend suite → 75 tests, 75 pass, 0 fail, 0 skipped (includes 4 new D2 tests).
+  - Frontend suite → 80 tests, 80 pass, 0 fail, 0 skipped (D2 + SW + nginx regression tests).
   - `docker compose -f docker/compose.https.yml config --quiet` → exit 0.
-  - `nginx:stable nginx -t` with a throwaway cert outside the repo → syntax ok / test successful.
+  - `nginx:stable nginx -t` with both snippets and a throwaway cert outside the repo → syntax ok / test successful.
   - `bash -n scripts/wildfly-entrypoint.sh` in the WildFly image → exit 0.
+  - `scripts/smoke-https.ps1` → `SUMMARY pass=39 fail=0` on both HTTPS hosts.
+  - D2 reproduction → `isServerMode=true` for `app.smartcare.local`, `staff.smartcare.local` and both legacy `/smartcare/frontends/...` paths.
   - Tool versions: mkcert v1.4.4, Docker Compose v5.1.1, Node v22.17.0, Lighthouse 12.8.2.
-- **UNVERIFIED** because user-side elevated/live steps are pending:
-  - host file entries and `nslookup` for the three names;
-  - mkcert CA trust and leaf certificate presence in `certs/`;
-  - live HTTPS 200s, 80→443 redirect, HSTS/CSP headers, `/api/` rewrite, `Secure` `Set-Cookie`;
+- **VERIFIED by user/live curl 2026-11-21**:
+  - host entries and pings for the HTTPS names;
+  - mkcert CA trust and leaf certificate generation;
+  - HTTPS asset 200s via `curl.exe --ssl-no-revoke`, including `styles.css`, `portal.mjs` and `icon.svg`.
+- **UNVERIFIED**:
+  - 80→443 redirect from the live host;
+  - `/api/` rewrite and `Secure` `Set-Cookie` from the live WildFly container;
+  - firewall and WildFly apply-command outputs were not pasted;
+  - final Chrome result after clearing the stale worker/cache, including Incognito;
   - Lighthouse scores and padlock screenshots;
   - real WildFly container using the B5 image.
 
@@ -127,6 +147,7 @@
 | Frontend offline boot misses `server-mode.mjs` | Helper not added to SW precache arrays. | Re-add `"../shared/server-mode.mjs"` to both SW files and bump cache version. |
 | Maven still uses Java 17 | `JAVA_HOME` not overridden in this shell. | Set it to JDK 25 before `mvn`; see `docs/README.md`. |
 | Lighthouse reports insecure context | mkcert CA not trusted or hosts not resolving. | Complete B1/B2 as admin and re-run; do not disable HTTPS checks. |
+| Chrome shows `404 ()` while curl returns 200 | Stale service worker or HTTP cache from a cached 404 response. | Confirm with `curl.exe --ssl-no-revoke`; unregister the SW and clear site data; use the dormant kill-switch only if needed (ADR-0009). |
 
 Also appended to [14-troubleshooting.md](14-troubleshooting.md).
 
@@ -139,12 +160,15 @@ Also appended to [14-troubleshooting.md](14-troubleshooting.md).
 
 ## Rollback
 - Revert the D2 files to restore the duplicated path checks; remove `frontends/tests/server-mode.test.mjs` and ADR-0008.
+- Revert the nginx snippets/config, SW files, `scripts/smoke-https.ps1`, `frontends/tests/nginx-headers.test.mjs`, `frontends/shared/sw-kill.js` and ADR-0009 if the incident fix is not wanted.
 - Revert `docs/README.md` note if the repository later standardises JDK/Mongo setup elsewhere.
-- No live service was changed by this verification step.
+- The live nginx container was restarted to apply the incident fix; no legacy WildFly service was changed.
 
 ## Decisions and alternatives
 - Accepted [ADR-0008](../decisions/ADR-0008-server-mode.md): one shared predicate.
+- Accepted [ADR-0009](../decisions/ADR-0009-service-worker-kill-switch.md): dormant one-time kill-switch only.
 - Rejected duplicated checks and broad `href.includes('smartcare')` fallback.
+- Rejected permanent kill-switch workers and cached 404 responses.
 - Kept B6 as verification + documentation only; Phase C cutover is a separate user-approved step.
 
 ## References
