@@ -101,6 +101,9 @@ Les pourcentages ci-dessous sont les estimations déclarées par l'équipe. Ils 
 | Pandas | 3.1.1 | BSD-3-Clause | Environnement MLOps |
 | NumPy | 2.5.5 | BSD-3-Clause | Environnement MLOps |
 | Pytest | 9.2.0 | MIT | Environnement MLOps |
+| mkcert | 1.4.4 | BSD-3-Clause | Autorité locale de certification pour les noms `*.smartcare.local` ; https://github.com/FiloSottile/mkcert |
+| Lighthouse CLI | 12.8.2 | Apache-2.0 | Audit PWA/installabilité ; https://github.com/GoogleChrome/lighthouse |
+| Docker Compose | v5.1.1 | Apache-2.0 | Orchestration locale du proxy HTTPS ; https://docs.docker.com/compose/ |
 
 Les versions Python indiquées correspondent à l'environnement MLOps local et doivent être figées dans un fichier de dépendances avant livraison.
 

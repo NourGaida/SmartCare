@@ -18,7 +18,16 @@ Dependency direction: `api -> iam -> core`. `core` does not depend on `api`.
 mvn -f middleware/pom.xml clean verify
 ```
 
-The persistence tests in `core` need MongoDB on `localhost:27017`; the MQTT integration test also needs Mosquitto on `localhost:1883`. CI starts both services. The build produces:
+The persistence tests in `core` need MongoDB on `localhost:27017`; the MQTT integration test also needs Mosquitto on `localhost:1883`. CI starts both services.
+
+Local Windows prerequisite: `mvn` uses `JAVA_HOME`, which may still point to JDK 17 even when `java -version` on PATH reports Corretto 25. Set it before `verify`:
+
+```powershell
+$env:JAVA_HOME = 'C:\Program Files\Amazon Corretto\jdk25.0.5_0'
+mvn --batch-mode --no-transfer-progress -f middleware/pom.xml clean verify
+```
+
+CI uses `actions/setup-java` with `java-version: '25'` and a `mongo:8` service container; the "Fail when tests are skipped" step refuses any skipped test. The build produces:
 
 ```text
 middleware/api/target/smartcare.war
