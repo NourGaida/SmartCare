@@ -1,6 +1,7 @@
 # DEV ONLY - seeds SmartCare users into MongoDB with PBKDF2 password hashes.
 # Passwords are read from environment variables and never stored in the repo.
 # Running twice does not create duplicates (upsert by email with stable userId on insert).
+param([switch]$DryRun)
 
 $ErrorActionPreference = 'Stop'
 
@@ -61,9 +62,14 @@ db.users.updateOne(
   { upsert: true }
 );
 "@
-    docker exec $mongoContainer mongosh $mongoDb --quiet --eval $js | Out-Null
-    if ($LASTEXITCODE -ne 0) { throw "Failed to seed user $($u.email)" }
-    Write-Host "Seeded: $($u.email) [$($u.role)]"
+    if ($DryRun) {
+        Write-Host "DRY RUN: would upsert $($u.email) [$($u.role)] into $mongoDb via $mongoContainer"
+    } else {
+        docker exec $mongoContainer mongosh $mongoDb --quiet --eval $js | Out-Null
+        if ($LASTEXITCODE -ne 0) { throw "Failed to seed user $($u.email)" }
+        Write-Host "Seeded: $($u.email) [$($u.role)]"
+    }
 }
+if ($DryRun) { Write-Host 'DRY RUN: no MongoDB write was performed.'; return }
 
 Write-Host "Done. DEV users ensured (no duplicates on re-run)."

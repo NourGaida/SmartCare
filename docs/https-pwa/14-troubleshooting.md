@@ -12,6 +12,7 @@ Living document. Add a row for every realistic problem found in a step doc; keep
 | B1 | Phone cannot open the names | Hosts file is PC-only. | Expected until Phase D dnsmasq/tunnel. |
 | B2 | `Local CA not trusted yet` | `mkcert -install` ran without project `CAROOT`. | Set `$env:CAROOT=(Resolve-Path .\certs\ca).Path`, run `mkcert -install`, then `scripts/gen-certs.ps1`. |
 | B2 | `... is NOT ignored by git` | `.gitignore` pattern missing or wrong working directory. | Restore patterns in `certs/README.md`; run scripts from repo root. |
+| B2 incident | `Test-Path : Impossible de lier le paramètre, car le paramètre LiteralPath est spécifié plusieurs fois.` | `gen-certs.ps1:22` used `Test-Path -LiteralPath $cert -or Test-Path -LiteralPath $key`; each cmdlet call in a boolean expression needs its own parentheses. | Fixed to `((Test-Path -LiteralPath $cert) -or (Test-Path -LiteralPath $key))`. Verified with `-DryRun`; re-run `PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\gen-certs.ps1`. |
 | B2 | Browser warns after B3 | CA installed in different CAROOT or Firefox NSS store. | Check `mkcert -CAROOT`; reinstall with `TRUST_STORES=system,java,nss`. |
 | B3 | `nginx: [emerg] cannot load certificate` | B2 certs missing or wrong `CAROOT`. | Run `scripts/gen-certs.ps1`; confirm `<REPO>\certs` bind in `docker compose config`. |
 | B3 | `bind: address already in use` on 80/443 | IIS/Apache/other proxy owns the port. | `netstat -ano | findstr :443`; stop owner or approve a new port ADR. |
