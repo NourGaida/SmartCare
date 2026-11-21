@@ -1,0 +1,26 @@
+Baseline Maven verification, 2026-11-21 (excerpt of stdout, full log kept by the tool runner).
+
+Command:
+$env:JAVA_HOME='C:\Program Files\Amazon Corretto\jdk25.0.5_0'; mvn --batch-mode --no-transfer-progress -f middleware/pom.xml clean verify
+
+First attempt (MongoDB container stopped):
+[ERROR] com.mongodb.MongoTimeoutException: Timed out while waiting for a server that matches WritableServerSelector. ... servers=[{address=localhost:27017, ... Connection refused: getsockopt}]
+[ERROR] Tests run: 33, Failures: 0, Errors: 1, Skipped: 0 -- in smartcare-core
+[ERROR] BUILD FAILURE
+
+After `docker start smartcare-mongodb`, second attempt:
+[INFO] Tests run: 54, Failures: 0, Errors: 0, Skipped: 0  (smartcare-core)
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0  (smartcare-iam)
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0  (smartcare-api)
+[INFO] SmartCare core ..................................... SUCCESS
+[INFO] SmartCare IAM ...................................... SUCCESS
+[INFO] SmartCare API ...................................... SUCCESS
+[INFO] BUILD SUCCESS
+
+Environment:
+openjdk version "25.0.5" 2026-10-20 LTS (PATH)
+Apache Maven 3.10.0 (JAVA_HOME default jdk17.0.18_9; overridden to jdk25.0.5_0)
+Docker version 29.3.1
+node v22.17.0
+mkcert: C:\ProgramData\chocolatey\bin\mkcert.exe
+lighthouse: not found on PATH

@@ -115,6 +115,9 @@ Le frontend utilise HTML, CSS et des modules JavaScript, avec le test runner int
 | 2026-11-14 | OpenCode | Big Pickle | Timeout MongoDB configurable, tests, CI, scripts de récupération et documentation | [MongoDB PR](docs/prompts/2026-11-14-close-mongo-pr.md) |
 | 2026-11-14 | OpenCode | Big Pickle | Restructuration du dépôt, séparation frontend, découpage Maven et adaptation CI | [Restructuration](docs/prompts/2026-11-14-repo-restructure.md) |
 | 2026-11-15 | OpenCode | Big Pickle | Réception MQTT des mesures validées, endpoint de santé, tests et intégration Mosquitto | [MQTT Receiver](docs/prompts/2026-11-14-mqtt-receiver.md) |
+| 2026-11-21 | OpenCode | Big Pickle | HTTPS local, certificats mkcert, nginx TLS, cookies sécurisés, PWA installables et documentation associée | [Master prompt HTTPS/PWA](docs/prompts/00-master-prompt.md) |
+
+Le travail HTTPS/PWA est produit avec l'assistance de codage IA (opencode, modèle Big Pickle) et est soumis à la revue de l'équipe avant intégration. Le prompt intégral est archivé dans [`docs/prompts/00-master-prompt.md`](docs/prompts/00-master-prompt.md) ; aucun secret ni certificat n'y figure.
 
 ### Contributions ChatGPT — MLOps
 
