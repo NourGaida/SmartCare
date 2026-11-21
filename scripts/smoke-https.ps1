@@ -28,6 +28,7 @@ function Expected-Type([string]$Path) {
     '\.svg$' { return 'image/svg+xml' }
     '\.png$' { return 'image/png' }
     '\.woff2$' { return 'font/woff2' }
+    '\.json$' { return 'application/json' }
     '\.webmanifest$' { return 'application/manifest+json' }
     default { return $null }
   }
@@ -66,6 +67,34 @@ foreach ($entry in $hosts) {
   }
 
   "=== $hostName ($($entry.App)) ==="
+
+  foreach ($path in @('/', '/index.html', '/frontoffice/index.html', '/backoffice/index.html')) {
+    $result = Invoke-CurlGet "https://$hostName$path"
+    $type = $result.Headers['content-type']
+    $bareType = if ($type) { ($type -split ';')[0].Trim() } else { '' }
+    $disposition = $result.Headers['content-disposition']
+    Assert-Check "$hostName$path html" ($result.Status -eq 200 -and $bareType -like 'text/html*' -and -not $disposition) "status=$($result.Status) content-type=$bareType content-disposition=$(if ($disposition) { $disposition } else { '<none>' })"
+  }
+
+  $jsonPath = if ($entry.App -eq 'frontoffice') { '/fixtures/measurement-history.json' } else { '/frontoffice/fixtures/measurement-history.json' }
+  $mjsPath = if ($entry.App -eq 'frontoffice') { '/portal.mjs' } else { '/views.mjs' }
+  $mimeCases = @(
+    @{ Label = 'css'; Path = '/styles.css' },
+    @{ Label = 'mjs'; Path = $mjsPath },
+    @{ Label = 'svg'; Path = '/icon.svg' },
+    @{ Label = 'png'; Path = '/icon-192.png' },
+    @{ Label = 'woff2'; Path = '/fonts/dm-sans-latin-v17.woff2' },
+    @{ Label = 'json'; Path = $jsonPath },
+    @{ Label = 'webmanifest'; Path = '/manifest.webmanifest' }
+  )
+  foreach ($case in $mimeCases) {
+    $result = Invoke-CurlGet "https://$hostName$($case.Path)"
+    $type = $result.Headers['content-type']
+    $bareType = if ($type) { ($type -split ';')[0].Trim() } else { '' }
+    $expected = Expected-Type $case.Path
+    Assert-Check "$hostName mime $($case.Label)" ($result.Status -eq 200 -and $bareType -eq $expected) "path=$($case.Path) status=$($result.Status) content-type=$bareType expected=$expected"
+  }
+
   foreach ($path in $paths) {
     $url = "https://$hostName$path"
     $result = Invoke-CurlGet $url

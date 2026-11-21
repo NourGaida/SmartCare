@@ -1,5 +1,7 @@
 # Evidence — HTTPS asset smoke test (2026-11-21)
 
+> Superseded by `2026-11-21-root-mime-types.txt`. The `pass=39` run below predates the root HTML checks; it did not request `/`, `/frontoffice/index.html` or `/backoffice/index.html` and therefore missed the `text/html` MIME regression.
+
 ## Before fix (VERIFIED)
 
 ```text

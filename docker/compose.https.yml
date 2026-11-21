@@ -8,7 +8,7 @@ services:
     volumes:
       - ./nginx-https.conf:/etc/nginx/conf.d/default.conf:ro
       - ./nginx-security-headers.conf:/etc/nginx/snippets/smartcare-security-headers.conf:ro
-      - ./nginx-mime-types.conf:/etc/nginx/snippets/smartcare-mime-types.conf:ro
+      - ./nginx-mime-types.conf:/etc/nginx/mime.types:ro
       - ../frontends:/usr/share/nginx/html:ro
       - ../certs:/etc/nginx/certs:ro
     extra_hosts:

@@ -25,7 +25,7 @@ Adds the three managed `.smartcare.local` host entries. Requires elevation for r
 
 ## `smoke-https.ps1`
 
-Runs GET checks for every asset referenced by both portal `index.html` files, plus manifests, icons, fonts, `sw.js` and `server-mode.mjs`, against `app.smartcare.local` and `staff.smartcare.local`. It asserts status, MIME type, cache directives and security headers, and exits non-zero on any failure.
+Runs GET checks for `/`, `/index.html`, both app-prefixed `index.html` paths, every asset referenced by both portal `index.html` files, plus manifests, icons, fonts, `sw.js` and `server-mode.mjs`, against `app.smartcare.local` and `staff.smartcare.local`. It asserts status, MIME type (including css, mjs, svg, png, woff2, json and webmanifest), absence of `Content-Disposition` on HTML, cache directives and security headers, and exits non-zero on any failure.
 
 ```powershell
 .\scripts\smoke-https.ps1

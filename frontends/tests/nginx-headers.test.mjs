@@ -28,14 +28,29 @@ test('nginx sends no-store for 404 and 5xx and keeps no-cache for sw.js', () => 
   assert.equal(count(config, 'add_header Cache-Control "public, max-age=3600" always;'), 2);
 });
 
-test('mjs is served as text/javascript in every static prefix', () => {
-  assert.match(mime, /text\/javascript mjs;/);
-  assert.ok(count(config, 'include /etc/nginx/snippets/smartcare-mime-types.conf;') >= 10);
+test('global MIME table is complete and no location overrides types', () => {
+  for (const mapping of [
+    /text\/html\s+html htm shtml;/,
+    /text\/css\s+css;/,
+    /application\/javascript\s+js;/,
+    /text\/javascript\s+mjs;/,
+    /image\/svg\+xml\s+svg svgz;/,
+    /image\/png\s+png;/,
+    /image\/x-icon\s+ico;/,
+    /font\/woff2\s+woff2;/,
+    /application\/json\s+json;/,
+    /application\/manifest\+json\s+webmanifest;/
+  ]) {
+    assert.match(mime, mapping);
+  }
+  assert.doesNotMatch(config, /types\s*\{/);
+  assert.doesNotMatch(config, /default_type/);
+  assert.doesNotMatch(config, /smartcare-mime-types\.conf/);
 });
 
-test('compose mounts both snippets and the security snippet uses always', () => {
+test('compose mounts the global MIME table and the security snippet uses always', () => {
   assert.match(compose, /nginx-security-headers\.conf:\/etc\/nginx\/snippets\/smartcare-security-headers\.conf:ro/);
-  assert.match(compose, /nginx-mime-types\.conf:\/etc\/nginx\/snippets\/smartcare-mime-types\.conf:ro/);
+  assert.match(compose, /nginx-mime-types\.conf:\/etc\/nginx\/mime\.types:ro/);
   for (const header of ['Strict-Transport-Security', 'Content-Security-Policy', 'X-Content-Type-Options']) {
     assert.match(security, new RegExp(`add_header ${header} .* always;`));
   }

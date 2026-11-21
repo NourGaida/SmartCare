@@ -51,7 +51,7 @@
 
    ```powershell
    docker compose -f docker/compose.https.yml config --quiet
-    docker run --rm -v "${PWD}\docker\nginx-https.conf:/etc/nginx/conf.d/default.conf:ro" -v "${PWD}\docker\nginx-security-headers.conf:/etc/nginx/snippets/smartcare-security-headers.conf:ro" -v "${PWD}\docker\nginx-mime-types.conf:/etc/nginx/snippets/smartcare-mime-types.conf:ro" -v "${PWD}\certs:/etc/nginx/certs:ro" nginx:stable nginx -t
+    docker run --rm -v "${PWD}\docker\nginx-https.conf:/etc/nginx/conf.d/default.conf:ro" -v "${PWD}\docker\nginx-security-headers.conf:/etc/nginx/snippets/smartcare-security-headers.conf:ro" -v "${PWD}\docker\nginx-mime-types.conf:/etc/nginx/mime.types:ro" -v "${PWD}\certs:/etc/nginx/certs:ro" nginx:stable nginx -t
    docker run --rm -v "${PWD}:/workspace" --entrypoint bash quay.io/wildfly/wildfly:42.0.0.Final-jdk25 -n /workspace/scripts/wildfly-entrypoint.sh
    ```
 
@@ -78,7 +78,7 @@
    PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke-https.ps1
    ```
 
-   Expected: `SUMMARY pass=39 fail=0`. Every index-referenced asset returns 200 with the expected MIME type, `sw.js` is `no-cache`, 404s are `no-store`, fonts are immutable, and every checked response carries the security headers.
+   Expected: `SUMMARY pass=61 fail=0`. For both hosts, `/`, `/index.html`, `/frontoffice/index.html` and `/backoffice/index.html` return 200 with `Content-Type: text/html...` and no `Content-Disposition`; css, mjs, svg, png, woff2, json and webmanifest have their expected types; `sw.js` is `no-cache`, 404s are `no-store`, fonts are immutable, and every checked response carries the security headers.
 
 7. Check API rewrite and session cookie:
 
@@ -106,13 +106,14 @@
 - `frontends/shared/sw-kill.js` — dormant one-time maintenance worker.
 - `frontends/tests/server-mode.test.mjs` — D2 regression tests.
 - `frontends/tests/nginx-headers.test.mjs` — static nginx header/MIME regression tests.
-- `docker/nginx-https.conf`, `docker/compose.https.yml` — root-accurate asset routing, error no-store, MIME and snippet mounts.
-- `docker/nginx-security-headers.conf`, `docker/nginx-mime-types.conf` — shared nginx snippets.
-- `scripts/smoke-https.ps1` — live GET smoke test for both HTTPS hosts.
+- `docker/nginx-https.conf`, `docker/compose.https.yml` — root-accurate asset routing, error no-store, global MIME mount and security snippet mount.
+- `docker/nginx-security-headers.conf` — shared nginx security headers.
+- `docker/nginx-mime-types.conf` — complete global MIME table (upstream table plus `mjs` and `webmanifest`).
+- `scripts/smoke-https.ps1` — live GET smoke test for both HTTPS hosts, including root HTML and MIME assertions.
 - `.github/workflows/ci.yml` — frontend test command includes both new tests.
-- `docs/decisions/ADR-0008-server-mode.md`, `docs/decisions/ADR-0009-service-worker-kill-switch.md` — decision records.
+- `docs/decisions/ADR-0008-server-mode.md`, `docs/decisions/ADR-0009-service-worker-kill-switch.md`, `docs/decisions/ADR-0010-global-mime-table.md` — decision records.
 - `docs/https-pwa/07-https-verification.md` — this step document.
-- `docs/https-pwa/evidence/2026-11-21-https-verification.txt`, `docs/https-pwa/evidence/2026-11-21-full-verify.txt`, `docs/https-pwa/evidence/2026-11-21-smoke-https.txt` — evidence.
+- `docs/https-pwa/evidence/2026-11-21-https-verification.txt`, `docs/https-pwa/evidence/2026-11-21-full-verify.txt`, `docs/https-pwa/evidence/2026-11-21-smoke-https.txt`, `docs/https-pwa/evidence/2026-11-21-root-mime-types.txt` — evidence.
 - `docs/README.md` — JDK 25/MongoDB test prerequisites.
 - `docs/https-pwa/02-hostnames.md`, `03-local-certificates.md`, evidence files — personal paths replaced with `<REPO>`.
 - `docs/https-pwa/README.md`, `14-troubleshooting.md`, `screenshots-todo.md`, `docs/CHANGELOG.md` — live updates.
@@ -122,9 +123,10 @@
   - `mvn --batch-mode --no-transfer-progress -f middleware/pom.xml clean verify` → core 54, iam 14, api 14, 0 failures/errors/skipped, `BUILD SUCCESS`.
   - Frontend suite → 80 tests, 80 pass, 0 fail, 0 skipped (D2 + SW + nginx regression tests).
   - `docker compose -f docker/compose.https.yml config --quiet` → exit 0.
-  - `nginx:stable nginx -t` with both snippets and a throwaway cert outside the repo → syntax ok / test successful.
+  - `nginx:stable nginx -t` with the security snippet, complete global MIME table and a throwaway cert outside the repo → syntax ok / test successful.
+  - `docker exec smartcare-nginx-https nginx -t` before and after `up -d --force-recreate` → syntax ok / test successful.
   - `bash -n scripts/wildfly-entrypoint.sh` in the WildFly image → exit 0.
-  - `scripts/smoke-https.ps1` → `SUMMARY pass=39 fail=0` on both HTTPS hosts.
+  - `scripts/smoke-https.ps1` → `SUMMARY pass=61 fail=0` on both HTTPS hosts, including root HTML and MIME checks.
   - D2 reproduction → `isServerMode=true` for `app.smartcare.local`, `staff.smartcare.local` and both legacy `/smartcare/frontends/...` paths.
   - Tool versions: mkcert v1.4.4, Docker Compose v5.1.1, Node v22.17.0, Lighthouse 12.8.2.
 - **VERIFIED by user/live curl 2026-11-21**:
@@ -148,6 +150,7 @@
 | Maven still uses Java 17 | `JAVA_HOME` not overridden in this shell. | Set it to JDK 25 before `mvn`; see `docs/README.md`. |
 | Lighthouse reports insecure context | mkcert CA not trusted or hosts not resolving. | Complete B1/B2 as admin and re-run; do not disable HTTPS checks. |
 | Chrome shows `404 ()` while curl returns 200 | Stale service worker or HTTP cache from a cached 404 response. | Confirm with `curl.exe --ssl-no-revoke`; unregister the SW and clear site data; use the dormant kill-switch only if needed (ADR-0009). |
+| Browser downloads the page instead of rendering it | A location-level `types` override dropped `text/html` after `try_files` internally redirected `/` to `/frontoffice/index.html` or `/backoffice/index.html`. | Use `curl.exe --ssl-no-revoke -D - -o NUL https://app.smartcare.local/` and check `Content-Type`; use the complete global MIME table from ADR-0010; keep `nosniff`. |
 
 Also appended to [14-troubleshooting.md](14-troubleshooting.md).
 
@@ -160,15 +163,16 @@ Also appended to [14-troubleshooting.md](14-troubleshooting.md).
 
 ## Rollback
 - Revert the D2 files to restore the duplicated path checks; remove `frontends/tests/server-mode.test.mjs` and ADR-0008.
-- Revert the nginx snippets/config, SW files, `scripts/smoke-https.ps1`, `frontends/tests/nginx-headers.test.mjs`, `frontends/shared/sw-kill.js` and ADR-0009 if the incident fix is not wanted.
+- Revert the nginx config, global MIME table, SW files, `scripts/smoke-https.ps1`, `frontends/tests/nginx-headers.test.mjs`, `frontends/shared/sw-kill.js`, ADR-0009 and ADR-0010 if the incident fixes are not wanted.
 - Revert `docs/README.md` note if the repository later standardises JDK/Mongo setup elsewhere.
 - The live nginx container was restarted to apply the incident fix; no legacy WildFly service was changed.
 
 ## Decisions and alternatives
 - Accepted [ADR-0008](../decisions/ADR-0008-server-mode.md): one shared predicate.
 - Accepted [ADR-0009](../decisions/ADR-0009-service-worker-kill-switch.md): dormant one-time kill-switch only.
+- Accepted [ADR-0010](../decisions/ADR-0010-global-mime-table.md): complete global MIME table, no location overrides.
 - Rejected duplicated checks and broad `href.includes('smartcare')` fallback.
-- Rejected permanent kill-switch workers and cached 404 responses.
+- Rejected permanent kill-switch workers, cached 404 responses and partial MIME tables.
 - Kept B6 as verification + documentation only; Phase C cutover is a separate user-approved step.
 
 ## References

@@ -1,0 +1,157 @@
+# Evidence — root MIME type incident (2026-11-21)
+
+## Root cause hypothesis (CONFIRMED before fix)
+
+`docker/nginx-mime-types.conf` was included inside `location ^~ /frontoffice/` and `location ^~ /backoffice/`. Its complete content at the time was:
+
+```text
+types {
+    text/css css;
+    application/javascript js;
+    text/javascript mjs;
+    application/manifest+json webmanifest;
+    image/svg+xml svg;
+    image/png png;
+    font/woff2 woff2;
+}
+```
+
+In nginx, `types` is not additive: a `types` block in a more specific context replaces the whole inherited table. `location /` uses `try_files /frontoffice$uri /frontoffice$uri/ /frontoffice/index.html`; for `/`, the directory match internally redirects to `/frontoffice/index.html` on the patient host and `/backoffice/index.html` on the staff host. Those requests land in the prefix locations whose partial table has no `text/html`, so nginx falls back to `default_type application/octet-stream`.
+
+## Before fix — curl evidence (VERIFIED)
+
+```text
+Command: curl.exe --ssl-no-revoke -sS -D - -o NUL https://<host><path>
+
+app.smartcare.local /                     -> HTTP/1.1 200 OK | Content-Type: application/octet-stream | disposition=<none>
+app.smartcare.local /index.html           -> HTTP/1.1 200 OK | Content-Type: text/html              | disposition=<none>
+app.smartcare.local /frontoffice/index.html -> HTTP/1.1 200 OK | Content-Type: application/octet-stream | disposition=<none>
+app.smartcare.local /backoffice/index.html  -> HTTP/1.1 200 OK | Content-Type: application/octet-stream | disposition=<none>
+staff.smartcare.local /                    -> HTTP/1.1 200 OK | Content-Type: application/octet-stream | disposition=<none>
+staff.smartcare.local /index.html          -> HTTP/1.1 200 OK | Content-Type: text/html              | disposition=<none>
+staff.smartcare.local /frontoffice/index.html -> HTTP/1.1 200 OK | Content-Type: application/octet-stream | disposition=<none>
+staff.smartcare.local /backoffice/index.html  -> HTTP/1.1 200 OK | Content-Type: application/octet-stream | disposition=<none>
+```
+
+`http://app.smartcare.local/` returned `301` to HTTPS (VERIFIED earlier and unchanged here).
+
+`X-Content-Type-Options: nosniff` was present. That is correct behaviour: once the server advertised `application/octet-stream`, Chrome would not guess HTML and downloaded the response instead.
+
+## Why the earlier 39-pass smoke run missed it
+
+The earlier script built its URL list from `href`/`src` attributes in `index.html` plus explicit assets (`sw.js`, icons, fonts, `server-mode.mjs`). An HTML document never references itself as `/`, and the script did not explicitly request `/`, `/frontoffice/index.html` or `/backoffice/index.html`. Therefore it only exercised locations that returned the handful of MIME types present in the partial table, and the broken internal-redirect path was never tested. The new script adds those four HTML paths for both hosts and explicit css/mjs/svg/png/woff2/json/webmanifest assertions.
+
+## Fix (VERIFIED)
+
+- Chosen option: complete global MIME table, no location overrides (ADR-0010).
+- `docker/nginx-mime-types.conf` is now the full `nginx:stable` MIME table plus `text/javascript mjs;` and `application/manifest+json webmanifest;`.
+- It is mounted at `/etc/nginx/mime.types`, which nginx already includes at `http` scope.
+- All `types { }`, `default_type` and snippet includes were removed from `docker/nginx-https.conf`.
+- `X-Content-Type-Options: nosniff` remains enabled.
+
+## nginx syntax (VERIFIED)
+
+```text
+Command: docker exec smartcare-nginx-https nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+EXIT=0
+
+Command: docker compose -f docker/compose.https.yml up -d --force-recreate
+Container smartcare-nginx-https Recreate
+Container smartcare-nginx-https Recreated
+Container smartcare-nginx-https Starting
+Container smartcare-nginx-https Started
+EXIT=0
+
+Command: docker exec smartcare-nginx-https nginx -t  (after recreate)
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+EXIT=0
+```
+
+## Full smoke output after fix (VERIFIED)
+
+```text
+Command: PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke-https.ps1 -Repo <REPO>
+=== app.smartcare.local (frontoffice) ===
+PASS app.smartcare.local/ html :: status=200 content-type=text/html content-disposition=<none>
+PASS app.smartcare.local/index.html html :: status=200 content-type=text/html content-disposition=<none>
+PASS app.smartcare.local/frontoffice/index.html html :: status=200 content-type=text/html content-disposition=<none>
+PASS app.smartcare.local/backoffice/index.html html :: status=200 content-type=text/html content-disposition=<none>
+PASS app.smartcare.local mime css :: path=/styles.css status=200 content-type=text/css expected=text/css
+PASS app.smartcare.local mime mjs :: path=/portal.mjs status=200 content-type=text/javascript expected=text/javascript
+PASS app.smartcare.local mime svg :: path=/icon.svg status=200 content-type=image/svg+xml expected=image/svg+xml
+PASS app.smartcare.local mime png :: path=/icon-192.png status=200 content-type=image/png expected=image/png
+PASS app.smartcare.local mime woff2 :: path=/fonts/dm-sans-latin-v17.woff2 status=200 content-type=font/woff2 expected=font/woff2
+PASS app.smartcare.local mime json :: path=/fixtures/measurement-history.json status=200 content-type=application/json expected=application/json
+PASS app.smartcare.local mime webmanifest :: path=/manifest.webmanifest status=200 content-type=application/manifest+json expected=application/manifest+json
+PASS app.smartcare.local/icon.svg :: status=200 content-type=image/svg+xml
+PASS app.smartcare.local/icon-192.png :: status=200 content-type=image/png
+PASS app.smartcare.local/manifest.webmanifest :: status=200 content-type=application/manifest+json
+PASS app.smartcare.local/styles.css :: status=200 content-type=text/css
+PASS app.smartcare.local/shared/forms.css :: status=200 content-type=text/css
+PASS app.smartcare.local/portal.mjs :: status=200 content-type=text/javascript
+PASS app.smartcare.local/sw.js :: status=200 content-type=application/javascript
+PASS app.smartcare.local/icon-512.png :: status=200 content-type=image/png
+PASS app.smartcare.local/shared/server-mode.mjs :: status=200 content-type=text/javascript
+PASS app.smartcare.local/fonts/dm-sans-latin-v17.woff2 :: status=200 content-type=font/woff2
+PASS app.smartcare.local/fonts/dm-sans-latin-ext-v17.woff2 :: status=200 content-type=font/woff2
+PASS app.smartcare.local/fonts/manrope-latin-v23.woff2 :: status=200 content-type=font/woff2
+PASS app.smartcare.local/fonts/manrope-latin-ext-v23.woff2 :: status=200 content-type=font/woff2
+PASS app.smartcare.local sw.js cache :: cache-control=no-cache service-worker-allowed=/
+PASS app.smartcare.local sw.js security :: csp=True hsts=True
+PASS app.smartcare.local 200 cache :: cache-control=public, max-age=3600
+PASS app.smartcare.local font cache :: cache-control=public, max-age=31536000, immutable
+PASS app.smartcare.local 404 cache :: status=404 cache-control=no-store
+PASS app.smartcare.local 404 security :: csp=True
+=== staff.smartcare.local (backoffice) ===
+PASS staff.smartcare.local/ html :: status=200 content-type=text/html content-disposition=<none>
+PASS staff.smartcare.local/index.html html :: status=200 content-type=text/html content-disposition=<none>
+PASS staff.smartcare.local/frontoffice/index.html html :: status=200 content-type=text/html content-disposition=<none>
+PASS staff.smartcare.local/backoffice/index.html html :: status=200 content-type=text/html content-disposition=<none>
+PASS staff.smartcare.local mime css :: path=/styles.css status=200 content-type=text/css expected=text/css
+PASS staff.smartcare.local mime mjs :: path=/views.mjs status=200 content-type=text/javascript expected=text/javascript
+PASS staff.smartcare.local mime svg :: path=/icon.svg status=200 content-type=image/svg+xml expected=image/svg+xml
+PASS staff.smartcare.local mime png :: path=/icon-192.png status=200 content-type=image/png expected=image/png
+PASS staff.smartcare.local mime woff2 :: path=/fonts/dm-sans-latin-v17.woff2 status=200 content-type=font/woff2 expected=font/woff2
+PASS staff.smartcare.local mime json :: path=/frontoffice/fixtures/measurement-history.json status=200 content-type=application/json expected=application/json
+PASS staff.smartcare.local mime webmanifest :: path=/manifest.webmanifest status=200 content-type=application/manifest+json expected=application/manifest+json
+PASS staff.smartcare.local/icon.svg :: status=200 content-type=image/svg+xml
+PASS staff.smartcare.local/icon-192.png :: status=200 content-type=image/png
+PASS staff.smartcare.local/manifest.webmanifest :: status=200 content-type=application/manifest+json
+PASS staff.smartcare.local/frontoffice/styles.css :: status=200 content-type=text/css
+PASS staff.smartcare.local/shared/forms.css :: status=200 content-type=text/css
+PASS staff.smartcare.local/styles.css :: status=200 content-type=text/css
+PASS staff.smartcare.local/shared/portal.mjs :: status=200 content-type=text/javascript
+PASS staff.smartcare.local/sw.js :: status=200 content-type=application/javascript
+PASS staff.smartcare.local/icon-512.png :: status=200 content-type=image/png
+PASS staff.smartcare.local/shared/server-mode.mjs :: status=200 content-type=text/javascript
+PASS staff.smartcare.local/fonts/dm-sans-latin-v17.woff2 :: status=200 content-type=font/woff2
+PASS staff.smartcare.local/fonts/dm-sans-latin-ext-v17.woff2 :: status=200 content-type=font/woff2
+PASS staff.smartcare.local/fonts/manrope-latin-v23.woff2 :: status=200 content-type=font/woff2
+PASS staff.smartcare.local/fonts/manrope-latin-ext-v23.woff2 :: status=200 content-type=font/woff2
+PASS staff.smartcare.local sw.js cache :: cache-control=no-cache service-worker-allowed=/
+PASS staff.smartcare.local sw.js security :: csp=True hsts=True
+PASS staff.smartcare.local 200 cache :: cache-control=public, max-age=3600
+PASS staff.smartcare.local font cache :: cache-control=public, max-age=31536000, immutable
+PASS staff.smartcare.local 404 cache :: status=404 cache-control=no-store
+PASS staff.smartcare.local 404 security :: csp=True
+SUMMARY pass=61 fail=0
+```
+
+## Static regression tests (VERIFIED)
+
+```text
+Command: node --test frontends/tests/frontend.test.mjs frontends/tests/access-demo.test.mjs frontends/tests/patient-history.test.mjs frontends/tests/server-mode.test.mjs frontends/tests/nginx-headers.test.mjs
+# tests 80
+# pass 80
+# fail 0
+# skipped 0
+```
+
+## Still UNVERIFIED
+
+- Final Chrome rendering after clearing the stale service worker/cache.
+- Lighthouse scores and padlock screenshots.
+- Live WildFly `/api/` rewrite and `Secure` cookie output.
