@@ -45,7 +45,7 @@
    node --test frontends/tests/frontend.test.mjs frontends/tests/access-demo.test.mjs frontends/tests/patient-history.test.mjs frontends/tests/server-mode.test.mjs frontends/tests/nginx-headers.test.mjs
    ```
 
-   Expected: 80 tests pass.
+   Expected: 81 tests pass.
 
 3. Recheck static infrastructure:
 
@@ -80,13 +80,15 @@
 
    Expected: `SUMMARY pass=61 fail=0`. For both hosts, `/`, `/index.html`, `/frontoffice/index.html` and `/backoffice/index.html` return 200 with `Content-Type: text/html...` and no `Content-Disposition`; css, mjs, svg, png, woff2, json and webmanifest have their expected types; `sw.js` is `no-cache`, 404s are `no-store`, fonts are immutable, and every checked response carries the security headers.
 
-7. Check API rewrite and session cookie:
+7. Check the authenticated backend path through both HTTPS hosts:
 
    ```powershell
-   curl.exe --ssl-no-revoke -i https://app.smartcare.local/api/session
+   $env:SMARTCARE_DEV_EMAIL='patient@smartcare.local'
+   $env:SMARTCARE_DEV_PASSWORD='<DEV_PASSWORD_FROM_PASSWORD_MANAGER>'
+   PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke-https.ps1 -Repo '<REPO>' -WithLogin | Tee-Object -FilePath "$env:TEMP\smartcare-withlogin.txt"
    ```
 
-   Expected: not a 404 from `/api/...`; `Set-Cookie: SMARTCARE_SESSION=...; Path=/; HttpOnly; SameSite=Strict; Secure` when the HTTPS WildFly image from B5 is used.
+   Expected: `/api/health` returns the backend body with 200 through the `/api/` rewrite; login returns a `Secure`, `HttpOnly`, `SameSite=Strict`, root-path cookie with no `Domain`; `/api/session`, CSRF negative/positive, logout and role checks match the implemented contract. Final line: `SUMMARY pass=87 fail=0 gap=2`. Live result remains UNVERIFIED until the user pastes redacted output; see [backend-live-verification.md](backend-live-verification.md).
 
 8. Run Lighthouse only after the padlock is trusted:
 
@@ -109,10 +111,11 @@
 - `docker/nginx-https.conf`, `docker/compose.https.yml` — root-accurate asset routing, error no-store, global MIME mount and security snippet mount.
 - `docker/nginx-security-headers.conf` — shared nginx security headers.
 - `docker/nginx-mime-types.conf` — complete global MIME table (upstream table plus `mjs` and `webmanifest`).
-- `scripts/smoke-https.ps1` — live GET smoke test for both HTTPS hosts, including root HTML and MIME assertions.
+- `scripts/smoke-https.ps1` — live GET smoke test for both HTTPS hosts, plus optional `-WithLogin` backend/cookie/CSRF checks with temporary out-of-repo cookie jars.
 - `.github/workflows/ci.yml` — frontend test command includes both new tests.
-- `docs/decisions/ADR-0008-server-mode.md`, `docs/decisions/ADR-0009-service-worker-kill-switch.md`, `docs/decisions/ADR-0010-global-mime-table.md` — decision records.
+- `docs/decisions/ADR-0008-server-mode.md`, `docs/decisions/ADR-0009-service-worker-kill-switch.md`, `docs/decisions/ADR-0010-global-mime-table.md`, `docs/decisions/ADR-0012-https-backend-verification.md` — decision records.
 - `docs/https-pwa/07-https-verification.md` — this step document.
+- `docs/https-pwa/backend-live-verification.md` — user-run authenticated backend verification guide.
 - `docs/https-pwa/evidence/2026-11-21-https-verification.txt`, `docs/https-pwa/evidence/2026-11-21-full-verify.txt`, `docs/https-pwa/evidence/2026-11-21-smoke-https.txt`, `docs/https-pwa/evidence/2026-11-21-root-mime-types.txt` — evidence.
 - `docs/README.md` — JDK 25/MongoDB test prerequisites.
 - `docs/https-pwa/02-hostnames.md`, `03-local-certificates.md`, evidence files — personal paths replaced with `<REPO>`.

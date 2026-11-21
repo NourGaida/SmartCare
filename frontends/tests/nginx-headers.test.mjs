@@ -28,6 +28,12 @@ test('nginx sends no-store for 404 and 5xx and keeps no-cache for sw.js', () => 
   assert.equal(count(config, 'add_header Cache-Control "public, max-age=3600" always;'), 2);
 });
 
+test('nginx rewrites /api/ to the WildFly /smartcare/api/ context', () => {
+  assert.equal(count(config, 'location = /api {'), 2);
+  assert.equal(count(config, 'return 301 /api/;'), 2);
+  assert.equal(count(config, 'proxy_pass http://host.docker.internal:8080/smartcare/api/;'), 2);
+});
+
 test('global MIME table is complete and no location overrides types', () => {
   for (const mapping of [
     /text\/html\s+html htm shtml;/,
