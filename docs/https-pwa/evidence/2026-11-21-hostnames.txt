@@ -5,7 +5,7 @@ STATUS: UNVERIFIED — the script requires administrator privileges and was not 
 Run the commands from `docs/https-pwa/02-hostnames.md` in an elevated PowerShell and paste the full output below. Do not paste router passwords or tokens.
 
 ```text
-Command: Set-Location 'C:\Users\SINORFI\Desktop\SmartCare'
+Command: Set-Location '<REPO>'
 Command: PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-hosts.ps1 -IpAddress 192.168.1.4
 PASTE OUTPUT HERE
 

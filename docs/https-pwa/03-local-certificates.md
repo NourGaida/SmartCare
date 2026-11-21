@@ -36,7 +36,7 @@ flowchart LR
 1. In an **elevated** PowerShell, run:
 
    ```powershell
-   Set-Location 'C:\Users\SINORFI\Desktop\SmartCare'
+   Set-Location '<REPO>'
    $env:CAROOT = (Resolve-Path .\certs\ca).Path
    mkcert -install
    ```

@@ -27,7 +27,7 @@ flowchart LR
 - Windows with PowerShell 5.1 or later.
 - The SmartCare PC LAN IPv4 address. Default assumed by this step: `192.168.1.4`. Confirm with `ipconfig | findstr IPv4`.
 - An **administrator** PowerShell window. The AI agent will not elevate itself.
-- Repository checked out at `C:\Users\SINORFI\Desktop\SmartCare` (or replace the path with your own clone).
+- Repository checked out at `<REPO>` (or replace the path with your own clone).
 - Nothing from B2–B6 has been run yet.
 
 ## Procedure
@@ -35,7 +35,7 @@ flowchart LR
 2. Paste these two lines exactly, replacing the path if your clone lives elsewhere:
 
    ```powershell
-   Set-Location 'C:\Users\SINORFI\Desktop\SmartCare'
+   Set-Location '<REPO>'
    PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-hosts.ps1 -IpAddress 192.168.1.4
    ```
 

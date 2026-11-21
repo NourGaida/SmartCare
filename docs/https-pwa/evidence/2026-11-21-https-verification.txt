@@ -1,0 +1,64 @@
+# Evidence — 07 Phase B verification (B6)
+
+## Backend (VERIFIED 2026-11-21)
+
+```text
+Command: $env:JAVA_HOME='C:\Program Files\Amazon Corretto\jdk25.0.5_0'; mvn --batch-mode --no-transfer-progress -f middleware/pom.xml clean verify
+[INFO] Tests run: 54, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+Full raw log: docs/https-pwa/evidence/2026-11-21-full-verify.txt
+```
+
+## Frontend (VERIFIED)
+
+```text
+Command: node --test frontends/tests/frontend.test.mjs frontends/tests/access-demo.test.mjs frontends/tests/patient-history.test.mjs frontends/tests/server-mode.test.mjs
+# tests 75
+# pass 75
+# fail 0
+# skipped 0
+```
+
+D2-specific tests from the combined run:
+
+```text
+ok 27 - legacy paths stay in server mode on any hostname
+ok 28 - root-hosted apps on smartcare.local hosts are in server mode
+ok 29 - other root-hosted origins are not silently switched to server mode
+ok 30 - both portal entries call the single shared helper
+```
+
+## Static infrastructure (VERIFIED)
+
+```text
+Command: docker compose -f docker/compose.https.yml config --quiet
+COMPOSE_CONFIG_EXIT=0
+
+Command: docker run --rm -v <REPO>/docker/nginx-https.conf:/etc/nginx/conf.d/default.conf:ro -v <TEMP_CERTS>:/etc/nginx/certs:ro nginx:stable nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+(throwaway mkcert CA/cert generated outside the repo; never installed or committed)
+
+Command: docker run --rm -v <REPO>:/workspace --entrypoint bash quay.io/wildfly/wildfly:42.0.0.Final-jdk25 -n /workspace/scripts/wildfly-entrypoint.sh
+Exit code: 0
+```
+
+## Tool versions (VERIFIED)
+
+```text
+mkcert -version                 -> v1.4.4
+docker compose version          -> Docker Compose version v5.1.1
+node --version                  -> v22.17.0
+npx lighthouse@12.8.2 --version -> 12.8.2
+```
+
+## Pending user-side evidence (UNVERIFIED)
+
+```text
+B1: elevated setup-hosts.ps1 output, nslookup app/staff/api.smartcare.local
+B2: mkcert -install output, certs/smartcare.local.pem + key present (gitignored)
+B6: curl -kI HTTPS headers, 80->443 redirect, /api/session Secure cookie
+B6: Chrome padlock screenshots, Lighthouse JSON for both hosts
+```

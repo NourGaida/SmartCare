@@ -51,6 +51,7 @@ The split into `frontoffice` and `backoffice`, the `core` / `iam` / `api` Maven 
 2. Start the broker and gateway, if MQTT ingestion is needed: `docker compose -f iot/broker/docker-compose.yml up -d`.
 3. Build the backend, then deploy the WAR through `jboss-cli`:
    `mvn -f middleware/pom.xml clean package`
+   Maven uses `JAVA_HOME`. On the lab PC, set `$env:JAVA_HOME='C:\Program Files\Amazon Corretto\jdk25.0.5_0'` before `mvn` if Maven reports Java 17. CI uses `actions/setup-java` with Java 25 and a `mongo:8` service container; integration tests fail when MongoDB is unreachable. See [`middleware/README.md`](../middleware/README.md).
 4. Serve the repository root over HTTP and open:
    - `http://127.0.0.1:8080/frontends/frontoffice/`
    - `http://127.0.0.1:8080/frontends/backoffice/`

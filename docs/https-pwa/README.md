@@ -8,7 +8,7 @@
 | B3 | [04-nginx-tls.md](04-nginx-tls.md) | Config/compose/self-hosted fonts written; static checks pass, live HTTPS UNVERIFIED |
 | B4 | [05-session-cookie-security.md](05-session-cookie-security.md) | Code + 14 IAM tests pass; live Set-Cookie UNVERIFIED until B6 |
 | B5 | [06-wildfly-proxy.md](06-wildfly-proxy.md) | Image + idempotent CLI verified on test ports; real WildFly cutover deferred to Phase C |
-| B6 | 07-https-verification.md | Pending |
+| B6 | [07-https-verification.md](07-https-verification.md) | Static/tests pass; live HTTPS/Lighthouse UNVERIFIED pending user B1/B2 |
 | C | 10-registration-install-ux.md, 12-pwa-verification.md | Pending |
 | D | 13-phone-access.md | Pending |
 | Troubleshooting | [14-troubleshooting.md](14-troubleshooting.md) | Live |

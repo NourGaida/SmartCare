@@ -23,5 +23,9 @@ Living document. Add a row for every realistic problem found in a step doc; keep
 | B5 | Container exits immediately with no logs | `ENTRYPOINT` set without `CMD`. | Keep `CMD ["/opt/jboss/wildfly/bin/standalone.sh","-b","0.0.0.0"]`. |
 | B5 | `Proxy CLI returned non-zero` | Expected disconnect after `:reload`. | Allow it; verify final `proxy-address-forwarding=true`. |
 | B5 | `proxy-address-forwarding is not true` | Wrong CLI address or management auth. | Probe Undertow child names with `jboss-cli.sh --commands='embed-server, /subsystem=undertow:read-children-names(child-type=server)'`. |
+| B6 | D2 test fails on `app.smartcare.local` | Host regex changed or default argument removed. | Keep `/(^|\.)smartcare\.local$/` and default `globalThis.location`. |
+| B6 | Frontend offline boot misses `server-mode.mjs` | Helper not added to SW precache arrays. | Re-add `"../shared/server-mode.mjs"` to both SW files and bump cache version. |
+| B6 | Maven still uses Java 17 | `JAVA_HOME` not overridden in this shell. | Set it to JDK 25 before `mvn`; see `docs/README.md`. |
+| B6 | Lighthouse reports insecure context | mkcert CA not trusted or hosts not resolving. | Complete B1/B2 as admin and re-run; do not disable HTTPS checks. |
 
 <!-- Placeholder for later phases: TLS handshake failure, HSTS mismatch, cookie not Secure, CSRF 403, SW not controlling page, install prompt missing, phone CA not trusted, .local DNS not resolving. -->
