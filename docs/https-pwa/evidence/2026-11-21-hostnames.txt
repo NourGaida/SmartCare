@@ -1,0 +1,28 @@
+# Evidence — 02 hostnames (B1)
+
+STATUS: UNVERIFIED — the script requires administrator privileges and was not executed by the AI agent.
+
+Run the commands from `docs/https-pwa/02-hostnames.md` in an elevated PowerShell and paste the full output below. Do not paste router passwords or tokens.
+
+```text
+Command: Set-Location 'C:\Users\SINORFI\Desktop\SmartCare'
+Command: PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-hosts.ps1 -IpAddress 192.168.1.4
+PASTE OUTPUT HERE
+
+Command: nslookup app.smartcare.local
+PASTE OUTPUT HERE
+
+Command: nslookup staff.smartcare.local
+PASTE OUTPUT HERE
+
+Command: nslookup api.smartcare.local
+PASTE OUTPUT HERE
+
+Command: Select-String -Path "$env:WINDIR\System32\drivers\etc\hosts" -Pattern 'smartcare.local'
+PASTE OUTPUT HERE
+
+Command: ipconfig | findstr IPv4
+PASTE OUTPUT HERE
+```
+
+Screenshots to add (see `screenshots-todo.md`): `docs/img/02-elevated-powershell.png`, `docs/img/02-hosts-lines.png`.

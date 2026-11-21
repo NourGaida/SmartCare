@@ -5,6 +5,8 @@ Every entry below is a placeholder reference used in the step docs. Create the f
 | Placeholder | Where referenced | Capture when |
 | --- | --- | --- |
 | `docs/img/00-current-http-lock.png` | 00-overview | Phase A: browser showing HTTP (no padlock) on `:8081`. |
+| `docs/img/02-elevated-powershell.png` | 02-hostnames | Phase B1: elevated PowerShell title bar and the successful `setup-hosts.ps1` output. |
+| `docs/img/02-hosts-lines.png` | 02-hostnames | Phase B1: `Select-String` result for the three managed host lines; crop/blur any other hostnames. |
 | `docs/img/03-certificate-padlock.png` | 04-nginx-tls | Phase B: Chrome padlock on `https://app.smartcare.local`. |
 | `docs/img/03-install-prompt.png` | 10-registration-install-ux | Phase C: Android Chrome install prompt. |
 | `docs/img/07-curl-login-csrf.png` | 07-https-verification | Phase B: terminal with `Set-Cookie` and CSRF 403/204 results. |

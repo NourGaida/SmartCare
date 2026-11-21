@@ -27,7 +27,7 @@ flowchart LR
 ```
 
 Two separate origins, one per app, avoid cross-portal cookie and service-worker scope collisions:
-`https://app.smartcare.local` (patient) and `https://staff.smartcare.local` (staff). `api.smartcare.local` is deliberately not used: same-origin `/api/` keeps the session cookie host-only and removes CORS/preflight concerns.
+`https://app.smartcare.local` (patient) and `https://staff.smartcare.local` (staff). `api.smartcare.local` is an optional convenience alias only; it is deliberately not used by the apps because same-origin `/api/` keeps the session cookie host-only and removes CORS/preflight concerns.
 
 ## Login and CSRF sequence (target)
 
@@ -40,7 +40,7 @@ sequenceDiagram
     B->>N: POST /api/auth/login (same-origin)
     N->>W: POST /smartcare/api/auth/login + X-Forwarded-Proto: https
     W->>M: verify PBKDF2 hash, create session
-    W-->>B: Set-Cookie SMARTCARE_SESSION (Secure; HttpOnly; SameSite=Lax), csrfToken in JSON
+    W-->>B: Set-Cookie SMARTCARE_SESSION (Secure; HttpOnly; SameSite=Strict), csrfToken in JSON
     B->>N: GET /api/session (cookie)
     N->>W: GET /smartcare/api/session
     W-->>B: userId, role, csrfToken
