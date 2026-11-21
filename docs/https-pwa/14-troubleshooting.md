@@ -42,7 +42,7 @@ Living document. Add a row for every realistic problem found in a step doc; keep
 | B5 live | WAR missing after WildFly recreation | Deployments lived only in the old container layer. | Use `scripts/recreate-wildfly.ps1`; it exports deployments to `smartcare-wildfly-deployments` when no mount covers that path. |
 | B5 live | Restart policy remains `no` | Container was recreated without `-Force` or with another command. | Re-run `PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\recreate-wildfly.ps1 -Force` and expect `PASS restart policy :: unless-stopped`. |
 | B6 audit | `git check-ignore -v certs/...` returns no output | `.gitignore` rule for `certs/*` removed or wrong working directory. | Restore `.gitignore:51:certs/*` and run from repo root; never commit the cert/key files. |
-| B6 audit | Personal Windows path found in tracked docs | A prompt or evidence file uses a raw clone path. | Replace user/path with `<USER>`/`<REPO>`; see security hygiene audit. |
+| B6 audit | Windows user-directory prefix found in tracked docs | A prompt or evidence file uses a raw clone path. | Replace user/path with `<USER>`/`<REPO>`; see security hygiene audit. Author names in credits are intentional and are not path leakage. |
 | B6 audit | WildFly or MongoDB listens on `0.0.0.0` | Legacy lab setup exposes more than a hardened deployment should. | Record as issue-ready gap; do not change bindings without Phase C/production approval because nginx uses `host.docker.internal:8080`. |
 
 <!-- Placeholder for later phases: TLS handshake failure, HSTS mismatch, SW not controlling page, install prompt missing, phone CA not trusted, .local DNS not resolving. -->

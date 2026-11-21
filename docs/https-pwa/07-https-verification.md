@@ -125,7 +125,7 @@
 
 ## Verification
 - **VERIFIED 2026-11-21** locally:
-  - `mvn --batch-mode --no-transfer-progress -f middleware/pom.xml clean verify` → core 54, iam 14, api 14, 0 failures/errors/skipped, `BUILD SUCCESS`.
+  - `mvn --batch-mode --no-transfer-progress -f middleware/pom.xml clean verify` → core 54, iam 14, api 14, 0 failures/errors/skipped, `BUILD SUCCESS` (rerun in final closure).
   - Frontend suite → 81 tests, 81 pass, 0 fail, 0 skipped (D2 + SW + nginx regression and API rewrite tests).
   - `docker compose -f docker/compose.https.yml config --quiet` → exit 0.
   - `nginx:stable nginx -t` with the security snippet, complete global MIME table and a throwaway cert outside the repo → syntax ok / test successful.
@@ -147,6 +147,24 @@
   - final Chrome result after clearing the stale worker/cache, including Incognito;
   - Lighthouse scores and padlock screenshots;
   - real WildFly container replacement using `scripts/recreate-wildfly.ps1 -Force`.
+
+## Final status matrix
+
+| Area | Status | Evidence / next action |
+| --- | --- | --- |
+| B1 hostnames | VERIFIED by user | Host entries and pings confirmed; 80→443 redirect still needs user paste. |
+| B2 certificates | VERIFIED by user | mkcert CA trust, leaf generation and padlock confirmed; cert/key files ignored. |
+| B3 HTTPS/nginx | VERIFIED | `nginx -t` passed before/after force recreate; default smoke `pass=61 fail=0`; global MIME table fixed. |
+| B4 cookie code | VERIFIED locally | `SMARTCARE_SESSION_SECURE` profile wiring and 14 IAM tests pass; live secure cookie UNVERIFIED. |
+| B5 WildFly proxy image | VERIFIED in disposable container | Startup marker, CLI read-back and env verified on test ports; real `-Force` recreation UNVERIFIED. |
+| B6 D2/headers/SW | VERIFIED | 81 frontend tests pass; security headers, no-cache/no-store and MIME regressions covered. |
+| Browser routing incident | VERIFIED by user | VPN-off fixed the routing bypass; documented in ADR-0011 and browser-state guide. |
+| Authenticated backend | UNVERIFIED | User must run `-WithLogin`; expected `SUMMARY pass=87 fail=0 gap=2`. |
+| Real WildFly recreation | UNVERIFIED | User must run `scripts/recreate-wildfly.ps1 -DryRun` then `-Force` if approving cutover. |
+| Security hygiene | VERIFIED locally | No tracked sensitive names, four cert/key paths ignored, no Windows user-directory prefix; port/header/role gaps recorded. |
+| Lighthouse/installability | DEFERRED | Phase C. |
+| Phone access/CA | DEFERRED | Phase D. |
+| Push/merge | NOT DONE | Explicitly excluded from this task. |
 
 ## Troubleshooting
 

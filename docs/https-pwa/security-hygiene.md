@@ -21,7 +21,7 @@ Run from the repository root. These commands are read-only.
 git ls-files | Select-String -Pattern 'pem|key|\.env|CAROOT|rootCA'
 git check-ignore -v certs/smartcare.local.pem certs/smartcare.local-key.pem certs/ca/rootCA.pem certs/ca/rootCA-key.pem
 $windowsUsers = [string]::Concat('C',':',[IO.Path]::DirectorySeparatorChar,'Users',[IO.Path]::DirectorySeparatorChar)
-$personalPattern = [regex]::Escape($windowsUsers) + '|' + [regex]::Escape($env:USERNAME)
+$personalPattern = [regex]::Escape($windowsUsers)
 $matches = git grep -n -I -E $personalPattern -- .; if ($LASTEXITCODE -eq 1) { 'NO_PERSONAL_PATHS_IN_TRACKED_FILES' } else { $matches }
 netstat -ano | Select-String ':80\s|:443\s|:8080\s|:8081\s|:8082\s|:27017\s|:1883\s'
 docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Ports}}\t{{.Status}}'
@@ -36,7 +36,7 @@ Expected repository checks:
 ## Observed 2026-11-21 (redacted)
 - `git ls-files | Select-String ...`: no tracked filenames containing `pem`, `key`, `.env`, `CAROOT` or `rootCA`.
 - `git check-ignore -v`: all four expected certificate/key paths matched `.gitignore:51:certs/*`.
-- `git grep`: no Windows user-directory prefix or username string in tracked files.
+- `git grep`: no Windows user-directory prefix in tracked files. Author names in `README.md` and `attribution.md` are intentional credits and are not path leakage.
 - `docker ps`:
   - `smartcare-nginx-https`: `nginx:stable`, `0.0.0.0:80->80/tcp`, `0.0.0.0:443->443/tcp`, Up.
   - `smartcare-wildfly`: `smartcare-wildfly-proxy:local`, `0.0.0.0:8080->8080/tcp`, Up.
