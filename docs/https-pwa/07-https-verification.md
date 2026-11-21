@@ -114,9 +114,10 @@
 - `scripts/smoke-https.ps1` — live GET smoke test for both HTTPS hosts, plus optional `-WithLogin` backend/cookie/CSRF checks with temporary out-of-repo cookie jars.
 - `scripts/recreate-wildfly.ps1` — inspect-and-recreate helper with preserving settings, deployment export, verification and rollback.
 - `.github/workflows/ci.yml` — frontend test command includes both new tests.
-- `docs/decisions/ADR-0008-server-mode.md`, `docs/decisions/ADR-0009-service-worker-kill-switch.md`, `docs/decisions/ADR-0010-global-mime-table.md`, `docs/decisions/ADR-0012-https-backend-verification.md`, `docs/decisions/ADR-0013-robust-wildfly-recreation.md` — decision records.
+- `docs/decisions/ADR-0008-server-mode.md`, `docs/decisions/ADR-0009-service-worker-kill-switch.md`, `docs/decisions/ADR-0010-global-mime-table.md`, `docs/decisions/ADR-0012-https-backend-verification.md`, `docs/decisions/ADR-0013-robust-wildfly-recreation.md`, `docs/decisions/ADR-0014-local-first-security-headers.md` — decision records.
 - `docs/https-pwa/07-https-verification.md` — this step document.
 - `docs/https-pwa/backend-live-verification.md` — user-run authenticated backend verification guide.
+- `docs/https-pwa/security-hygiene.md` — read-only secret/path/port audit and issue-ready hardening gaps.
 - `docs/https-pwa/evidence/2026-11-21-https-verification.txt`, `docs/https-pwa/evidence/2026-11-21-full-verify.txt`, `docs/https-pwa/evidence/2026-11-21-smoke-https.txt`, `docs/https-pwa/evidence/2026-11-21-root-mime-types.txt` — evidence.
 - `docs/README.md` — JDK 25/MongoDB test prerequisites.
 - `docs/https-pwa/02-hostnames.md`, `03-local-certificates.md`, evidence files — personal paths replaced with `<REPO>`.
@@ -132,6 +133,7 @@
   - `bash -n scripts/wildfly-entrypoint.sh` in the WildFly image → exit 0.
   - `scripts/smoke-https.ps1` → `SUMMARY pass=61 fail=0` on both HTTPS hosts, including root HTML and MIME checks.
   - `scripts/recreate-wildfly.ps1 -DryRun` → inspected `smartcare-wildfly`, printed redacted counts and target image/restart policy, changed no Docker state.
+  - Security hygiene audit → no tracked sensitive filenames or personal paths, all four cert/key paths ignored, current CSP/HSTS reviewed, port/role/hardening gaps recorded.
   - D2 reproduction → `isServerMode=true` for `app.smartcare.local`, `staff.smartcare.local` and both legacy `/smartcare/frontends/...` paths.
   - Tool versions: mkcert v1.4.4, Docker Compose v5.1.1, Node v22.17.0, Lighthouse 12.8.2.
 - **VERIFIED by user/live curl 2026-11-21**:
@@ -178,6 +180,7 @@ Also appended to [14-troubleshooting.md](14-troubleshooting.md).
 - Accepted [ADR-0010](../decisions/ADR-0010-global-mime-table.md): complete global MIME table, no location overrides.
 - Accepted [ADR-0012](../decisions/ADR-0012-https-backend-verification.md): lockout-safe authenticated smoke checks.
 - Accepted [ADR-0013](../decisions/ADR-0013-robust-wildfly-recreation.md): inspect-and-recreate with rollback.
+- Accepted [ADR-0014](../decisions/ADR-0014-local-first-security-headers.md): local-first headers and deferred production hardening.
 - Rejected duplicated checks and broad `href.includes('smartcare')` fallback.
 - Rejected permanent kill-switch workers, cached 404 responses and partial MIME tables.
 - Kept B6 as verification + documentation only; Phase C cutover is a separate user-approved step.

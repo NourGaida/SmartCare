@@ -98,8 +98,9 @@ Reading order for the `feature/https-pwa` work. Documents marked **planned** are
 15. [14 — Consolidated troubleshooting](https-pwa/14-troubleshooting.md)
 16. [Clearing browser state and local DNS routing](https-pwa/clear-browser-state.md)
 17. [Backend live verification through HTTPS](https-pwa/backend-live-verification.md)
-18. [Screenshots to capture](https-pwa/screenshots-todo.md)
-19. [Evidence](https-pwa/evidence/)
-20. [CHANGELOG](CHANGELOG.md) · [GLOSSARY](GLOSSARY.md) · [Decision records](decisions/) · [Prompt log](prompts/00-master-prompt.md)
+18. [Security hygiene audit](https-pwa/security-hygiene.md)
+19. [Screenshots to capture](https-pwa/screenshots-todo.md)
+20. [Evidence](https-pwa/evidence/)
+21. [CHANGELOG](CHANGELOG.md) · [GLOSSARY](GLOSSARY.md) · [Decision records](decisions/) · [Prompt log](prompts/00-master-prompt.md)
 
 Also available: [short HTTPS/PWA architecture note](../https-pwa.md). Planned later: `docs/pwa-audit/` (Lighthouse reports) and `docs/pwa-test-checklist.md` (manual phone checklist).
