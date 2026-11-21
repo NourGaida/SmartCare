@@ -92,9 +92,47 @@ sequenceDiagram
 9. Paste the `docker build`, first-boot, second-boot and CLI outputs into `docs/https-pwa/evidence/2026-11-21-wildfly-proxy.txt`.
 10. Clean up the test container with `docker rm -f smartcare-wildfly-proxy-test`.
 
+## Robust recreation of the real container (UNVERIFIED)
+
+The disposable test above proves the image works. The real container must be replaced only after B6 HTTPS verification passes. `scripts/recreate-wildfly.ps1` makes that replacement reproducible without inventing the unversioned `docker run` flags.
+
+Administrator: no, provided Docker Desktop is already running.
+
+1. Dry-run first. It inspects the current container and prints only redacted counts, not env values, paths or deployment content:
+
+   ```powershell
+   PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\recreate-wildfly.ps1 -DryRun
+   ```
+
+   Expected: `CONTAINER smartcare-wildfly`, target image `smartcare-wildfly-proxy:local`, target restart policy `unless-stopped`, `secure=true`, and `DRY RUN: ... no Docker state changed.`
+
+2. Perform the replacement and keep the transcript outside the repository:
+
+   ```powershell
+   PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\recreate-wildfly.ps1 -Force | Tee-Object -FilePath "$env:TEMP\smartcare-wildfly-recreate.txt"
+   ```
+
+   Expected lines include `SmartCare WildFly proxy forwarding verified.`, `PASS jboss-cli :: proxy-address-forwarding=true`, `PASS environment :: SMARTCARE_SESSION_SECURE=true`, `PASS restart policy :: unless-stopped`, `PASS health :: ... status=200`, and `SUMMARY recreate=verified rollback=not-needed`.
+
+3. Independently re-read the runtime state:
+
+   ```powershell
+   docker logs smartcare-wildfly 2>&1 | Select-String 'SmartCare WildFly proxy forwarding verified'
+   docker exec smartcare-wildfly /opt/jboss/wildfly/bin/jboss-cli.sh --connect --command='/subsystem=undertow/server=default-server/http-listener=default:read-attribute(name=proxy-address-forwarding)'
+   docker exec smartcare-wildfly printenv SMARTCARE_SESSION_SECURE
+   docker inspect -f '{{.HostConfig.RestartPolicy.Name}}' smartcare-wildfly
+   ```
+
+   Expected: log marker present, `"result" => true`, `true`, `unless-stopped`.
+
+4. Re-run the authenticated backend smoke pass from [backend-live-verification.md](backend-live-verification.md). Do not mark the live cookie/CSRF checks verified before this recreation succeeds.
+
+The script exports the deployments directory to `smartcare-wildfly-deployments` only when no existing mount covers it; no deployment content is printed. MongoDB data remains in `smartcare-mongodb` and is never recreated. Brief 502 responses from nginx during the swap are expected. If verification fails, the script removes the new container and restores the original image/configuration with the exported deployments volume attached.
+
 ## Files created or modified
 - `scripts/wildfly-proxy.cli` — idempotent read/write/reload CLI script.
 - `scripts/wildfly-entrypoint.sh` — waits for management API, runs CLI, verifies final state, forwards signals.
+- `scripts/recreate-wildfly.ps1` — dry-run/forced real-container recreation with preserved settings, deployment export, verification and rollback.
 - `docker/Dockerfile.wildfly-proxy` — derived image with scripts, `SMARTCARE_SESSION_SECURE=true`, explicit `CMD`.
 - `docs/https-pwa/06-wildfly-proxy.md` — this step document.
 - `docs/https-pwa/evidence/2026-11-21-wildfly-proxy.txt` — build/startup evidence.
@@ -137,6 +175,7 @@ Also appended to [14-troubleshooting.md](14-troubleshooting.md).
 
 ## Decisions and alternatives
 - Accepted [ADR-0007](../decisions/ADR-0007-wildfly-startup-config.md): custom derived image + entrypoint.
+- Accepted [ADR-0013](../decisions/ADR-0013-robust-wildfly-recreation.md): inspect-and-recreate script with rollback.
 - Alternative: upstream `CLI_LAUNCH_SCRIPT` — rejected because docs say restart-implying operations are unsupported and D5 requires reload.
 - Alternative: one-off `docker exec jboss-cli.sh ...` — rejected; not reproducible and lost on recreation.
 - Alternative: bake with `embed-server` at build time — useful for config-only edits, but D5 requires the reload path and runtime verification; kept only as an embedded-mode test.

@@ -38,5 +38,8 @@ Living document. Add a row for every realistic problem found in a step doc; keep
 | B6 live | HTTPS login cookie lacks `Secure` | Legacy `smartcare-wildfly` still running without `SMARTCARE_SESSION_SECURE=true`. | Task 3 recreates the container from the derived HTTPS image; do not mark live cookie checks verified before that. |
 | B6 live | Login returns 429 `too_many_attempts` | Five failures in 15 minutes for the email or IP. | Wait 15 minutes, or clear `login_attempts` in MongoDB with `mongosh "mongodb://localhost:27017/smartcare" --quiet --eval 'db.login_attempts.deleteMany({})'`; see backend live verification guide. |
 | B6 live | Patient session accepted on staff host | No backend staff-only route exists; portal segregation is currently client-side only. | Record as GAP for login completion; do not change application logic without live bug approval. |
+| B5 live | `Container 'smartcare-wildfly' does not exist` | The exact original `docker run` flags are not versioned. | Restore the source container first; `recreate-wildfly.ps1` deliberately refuses to invent flags. |
+| B5 live | WAR missing after WildFly recreation | Deployments lived only in the old container layer. | Use `scripts/recreate-wildfly.ps1`; it exports deployments to `smartcare-wildfly-deployments` when no mount covers that path. |
+| B5 live | Restart policy remains `no` | Container was recreated without `-Force` or with another command. | Re-run `PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\recreate-wildfly.ps1 -Force` and expect `PASS restart policy :: unless-stopped`. |
 
 <!-- Placeholder for later phases: TLS handshake failure, HSTS mismatch, SW not controlling page, install prompt missing, phone CA not trusted, .local DNS not resolving. -->

@@ -112,8 +112,9 @@
 - `docker/nginx-security-headers.conf` — shared nginx security headers.
 - `docker/nginx-mime-types.conf` — complete global MIME table (upstream table plus `mjs` and `webmanifest`).
 - `scripts/smoke-https.ps1` — live GET smoke test for both HTTPS hosts, plus optional `-WithLogin` backend/cookie/CSRF checks with temporary out-of-repo cookie jars.
+- `scripts/recreate-wildfly.ps1` — inspect-and-recreate helper with preserving settings, deployment export, verification and rollback.
 - `.github/workflows/ci.yml` — frontend test command includes both new tests.
-- `docs/decisions/ADR-0008-server-mode.md`, `docs/decisions/ADR-0009-service-worker-kill-switch.md`, `docs/decisions/ADR-0010-global-mime-table.md`, `docs/decisions/ADR-0012-https-backend-verification.md` — decision records.
+- `docs/decisions/ADR-0008-server-mode.md`, `docs/decisions/ADR-0009-service-worker-kill-switch.md`, `docs/decisions/ADR-0010-global-mime-table.md`, `docs/decisions/ADR-0012-https-backend-verification.md`, `docs/decisions/ADR-0013-robust-wildfly-recreation.md` — decision records.
 - `docs/https-pwa/07-https-verification.md` — this step document.
 - `docs/https-pwa/backend-live-verification.md` — user-run authenticated backend verification guide.
 - `docs/https-pwa/evidence/2026-11-21-https-verification.txt`, `docs/https-pwa/evidence/2026-11-21-full-verify.txt`, `docs/https-pwa/evidence/2026-11-21-smoke-https.txt`, `docs/https-pwa/evidence/2026-11-21-root-mime-types.txt` — evidence.
@@ -124,12 +125,13 @@
 ## Verification
 - **VERIFIED 2026-11-21** locally:
   - `mvn --batch-mode --no-transfer-progress -f middleware/pom.xml clean verify` → core 54, iam 14, api 14, 0 failures/errors/skipped, `BUILD SUCCESS`.
-  - Frontend suite → 80 tests, 80 pass, 0 fail, 0 skipped (D2 + SW + nginx regression tests).
+  - Frontend suite → 81 tests, 81 pass, 0 fail, 0 skipped (D2 + SW + nginx regression and API rewrite tests).
   - `docker compose -f docker/compose.https.yml config --quiet` → exit 0.
   - `nginx:stable nginx -t` with the security snippet, complete global MIME table and a throwaway cert outside the repo → syntax ok / test successful.
   - `docker exec smartcare-nginx-https nginx -t` before and after `up -d --force-recreate` → syntax ok / test successful.
   - `bash -n scripts/wildfly-entrypoint.sh` in the WildFly image → exit 0.
   - `scripts/smoke-https.ps1` → `SUMMARY pass=61 fail=0` on both HTTPS hosts, including root HTML and MIME checks.
+  - `scripts/recreate-wildfly.ps1 -DryRun` → inspected `smartcare-wildfly`, printed redacted counts and target image/restart policy, changed no Docker state.
   - D2 reproduction → `isServerMode=true` for `app.smartcare.local`, `staff.smartcare.local` and both legacy `/smartcare/frontends/...` paths.
   - Tool versions: mkcert v1.4.4, Docker Compose v5.1.1, Node v22.17.0, Lighthouse 12.8.2.
 - **VERIFIED by user/live curl 2026-11-21**:
@@ -138,11 +140,11 @@
   - HTTPS asset 200s via `curl.exe --ssl-no-revoke`, including `styles.css`, `portal.mjs` and `icon.svg`.
 - **UNVERIFIED**:
   - 80→443 redirect from the live host;
-  - `/api/` rewrite and `Secure` `Set-Cookie` from the live WildFly container;
+  - `/api/` rewrite, `Secure` `Set-Cookie`, CSRF and logout from the live WildFly container (`-WithLogin`);
   - firewall and WildFly apply-command outputs were not pasted;
   - final Chrome result after clearing the stale worker/cache, including Incognito;
   - Lighthouse scores and padlock screenshots;
-  - real WildFly container using the B5 image.
+  - real WildFly container replacement using `scripts/recreate-wildfly.ps1 -Force`.
 
 ## Troubleshooting
 
@@ -174,6 +176,8 @@ Also appended to [14-troubleshooting.md](14-troubleshooting.md).
 - Accepted [ADR-0008](../decisions/ADR-0008-server-mode.md): one shared predicate.
 - Accepted [ADR-0009](../decisions/ADR-0009-service-worker-kill-switch.md): dormant one-time kill-switch only.
 - Accepted [ADR-0010](../decisions/ADR-0010-global-mime-table.md): complete global MIME table, no location overrides.
+- Accepted [ADR-0012](../decisions/ADR-0012-https-backend-verification.md): lockout-safe authenticated smoke checks.
+- Accepted [ADR-0013](../decisions/ADR-0013-robust-wildfly-recreation.md): inspect-and-recreate with rollback.
 - Rejected duplicated checks and broad `href.includes('smartcare')` fallback.
 - Rejected permanent kill-switch workers, cached 404 responses and partial MIME tables.
 - Kept B6 as verification + documentation only; Phase C cutover is a separate user-approved step.

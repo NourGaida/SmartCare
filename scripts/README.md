@@ -33,6 +33,17 @@ Runs GET checks for `/`, `/index.html`, both app-prefixed `index.html` paths, ev
 
 Use `-Repo <REPO>` when running from another directory. The script uses `curl.exe --ssl-no-revoke` and never disables certificate validation.
 
+## `recreate-wildfly.ps1`
+
+Recreates the real `smartcare-wildfly` container from `docker/Dockerfile.wildfly-proxy` for the HTTPS profile. It inspects the existing container and preserves its ports, mounts, networks and environment, overrides `SMARTCARE_SESSION_SECURE=true`, preserves deployments in a named volume when needed, sets a restart policy, verifies startup/CLI/env/health, and rolls back on failure. MongoDB data is not touched.
+
+```powershell
+.\scripts\recreate-wildfly.ps1 -DryRun
+.\scripts\recreate-wildfly.ps1 -Force
+```
+
+`-DryRun` prints only redacted counts and the source/target image, restart policy and deployment strategy. `-Force` performs the replacement; without it the script refuses to change Docker state. A missing source container is an error because the original flags are not versioned.
+
 ## `check-recovery.ps1`
 
 Demonstrates that `/smartcare/api/health/database` fails fast when MongoDB is down and recovers without redeploying the WAR.
