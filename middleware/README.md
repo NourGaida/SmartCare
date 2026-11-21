@@ -27,7 +27,11 @@ $env:JAVA_HOME = 'C:\Program Files\Amazon Corretto\jdk25.0.5_0'
 mvn --batch-mode --no-transfer-progress -f middleware/pom.xml clean verify
 ```
 
-CI uses `actions/setup-java` with `java-version: '25'` and a `mongo:8` service container; the "Fail when tests are skipped" step refuses any skipped test. The build produces:
+CI uses `actions/setup-java` with `java-version: '25'` and a `mongo:8` service container; the "Fail when tests are skipped" step refuses any skipped test.
+
+For the HTTPS WildFly profile, set `SMARTCARE_SESSION_SECURE=true` (or `-Dsmartcare.session.secure=true`) so `SMARTCARE_SESSION` gets the `Secure` attribute. Leave it unset for the legacy HTTP demo on ports 8081/8082; a Secure cookie is not sent back over plain HTTP. `SameSite=STRICT` and `HttpOnly` stay unchanged in both profiles.
+
+The build produces:
 
 ```text
 middleware/api/target/smartcare.war

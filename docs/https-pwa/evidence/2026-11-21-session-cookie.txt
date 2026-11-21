@@ -1,0 +1,33 @@
+# Evidence — 05 session cookie (B4)
+
+## Focused Maven run (VERIFIED 2026-11-21)
+
+```text
+Command: $env:JAVA_HOME='C:\Program Files\Amazon Corretto\jdk25.0.5_0'; mvn --batch-mode --no-transfer-progress -f middleware/pom.xml -pl iam -am test
+
+[INFO] Tests run: 54, Failures: 0, Errors: 0, Skipped: 0   (middleware/core)
+[INFO] Tests run: 6,  Failures: 0, Errors: 0, Skipped: 0   (com.smartcare.iam.auth.AuthServiceTest)
+[INFO] Tests run: 2,  Failures: 0, Errors: 0, Skipped: 0   (com.smartcare.iam.auth.PasswordHasherTest)
+[INFO] Tests run: 3,  Failures: 0, Errors: 0, Skipped: 0   (com.smartcare.iam.session.SessionServiceTest)
+[INFO] Tests run: 3,  Failures: 0, Errors: 0, Skipped: 0   (com.smartcare.iam.session.SessionSettingsTest)
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0   (middleware/iam)
+[INFO] BUILD SUCCESS
+```
+
+## Initial failure fixed during this step
+
+```text
+[ERROR] .../SessionSettings.java:[11,28] invalid accessor method in record
+  (accessor method must be public)
+Fix: renamed private helper secureCookie() -> readSecureCookie().
+```
+
+## Pending live verification (B6)
+
+```text
+POST https://app.smartcare.local/api/auth/login
+Expected Set-Cookie: SMARTCARE_SESSION=...; Path=/; HttpOnly; Secure; SameSite=Strict
+PASTE REDACTED HEADER HERE (remove the session value)
+```
+
+No real session token or CSRF token may be pasted into this file.

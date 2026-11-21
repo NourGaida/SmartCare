@@ -6,7 +6,7 @@
 | B1 | [02-hostnames.md](02-hostnames.md) | Script written; verification UNVERIFIED (needs admin) |
 | B2 | [03-local-certificates.md](03-local-certificates.md) | Script/doc written; certificate generation UNVERIFIED (needs UAC) |
 | B3 | [04-nginx-tls.md](04-nginx-tls.md) | Config/compose/self-hosted fonts written; static checks pass, live HTTPS UNVERIFIED |
-| B4 | 05-session-cookie-security.md | Pending |
+| B4 | [05-session-cookie-security.md](05-session-cookie-security.md) | Code + 14 IAM tests pass; live Set-Cookie UNVERIFIED until B6 |
 | B5 | 06-wildfly-proxy-headers.md | Pending |
 | B6 | 07-https-verification.md | Pending |
 | C | 10-registration-install-ux.md, 12-pwa-verification.md | Pending |

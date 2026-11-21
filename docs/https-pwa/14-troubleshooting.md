@@ -17,5 +17,8 @@ Living document. Add a row for every realistic problem found in a step doc; keep
 | B3 | `bind: address already in use` on 80/443 | IIS/Apache/other proxy owns the port. | `netstat -ano | findstr :443`; stop owner or approve a new port ADR. |
 | B3 | `502 Bad Gateway` on `/api/` | WildFly stopped or `host.docker.internal` not mapped. | Check `docker ps`; confirm `host.docker.internal=host-gateway` in Compose config. |
 | B3 | Staff CSS/fonts missing | `/frontoffice/` sibling location or `frontends/` bind absent. | Verify `location ^~ /frontoffice/` and read-only `<REPO>\frontends` mount. |
+| B4 | `invalid accessor method in record` | Private helper named `secureCookie()`. | Rename helper to `readSecureCookie()`. |
+| B4 | Legacy login logs out immediately | `SMARTCARE_SESSION_SECURE=true` on plain HTTP. | Unset the variable on the legacy container; keep it only in HTTPS profile. |
+| B4 | HTTPS cookie lacks `Secure` | Missing property/env on WildFly. | Recreate HTTPS WildFly with `SMARTCARE_SESSION_SECURE=true`; check B6 header. |
 
 <!-- Placeholder for later phases: TLS handshake failure, HSTS mismatch, cookie not Secure, CSRF 403, SW not controlling page, install prompt missing, phone CA not trusted, .local DNS not resolving. -->
