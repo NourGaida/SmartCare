@@ -20,5 +20,8 @@ Living document. Add a row for every realistic problem found in a step doc; keep
 | B4 | `invalid accessor method in record` | Private helper named `secureCookie()`. | Rename helper to `readSecureCookie()`. |
 | B4 | Legacy login logs out immediately | `SMARTCARE_SESSION_SECURE=true` on plain HTTP. | Unset the variable on the legacy container; keep it only in HTTPS profile. |
 | B4 | HTTPS cookie lacks `Secure` | Missing property/env on WildFly. | Recreate HTTPS WildFly with `SMARTCARE_SESSION_SECURE=true`; check B6 header. |
+| B5 | Container exits immediately with no logs | `ENTRYPOINT` set without `CMD`. | Keep `CMD ["/opt/jboss/wildfly/bin/standalone.sh","-b","0.0.0.0"]`. |
+| B5 | `Proxy CLI returned non-zero` | Expected disconnect after `:reload`. | Allow it; verify final `proxy-address-forwarding=true`. |
+| B5 | `proxy-address-forwarding is not true` | Wrong CLI address or management auth. | Probe Undertow child names with `jboss-cli.sh --commands='embed-server, /subsystem=undertow:read-children-names(child-type=server)'`. |
 
 <!-- Placeholder for later phases: TLS handshake failure, HSTS mismatch, cookie not Secure, CSRF 403, SW not controlling page, install prompt missing, phone CA not trusted, .local DNS not resolving. -->
