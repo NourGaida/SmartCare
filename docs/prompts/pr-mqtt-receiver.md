@@ -72,9 +72,9 @@ Deployment used `jboss-cli` only; no WAR was copied into
 `standalone\deployments`:
 
 ```powershell
-$wildfly = 'C:\Users\SINORFI\Downloads\wildfly-42.0.0.Final\wildfly-42.0.0.Final'
+$wildfly = '<USER>\Downloads\wildfly-42.0.0.Final\wildfly-42.0.0.Final'
 & "$wildfly\bin\jboss-cli.bat" --connect `
-  --command="deploy C:\Users\SINORFI\Desktop\SmartCare\middleware\api\target\smartcare.war --force"
+  --command="deploy <REPO>\middleware\api\target\smartcare.war --force"
 ```
 
 After deployment:
@@ -183,7 +183,7 @@ mvn -f middleware/pom.xml clean verify
 # 3. Deploy with jboss-cli only
 $wildfly = '<path-to-wildfly-42.0.0.Final>'
 & "$wildfly\bin\jboss-cli.bat" --connect `
-  --command="deploy C:\Users\SINORFI\Desktop\SmartCare\middleware\api\target\smartcare.war --force"
+  --command="deploy <REPO>\middleware\api\target\smartcare.war --force"
 
 # 4. Check health
 Invoke-WebRequest http://localhost:8080/smartcare/api/health -UseBasicParsing

@@ -2,6 +2,48 @@
 
 Operational and demonstration helpers. Run them from the repository root.
 
+Most scripts accept `-DryRun` to validate parameters and print the planned command without changing hosts, certificates, MongoDB, MQTT or Docker state. Use it when a script needs elevated privileges or live infrastructure.
+
+## `gen-certs.ps1`
+
+Generates the gitignored leaf certificate with mkcert after the project CA has been installed.
+
+```powershell
+.\scripts\gen-certs.ps1 -DryRun
+.\scripts\gen-certs.ps1
+```
+
+`-Force` replaces existing leaf files. `-DryRun` performs path, ignore-rule and condition checks but never calls mkcert or `icacls`.
+
+## `setup-hosts.ps1`
+
+Adds the three managed `.smartcare.local` host entries. Requires elevation for real runs; `-DryRun` only prints the managed block.
+
+```powershell
+.\scripts\setup-hosts.ps1 -IpAddress 192.168.1.4 -DryRun
+```
+
+## `smoke-https.ps1`
+
+Runs GET checks for `/`, `/index.html`, both app-prefixed `index.html` paths, every asset referenced by both portal `index.html` files, plus manifests, icons, fonts, `sw.js` and `server-mode.mjs`, against `app.smartcare.local` and `staff.smartcare.local`. It asserts status, MIME type (including css, mjs, svg, png, woff2, json and webmanifest), absence of `Content-Disposition` on HTML, cache directives and security headers, and exits non-zero on any failure.
+
+```powershell
+.\scripts\smoke-https.ps1
+```
+
+Use `-Repo <REPO>` when running from another directory. The script uses `curl.exe --ssl-no-revoke` and never disables certificate validation.
+
+## `recreate-wildfly.ps1`
+
+Recreates the real `smartcare-wildfly` container from `docker/Dockerfile.wildfly-proxy` for the HTTPS profile. It inspects the existing container and preserves its ports, mounts, networks and environment, overrides `SMARTCARE_SESSION_SECURE=true`, preserves deployments in a named volume when needed, sets a restart policy, verifies startup/CLI/env/health, and rolls back on failure. MongoDB data is not touched.
+
+```powershell
+.\scripts\recreate-wildfly.ps1 -DryRun
+.\scripts\recreate-wildfly.ps1 -Force
+```
+
+`-DryRun` prints only redacted counts and the source/target image, restart policy and deployment strategy. `-Force` performs the replacement; without it the script refuses to change Docker state. A missing source container is an error because the original flags are not versioned.
+
 ## `check-recovery.ps1`
 
 Demonstrates that `/smartcare/api/health/database` fails fast when MongoDB is down and recovers without redeploying the WAR.
@@ -9,6 +51,7 @@ Demonstrates that `/smartcare/api/health/database` fails fast when MongoDB is do
 Requirements: SmartCare deployed on WildFly, Docker running, and a MongoDB container named `smartcare-mongodb`.
 
 ```powershell
+.\scripts\check-recovery.ps1 -DryRun
 .\scripts\check-recovery.ps1
 ```
 
@@ -30,7 +73,15 @@ Requirements: the `smartcare-mosquitto` container is running and the backend is 
 .\scripts\publish-test-message.ps1 -DeviceId sc-test -Sequence 1
 ```
 
-The script prints the published topic. Use the same `-BootId` and `-Sequence` twice to exercise deduplication. Invalid-quality messages require `-Quality invalid -Reason no_finger`.
+The script prints the published topic. Use the same `-BootId` and `-Sequence` twice to exercise deduplication. Invalid-quality messages require `-Quality invalid -Reason no_finger`. `-DryRun` prints the payload without publishing.
+
+## `seed-dev-users.ps1`
+
+DEV ONLY. Reads passwords from `DEV_PATIENT_PASSWORD`, `DEV_PROFESSIONAL_PASSWORD` and `DEV_ADMIN_PASSWORD`, then upserts PBKDF2 hashes into MongoDB. `-DryRun` validates the environment and prints the three emails without writing to MongoDB.
+
+```powershell
+.\scripts\seed-dev-users.ps1 -DryRun
+```
 
 ## `demo-duplicate.js`
 

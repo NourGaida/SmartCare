@@ -11,7 +11,8 @@ param(
     [int]$Spo2 = 98,
     [string]$Reason = $null,
     [string]$ClockStatus = "synced",
-    [string]$Source = "manual-test"
+    [string]$Source = "manual-test",
+    [switch]$DryRun
 )
 
 if ($Quality -eq "invalid" -and [string]::IsNullOrWhiteSpace($Reason)) {
@@ -37,6 +38,10 @@ $payload = [ordered]@{
 
 $json = $payload | ConvertTo-Json -Compress -Depth 3
 $topic = "$TopicPrefix/$DeviceId"
+if ($DryRun) {
+    Write-Output "DRY RUN: would publish to $topic : $json"
+    return
+}
 $json | docker exec -i $BrokerContainer mosquitto_pub -t $topic -q 1 -s
 if ($LASTEXITCODE -ne 0) {
     throw "mosquitto_pub failed with exit code $LASTEXITCODE."

@@ -37,7 +37,7 @@ MongoDB `mongo:8.0` container `smartcare-mongodb` on `localhost:27017`.
 
 ### Maven verification
 
-Command: `mvn -f C:\Users\SINORFI\Desktop\SmartCare\pom.xml clean verify`
+Command: `mvn -f <REPO>\pom.xml clean verify`
 
 ```text
 [INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0 -- in com.smartcare.api.DatabaseHealthSourceTest
@@ -77,7 +77,7 @@ Deployment used jboss-cli only, never a manual copy into `standalone\deployments
 ```powershell
 $wildfly = "<path-to-wildfly-42.0.0.Final>"
 & "$wildfly\bin\jboss-cli.bat" --controller=127.0.0.1:10090 --connect `
-  --command="deploy C:\Users\SINORFI\Desktop\SmartCare\target\smartcare.war --force"
+  --command="deploy <REPO>\target\smartcare.war --force"
 ```
 
 Local WildFly used `-Djboss.socket.binding.port-offset=100` because port 8080 is
@@ -138,7 +138,7 @@ docker start smartcare-mongodb
 
 # 2. Build and test
 $env:JAVA_HOME = 'C:\Program Files\Amazon Corretto\jdk25.0.5_0'
-mvn -f C:\Users\SINORFI\Desktop\SmartCare\pom.xml clean verify
+mvn -f <REPO>\pom.xml clean verify
 
 # 3. Optional: custom health timeout
 $env:MONGODB_SERVER_SELECTION_TIMEOUT_MS = '2000'
@@ -146,7 +146,7 @@ $env:MONGODB_SERVER_SELECTION_TIMEOUT_MS = '2000'
 # 4. Deploy with jboss-cli only (never copy the WAR into standalone\deployments)
 $wildfly = '<path-to-wildfly-42.0.0.Final>'
 & "$wildfly\bin\jboss-cli.bat" --connect `
-  --command="deploy C:\Users\SINORFI\Desktop\SmartCare\target\smartcare.war --force"
+  --command="deploy <REPO>\target\smartcare.war --force"
 
 # 5. Check endpoints
 Invoke-WebRequest http://localhost:8080/smartcare/api/health -UseBasicParsing

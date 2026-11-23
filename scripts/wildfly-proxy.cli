@@ -1,0 +1,20 @@
+set doReload=false
+
+if (result == STANDALONE) of /:read-attribute(name=launch-type)
+    set doReload=true
+end-if
+
+if (result == false) of /subsystem=undertow/server=default-server/http-listener=default:read-attribute(name=proxy-address-forwarding)
+    /subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=proxy-address-forwarding,value=true)
+else
+    set doReload=false
+end-if
+
+if (result == "true") of :resolve-expression(expression=$doReload)
+    :reload
+else
+    echo Already configured or embedded mode: no reload required.
+end-if
+
+/subsystem=undertow/server=default-server/http-listener=default:read-attribute(name=proxy-address-forwarding)
+echo SmartCare proxy-address-forwarding check complete.

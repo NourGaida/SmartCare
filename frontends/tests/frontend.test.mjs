@@ -332,8 +332,9 @@ function worker(app) {
   const writes = [];
   const cached = new Map();
   const cache = { addAll: async urls => { writes.push(...urls); },
-    put: async (key, value) => { cached.set(key, value); },
-    match: async key => cached.get(key) };
+    put: async (key, value) => { writes.push(key); cached.set(key, value); },
+    match: async key => cached.get(key),
+    delete: async key => cached.delete(key) };
   const context = { URL, self: { registration: { scope: 'https://demo.test/frontends/' + app + '/' },
     addEventListener: (type, handler) => { listeners[type] = handler; },
     skipWaiting: () => {}, clients: { claim: () => {} } },
@@ -390,7 +391,7 @@ test('service workers cache distinct static resources, handle root offline and i
     runtime.listeners.install({ waitUntil: promise => { installation = promise; } });
     await installation;
     for (const url of runtime.writes) {
-      assert.match(url, /\.(html|css|js|mjs|png|svg|webmanifest)$/);
+      assert.match(url, /\.(html|css|js|mjs|png|svg|woff2|webmanifest)$/);
       const relative = new URL(url).pathname.replace('/frontends/', '');
       assert.ok(existsSync(resolve(root, relative)), relative);
     }
@@ -418,12 +419,30 @@ test('service workers cache distinct static resources, handle root offline and i
   }
 });
 
+test('service workers never cache 404, redirects or non-200 responses', async () => {
+  for (const app of ['frontoffice', 'backoffice']) {
+    const source = readFileSync(resolve(root, app, 'sw.js'), 'utf8');
+    assert.match(source, /response\.status === 200 && !response\.redirected/);
+    const runtime = worker(app);
+    runtime.context.fetch = async () => new Response('missing', { status: 404 });
+    let installation;
+    runtime.listeners.install({ waitUntil: promise => { installation = promise; } });
+    await installation;
+    assert.equal(runtime.writes.length, 0, app + ': 404 was cached');
+    const redirect = { status: 200, redirected: true };
+    runtime.context.fetch = async () => redirect;
+    runtime.listeners.install({ waitUntil: promise => { installation = promise; } });
+    await installation;
+    assert.equal(runtime.writes.length, 0, app + ': redirect was cached');
+  }
+});
+
 test('production frontend does not persist sessions, readings or alerts in browser storage', () => {
   for (const folder of ['shared', 'frontoffice', 'backoffice']) {
     for (const filename of readdirSync(resolve(root, folder), { recursive: true }).filter(file => /\.(js|mjs)$/.test(file))) {
       const source = readFileSync(resolve(root, folder, filename), 'utf8');
       assert.doesNotMatch(source, /\b(?:localStorage|sessionStorage|indexedDB)\b/, filename);
-      if (!filename.endsWith('sw.js')) assert.doesNotMatch(source, /\bcaches\s*\./, filename);
+      if (!filename.endsWith('sw.js') && !filename.endsWith('sw-kill.js')) assert.doesNotMatch(source, /\bcaches\s*\./, filename);
     }
   }
 });

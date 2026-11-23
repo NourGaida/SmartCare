@@ -1,0 +1,55 @@
+# Evidence — 04 nginx HTTPS (B3)
+
+Static checks recorded 2026-11-21. Live HTTPS startup is UNVERIFIED until B2 certificate files exist and the user starts the new Compose service.
+
+## Compose model (VERIFIED)
+
+```text
+Command: docker compose -f docker/compose.https.yml config
+Result: valid; services.nginx.image=nginx:stable; ports 80/tcp and 443/tcp;
+binds: <REPO>\docker\nginx-https.conf -> /etc/nginx/conf.d/default.conf:ro,
+<REPO>\frontends -> /usr/share/nginx/html:ro,
+<REPO>\certs -> /etc/nginx/certs:ro;
+extra_hosts: host.docker.internal=host-gateway.
+```
+
+## nginx syntax (VERIFIED with throwaway cert)
+
+```text
+Command (paths abbreviated): openssl req -x509 ... -out <TEMP>/smartcare.local.pem ...
+Command: docker run --rm -v <REPO>/docker/nginx-https.conf:/etc/nginx/conf.d/default.conf:ro -v <REPO>/frontends:/usr/share/nginx/html:ro -v <TEMP>:/etc/nginx/certs:ro nginx:stable nginx -t
+Output: nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+Output: nginx: configuration file /etc/nginx/nginx.conf test is successful
+Note: <TEMP> was outside the repo and was deleted after the check; no trust store was modified.
+```
+
+## Frontend tests (VERIFIED)
+
+```text
+Command: node --test frontends/tests/frontend.test.mjs
+Result: tests 26; pass 26; fail 0; skipped 0.
+```
+
+## Pending manual checks
+
+```text
+Command: docker compose -f docker/compose.https.yml up -d
+PASTE OUTPUT HERE
+
+Command: curl.exe -sSI http://app.smartcare.local/
+PASTE OUTPUT HERE (expect 301)
+
+Command: curl.exe -sSI https://app.smartcare.local/
+PASTE OUTPUT HERE (expect 200 + HSTS/CSP)
+
+Command: curl.exe -sSI https://staff.smartcare.local/
+PASTE OUTPUT HERE (expect 200 + HSTS/CSP)
+
+Command: curl.exe -sS https://app.smartcare.local/api/health
+PASTE OUTPUT HERE (backend response, not nginx 502)
+
+Command: curl.exe -sSI https://app.smartcare.local/fonts/dm-sans-latin-v17.woff2
+PASTE OUTPUT HERE (expect 200)
+```
+
+Screenshot to add: `docs/img/03-certificate-padlock.png`.

@@ -1,8 +1,9 @@
 import { mountServerPortal } from './server-portal.mjs';
+import { isServerMode } from './server-mode.mjs';
 
 // Legacy shared entry remains available for supervision and previously opened pages.
 const portal = document.querySelector('script[data-portal]').dataset.portal;
-if (location.pathname.startsWith('/smartcare/frontends/')) {
+if (isServerMode()) {
   mountServerPortal(portal);
 } else if (portal === 'frontoffice') {
   import('../frontoffice/app.js');

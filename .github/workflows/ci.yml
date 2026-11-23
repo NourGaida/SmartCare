@@ -85,7 +85,7 @@ jobs:
           done
 
       - name: Test frontend roles, episodes and static resources
-        run: node --test frontends/tests/frontend.test.mjs frontends/tests/access-demo.test.mjs frontends/tests/patient-history.test.mjs
+        run: node --test frontends/tests/frontend.test.mjs frontends/tests/access-demo.test.mjs frontends/tests/patient-history.test.mjs frontends/tests/server-mode.test.mjs frontends/tests/nginx-headers.test.mjs
 
       - name: Report server access scenarios awaiting Person B
         run: node --test frontends/tests/integration/access-server.test.mjs

@@ -1,0 +1,114 @@
+# Evidence — HTTPS asset smoke test (2026-11-21)
+
+> Superseded by `2026-11-21-root-mime-types.txt`. The `pass=39` run below predates the root HTML checks; it did not request `/`, `/frontoffice/index.html` or `/backoffice/index.html` and therefore missed the `text/html` MIME regression.
+
+## Before fix (VERIFIED)
+
+```text
+Command: curl.exe --ssl-no-revoke -sS -D - -o NUL https://app.smartcare.local/definitely-missing-404.css
+HTTP/1.1 404 Not Found
+Content-Type: text/html
+Cache-Control: public, max-age=3600
+```
+
+`sw.js` already had `Cache-Control: no-cache` and `Service-Worker-Allowed: /`, but asset and error responses lacked the inherited security headers because location-level `add_header` replaced them.
+
+## After fix — curl headers (VERIFIED)
+
+```text
+Command: curl.exe --ssl-no-revoke -sS -D - -o NUL https://app.smartcare.local/sw.js
+HTTP/1.1 200 OK
+Content-Type: application/javascript
+Strict-Transport-Security: max-age=300
+Content-Security-Policy: default-src 'self'; ...
+Cache-Control: no-cache
+Service-Worker-Allowed: /
+
+Command: curl.exe --ssl-no-revoke -sS -D - -o NUL https://app.smartcare.local/styles.css
+HTTP/1.1 200 OK
+Content-Type: text/css
+Strict-Transport-Security: max-age=300
+Content-Security-Policy: default-src 'self'; ...
+Cache-Control: public, max-age=3600
+
+Command: curl.exe --ssl-no-revoke -sS -D - -o NUL https://app.smartcare.local/definitely-missing-404.css
+HTTP/1.1 404 Not Found
+Content-Type: text/html
+Strict-Transport-Security: max-age=300
+Content-Security-Policy: default-src 'self'; ...
+Cache-Control: no-store
+
+Command: curl.exe --ssl-no-revoke -sS -D - -o NUL https://app.smartcare.local/shared/server-mode.mjs
+HTTP/1.1 200 OK
+Content-Type: text/javascript
+```
+
+## Full smoke script output (VERIFIED)
+
+```text
+Command: PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke-https.ps1 -Repo <REPO>
+=== app.smartcare.local (frontoffice) ===
+PASS app.smartcare.local/icon.svg :: status=200 content-type=image/svg+xml
+PASS app.smartcare.local/icon-192.png :: status=200 content-type=image/png
+PASS app.smartcare.local/manifest.webmanifest :: status=200 content-type=application/manifest+json
+PASS app.smartcare.local/styles.css :: status=200 content-type=text/css
+PASS app.smartcare.local/shared/forms.css :: status=200 content-type=text/css
+PASS app.smartcare.local/portal.mjs :: status=200 content-type=text/javascript
+PASS app.smartcare.local/sw.js :: status=200 content-type=application/javascript
+PASS app.smartcare.local/icon-512.png :: status=200 content-type=image/png
+PASS app.smartcare.local/shared/server-mode.mjs :: status=200 content-type=text/javascript
+PASS app.smartcare.local/fonts/dm-sans-latin-v17.woff2 :: status=200 content-type=font/woff2
+PASS app.smartcare.local/fonts/dm-sans-latin-ext-v17.woff2 :: status=200 content-type=font/woff2
+PASS app.smartcare.local/fonts/manrope-latin-v23.woff2 :: status=200 content-type=font/woff2
+PASS app.smartcare.local/fonts/manrope-latin-ext-v23.woff2 :: status=200 content-type=font/woff2
+PASS app.smartcare.local sw.js cache :: cache-control=no-cache service-worker-allowed=/
+PASS app.smartcare.local sw.js security :: csp=True hsts=True
+PASS app.smartcare.local 200 cache :: cache-control=public, max-age=3600
+PASS app.smartcare.local font cache :: cache-control=public, max-age=31536000, immutable
+PASS app.smartcare.local 404 cache :: status=404 cache-control=no-store
+PASS app.smartcare.local 404 security :: csp=True
+=== staff.smartcare.local (backoffice) ===
+PASS staff.smartcare.local/icon.svg :: status=200 content-type=image/svg+xml
+PASS staff.smartcare.local/icon-192.png :: status=200 content-type=image/png
+PASS staff.smartcare.local/manifest.webmanifest :: status=200 content-type=application/manifest+json
+PASS staff.smartcare.local/frontoffice/styles.css :: status=200 content-type=text/css
+PASS staff.smartcare.local/shared/forms.css :: status=200 content-type=text/css
+PASS staff.smartcare.local/styles.css :: status=200 content-type=text/css
+PASS staff.smartcare.local/shared/portal.mjs :: status=200 content-type=text/javascript
+PASS staff.smartcare.local/sw.js :: status=200 content-type=application/javascript
+PASS staff.smartcare.local/icon-512.png :: status=200 content-type=image/png
+PASS staff.smartcare.local/shared/server-mode.mjs :: status=200 content-type=text/javascript
+PASS staff.smartcare.local/fonts/dm-sans-latin-v17.woff2 :: status=200 content-type=font/woff2
+PASS staff.smartcare.local/fonts/dm-sans-latin-ext-v17.woff2 :: status=200 content-type=font/woff2
+PASS staff.smartcare.local/fonts/manrope-latin-v23.woff2 :: status=200 content-type=font/woff2
+PASS staff.smartcare.local/fonts/manrope-latin-ext-v23.woff2 :: status=200 content-type=font/woff2
+PASS staff.smartcare.local sw.js cache :: cache-control=no-cache service-worker-allowed=/
+PASS staff.smartcare.local sw.js security :: csp=True hsts=True
+PASS staff.smartcare.local 200 cache :: cache-control=public, max-age=3600
+PASS staff.smartcare.local font cache :: cache-control=public, max-age=31536000, immutable
+PASS staff.smartcare.local 404 cache :: status=404 cache-control=no-store
+PASS staff.smartcare.local 404 security :: csp=True
+SUMMARY pass=39 fail=0
+```
+
+## Regression tests (VERIFIED)
+
+```text
+Command: node --test frontends/tests/frontend.test.mjs frontends/tests/access-demo.test.mjs frontends/tests/patient-history.test.mjs frontends/tests/server-mode.test.mjs frontends/tests/nginx-headers.test.mjs
+# tests 80
+# pass 80
+# fail 0
+# skipped 0
+```
+
+## D2 server-mode reproduction (VERIFIED)
+
+```text
+Command: node -e "const {pathToFileURL}=require('url'); (async()=>{const {isServerMode}=await import(pathToFileURL('frontends/shared/server-mode.mjs').href); const cases=[['app.smartcare.local','/'],['app.smartcare.local','/index.html'],['staff.smartcare.local','/'],['staff.smartcare.local','/index.html'],['192.168.1.4','/smartcare/frontends/frontoffice/'],['192.168.1.4','/smartcare/frontends/backoffice/']]; for (const [hostname,pathname] of cases) console.log(hostname + ' ' + pathname + ' => isServerMode=' + isServerMode({hostname,pathname}));})()"
+app.smartcare.local / => isServerMode=true
+app.smartcare.local /index.html => isServerMode=true
+staff.smartcare.local / => isServerMode=true
+staff.smartcare.local /index.html => isServerMode=true
+192.168.1.4 /smartcare/frontends/frontoffice/ => isServerMode=true
+192.168.1.4 /smartcare/frontends/backoffice/ => isServerMode=true
+```
