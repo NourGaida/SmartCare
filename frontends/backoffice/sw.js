@@ -1,8 +1,8 @@
 // Exact static allowlist only: no API, WebSocket, session, CSV or measurement caching.
-const CACHE = 'smartcare-supervision-static-v9';
+const CACHE = 'smartcare-supervision-static-v10';
 const STATIC = [
   'index.html', 'styles.css', '../backoffice/server-care.mjs',
-  '../backoffice/simulation-view.mjs', '../backoffice/views.mjs',
+  '../backoffice/model-status.mjs', '../backoffice/simulation-view.mjs', '../backoffice/views.mjs',
   'icon.svg', 'icon-192.png', 'icon-512.png', 'manifest.webmanifest',
   '../frontoffice/styles.css', '../frontoffice/icon.svg', '../frontoffice/measurements-adapter.mjs',
   '../frontoffice/fonts/dm-sans-latin-v17.woff2', '../frontoffice/fonts/dm-sans-latin-ext-v17.woff2',

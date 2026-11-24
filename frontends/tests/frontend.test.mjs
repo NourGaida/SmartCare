@@ -427,6 +427,7 @@ test('HTTPS portals cache the connected entry modules and local fonts at their r
     ]],
     ['backoffice', 'https://staff.smartcare.local/', [
       '/shared/portal.mjs', '/backoffice/server-care.mjs', '/backoffice/simulation-view.mjs',
+      '/backoffice/model-status.mjs',
       '/frontoffice/styles.css', '/frontoffice/fonts/dm-sans-latin-v17.woff2'
     ]]
   ];

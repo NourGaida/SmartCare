@@ -1,11 +1,12 @@
-
 from pathlib import Path
+import warnings
 
 import joblib
 import numpy as np
 import pandas as pd
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from pydantic import BaseModel, Field, model_validator
+from sklearn.exceptions import InconsistentVersionWarning
 
 ROOT = Path(__file__).resolve().parents[1]
 MODEL_PATH = ROOT / "models" / "bidmc" / "isolation_forest_bidmc.joblib"
@@ -16,8 +17,16 @@ app = FastAPI(
     description="Experimental anomaly detection on physiological measurements",
 )
 
-# Load the trained model bundle once at startup.
-bundle = joblib.load(MODEL_PATH)
+
+def load_model(path):
+    # Reject an artifact built against a different scikit-learn version.
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", InconsistentVersionWarning)
+        return joblib.load(path)
+
+
+# Load the local trained model bundle once at startup.
+bundle = load_model(MODEL_PATH)
 pipeline = bundle["pipeline"]
 features = bundle["features"]
 threshold = float(bundle["threshold"])

@@ -5,9 +5,9 @@ export function panelMarkup(title, description, content) {
     h(description) + '</p></div></div>' + content + '</article>';
 }
 
-export function careState(message, { retry = false } = {}) {
+export function careState(message, { retry = false, retryLabel = 'Retry' } = {}) {
   return '<div class="history-feedback"><p role="status">' + h(message) + '</p>' +
-    (retry ? '<button class="button button-outline" type="button" data-care-retry>Retry</button>' : '') + '</div>';
+    (retry ? '<button class="button button-outline" type="button" data-care-retry>' + h(retryLabel) + '</button>' : '') + '</div>';
 }
 
 function readingsWindow(rows) {

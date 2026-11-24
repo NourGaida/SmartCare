@@ -10,6 +10,7 @@ BROKER = "127.0.0.1"
 PORT = 1883
 TOPIC = "smartcare/v1/devices/+/readings"
 API_URL = "http://127.0.0.1:8001/predict"
+REQUEST_TIMEOUT_SECONDS = 10
 
 WINDOW_SIZE = 5
 
@@ -90,7 +91,7 @@ def on_message(client, userdata, msg):
         response = requests.post(
             API_URL,
             json=payload,
-            timeout=10,
+            timeout=REQUEST_TIMEOUT_SECONDS,
         )
         response.raise_for_status()
 
@@ -110,10 +111,14 @@ def on_message(client, userdata, msg):
         print("FastAPI request failed:", exc)
 
 
-client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
-client.on_connect = on_connect
-client.on_message = on_message
+def main():
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
+    client.on_connect = on_connect
+    client.on_message = on_message
+    client.connect(BROKER, PORT, 60)
+    print("SmartCare MQTT inference consumer started...")
+    client.loop_forever()
 
-client.connect(BROKER, PORT, 60)
-print("SmartCare MQTT inference consumer started...")
-client.loop_forever()
+
+if __name__ == "__main__":
+    main()

@@ -14,6 +14,10 @@ icônes et espacements.
 Le code partagé est dans `frontends/shared/`, les suites Node dans
 `frontends/tests/` et les documents de conception dans `docs/frontend/`.
 
+- [Guide du portail patient](frontoffice/README.md)
+- [Guide de la supervision et de l’état du modèle](backoffice/README.md)
+- [Matrice O1–O10 et validation MLOps](../docs/iot/mlops-validation.md)
+
 Les sections qui suivent documentent les précédents essais du prototype et ses
 fixtures. La procédure connectée ci-dessus remplace le lancement statique.
 

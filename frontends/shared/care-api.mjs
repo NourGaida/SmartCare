@@ -38,6 +38,16 @@ export function createCareApi(baseUrl, session, request = globalThis.fetch) {
   const item = value => encodeURIComponent(value);
   const patient = id => 'patients/' + item(id);
   return {
+    async modelStatus(signal) {
+      const { model } = await call('admin/model', { signal });
+      if (model == null) return null;
+      if (typeof model.available !== 'boolean') throw new Error('SmartCare returned invalid model metadata.');
+      return {
+        available: model.available,
+        version: typeof model.version === 'string' ? model.version : null,
+        mode: typeof model.mode === 'string' ? model.mode : null
+      };
+    },
     assignedPatients: signal => list('patients', 'patients', signal),
     patientMeasurements: (id, signal) => list(patient(id) + '/measurements', 'measurements', signal),
     patientAlerts: (id, signal) => list(patient(id) + '/alerts', 'alerts', signal),

@@ -33,21 +33,7 @@ export function mountServerPortal(portal, {
   const demoNote = card.querySelector(':scope > small');
   if (demoNote) demoNote.hidden = true;
 
-  const sessionPanel = document.createElement('section');
-  sessionPanel.className = 'login-form';
-  sessionPanel.hidden = true;
-  const heading = document.createElement('h2');
-  heading.tabIndex = -1;
-  const details = document.createElement('p');
-  const sessionMessage = document.createElement('p');
-  sessionMessage.className = 'form-message';
-  sessionMessage.setAttribute('role', 'status');
-  const logout = document.createElement('button');
-  logout.type = 'button';
-  logout.className = 'button button-primary';
-  logout.textContent = 'Sign out';
-  sessionPanel.append(heading, details, sessionMessage, logout);
-  card.append(sessionPanel, otherPortal);
+  card.append(otherPortal);
 
   let currentSession = null;
   let workspace = null;
@@ -65,9 +51,8 @@ export function mountServerPortal(portal, {
   function showLogin(note) {
     currentSession = null;
     workspace?.dispose(); workspace = null;
-    heading.textContent = ''; details.textContent = '';
     showSignup(false);
-    sessionPanel.hidden = true; intro.hidden = false; form.hidden = false;
+    form.hidden = false;
     card.closest('.welcome-screen').hidden = false;
     form.reset(); message.textContent = note;
     document.querySelector('.skip-link').href = '#server-portal';
@@ -80,26 +65,14 @@ export function mountServerPortal(portal, {
   }
   async function showSession(session) {
     currentSession = session;
-    if (isPatientPortal || session.role === 'professional') {
-      const mount = isPatientPortal ? (await loadPatientHistory()).mountServerHistory
-        : (await loadStaffCare()).mountServerCare;
-      if (currentSession !== session) return;
-      workspace?.dispose();
-      form.reset(); message.textContent = '';
-      workspace = mount({
-        session, apiBaseUrl, onSignOut: signOut, onSessionExpired: showLogin
-      });
-      return;
-    }
-    heading.textContent = 'Signed in as ' + (session.displayName || session.userId);
-    details.textContent = 'Administrator account. Clinical records are available to patients and assigned professionals.';
-    form.reset();
-    message.textContent = '';
-    intro.hidden = true;
-    form.hidden = true;
-    if (signupLink) signupLink.hidden = true;
-    sessionPanel.hidden = false;
-    heading.focus();
+    const mount = isPatientPortal ? (await loadPatientHistory()).mountServerHistory
+      : (await loadStaffCare()).mountServerCare;
+    if (currentSession !== session) return;
+    workspace?.dispose();
+    form.reset(); message.textContent = '';
+    workspace = mount({
+      session, apiBaseUrl, onSignOut: signOut, onSessionExpired: showLogin
+    });
   }
 
   form.addEventListener('submit', async event => {
@@ -155,18 +128,6 @@ export function mountServerPortal(portal, {
       }
     });
   }
-
-  logout.addEventListener('click', async () => {
-    logout.disabled = true;
-    sessionMessage.textContent = '';
-    try {
-      await signOut();
-    } catch (error) {
-      sessionMessage.textContent = error.message;
-    } finally {
-      logout.disabled = false;
-    }
-  });
 
   submit.disabled = true;
   if (signupLink) signupLink.disabled = true;

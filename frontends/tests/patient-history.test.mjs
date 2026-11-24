@@ -417,14 +417,20 @@ test('a fresh patient login mounts History; expiry disposes it and returns to lo
   });
 });
 
-test('the administrator keeps a session screen without mounting either clinical workspace', async () => {
+test('the administrator session opens supervision without loading patient history', async () => {
   await withLoginDocument(async () => {
+    const session = { userId: 'admin-1', role: 'administrator' };
+    let mounted;
     const controller = mountServerPortal('backoffice', {
-      auth: { readSession: async () => ({ userId: 'admin-1', role: 'administrator' }) },
+      auth: { readSession: async () => session },
       loadPatientHistory: async () => { assert.fail('Supervision must not mount patient history'); },
-      loadStaffCare: async () => { assert.fail('Administrators must not mount professional care'); }
+      loadStaffCare: async () => ({ mountServerCare: options => {
+        mounted = options;
+        return { dispose() {} };
+      } })
     });
     await controller.ready;
+    assert.equal(mounted.session, session);
   });
 });
 

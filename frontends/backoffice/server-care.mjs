@@ -6,9 +6,11 @@ import { escapeHTML as h, formatTime } from '../shared/ui.mjs';
 import { normalizeMeasurements } from '../frontoffice/measurements-adapter.mjs';
 import { readingsTable } from './views.mjs';
 import { simulationControls, simulationResult } from './simulation-view.mjs';
+import { renderModelStatus } from './model-status.mjs';
 
 export function mountServerCare({ session, apiBaseUrl, onSignOut, onSessionExpired }) {
-  if (session.role !== 'professional') throw new Error('A professional session is required.');
+  const administrator = session.role === 'administrator';
+  if (!administrator && session.role !== 'professional') throw new Error('A supervision session is required.');
   const api = createCareApi(apiBaseUrl, session);
   const $ = selector => document.querySelector(selector);
   const workspace = $('#workspace');
@@ -21,7 +23,9 @@ export function mountServerCare({ session, apiBaseUrl, onSignOut, onSessionExpir
   let activePatient = null;
 
   $('#profile-name').textContent = name;
-  $('#profile-role').textContent = 'Professional';
+  $('#profile-role').textContent = administrator ? 'Administrator' : 'Professional';
+  $('#portal-label').textContent = administrator ? 'ADMINISTRATOR PORTAL' : 'PROFESSIONAL PORTAL';
+  $('#workspace-brand').href = administrator ? '#model-status' : '#patients';
   $('#profile-initials').textContent = name.split(' ').slice(0, 2).map(part => part[0]).join('').toUpperCase();
   $('#current-date').textContent = new Intl.DateTimeFormat('en-GB', { dateStyle: 'long' }).format(new Date());
   $('#login-screen').hidden = true;
@@ -38,10 +42,11 @@ export function mountServerCare({ session, apiBaseUrl, onSignOut, onSessionExpir
   }
 
   function navigation(active) {
-    $('#navigation').innerHTML = [
+    const links = administrator ? [['model-status', 'État du modèle']] : [
       ['patients', 'Assigned patients'],
       ['simulation', 'Simulation des capteurs']
-    ].map(([route, label]) => '<a href="#' + route + '"' +
+    ];
+    $('#navigation').innerHTML = links.map(([route, label]) => '<a href="#' + route + '"' +
       (active === route ? ' class="active" aria-current="page"' : '') + '>' +
       '<span>' + h(label) + '</span></a>').join('');
   }
@@ -75,12 +80,18 @@ export function mountServerCare({ session, apiBaseUrl, onSignOut, onSessionExpir
     const current = scope = new AbortController();
     activePatient = null;
     const [route, id] = location.hash.slice(1).split('/');
-    navigation(route === 'simulation' ? 'simulation' : 'patients');
-    title(route === 'simulation' ? 'Simulation des capteurs' : 'Assigned patients',
-      route === 'simulation' ? 'Send sensor test readings through the SmartCare pipeline.' : 'Patients assigned to your account.');
     view.setAttribute('aria-busy', 'true');
-    view.innerHTML = careState('Loading from SmartCare…');
     try {
+      if (administrator) {
+        navigation('model-status');
+        title('État du modèle', 'Disponibilité de l’analyse ML.');
+        await renderModelStatus(view, api.modelStatus, current.signal);
+        return;
+      }
+      navigation(route === 'simulation' ? 'simulation' : 'patients');
+      title(route === 'simulation' ? 'Simulation des capteurs' : 'Assigned patients',
+        route === 'simulation' ? 'Send sensor test readings through the SmartCare pipeline.' : 'Patients assigned to your account.');
+      view.innerHTML = careState('Loading from SmartCare…');
       const patients = await api.assignedPatients(current.signal);
       if (scope !== current) return;
       if (route === 'simulation') {
@@ -182,7 +193,7 @@ export function mountServerCare({ session, apiBaseUrl, onSignOut, onSessionExpir
     const button = event.target.closest('button');
     if (!button) return;
     if (button.hasAttribute('data-care-retry')) render();
-    if (button.dataset.scenario) startScenario(button.dataset.scenario);
+    if (!administrator && button.dataset.scenario) startScenario(button.dataset.scenario);
   }
 
   function change(event) {
@@ -230,10 +241,13 @@ export function mountServerCare({ session, apiBaseUrl, onSignOut, onSessionExpir
 
   logoutButtons.forEach(button => button.addEventListener('click', signOut));
   view.addEventListener('click', click);
-  view.addEventListener('change', change);
-  view.addEventListener('submit', acknowledge);
+  if (!administrator) {
+    view.addEventListener('change', change);
+    view.addEventListener('submit', acknowledge);
+  }
   window.addEventListener('hashchange', render);
-  if (!location.hash || location.hash === '#login') window.history.replaceState(null, '', '#patients');
+  if (administrator) window.history.replaceState(null, '', '#model-status');
+  else if (!location.hash || location.hash === '#login') window.history.replaceState(null, '', '#patients');
   $('#main-content').focus();
   render();
   return {
