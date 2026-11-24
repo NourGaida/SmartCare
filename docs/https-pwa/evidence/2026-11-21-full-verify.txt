@@ -1,0 +1,1155 @@
+﻿[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] SmartCare middleware                                               [pom]
+[INFO] SmartCare core                                                     [jar]
+[INFO] SmartCare IAM                                                      [jar]
+[INFO] SmartCare API                                                      [war]
+[INFO] 
+[INFO] -------------------< com.smartcare:smartcare-parent >-------------------
+[INFO] Building SmartCare middleware 1.0.0                                [1/4]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] Loaded 24568 auto-discovered prefixes for remote repository central (prefixes-central.txt)
+[INFO] 
+[INFO] --- clean:3.5.0:clean (default-clean) @ smartcare-parent ---
+[INFO] 
+[INFO] --------------------< com.smartcare:smartcare-core >--------------------
+[INFO] Building SmartCare core 1.0.0                                      [2/4]
+[INFO]   from core\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] Loaded 64 auto-discovered prefixes for remote repository apache.snapshots (prefixes-apache.snapshots.txt)
+[INFO] 
+[INFO] --- clean:3.5.0:clean (default-clean) @ smartcare-core ---
+[INFO] Deleting <REPO>\middleware\core\target
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ smartcare-core ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ smartcare-core ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 21 source files with javac [debug release 25] to target\classes
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ smartcare-core ---
+[INFO] skip non existing resourceDirectory <REPO>\middleware\core\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ smartcare-core ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 12 source files with javac [debug release 25] to target\test-classes
+[INFO] 
+[INFO] --- surefire:3.5.2:test (default-test) @ smartcare-core ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.smartcare.ingestion.IngestionConfigTest
+nov. 21, 2026 4:01:03 PM com.smartcare.ingestion.IngestionConfig parseEnabled
+AVERTISSEMENT: MQTT_ENABLED must be true or false; using true
+nov. 21, 2026 4:01:03 PM com.smartcare.ingestion.IngestionConfig parseCleanSession
+AVERTISSEMENT: MQTT_CLEAN_SESSION must be true or false; using false
+nov. 21, 2026 4:01:04 PM com.smartcare.ingestion.IngestionConfig parseQos
+AVERTISSEMENT: MQTT_QOS must be 0, 1 or 2; using 1
+nov. 21, 2026 4:01:04 PM com.smartcare.ingestion.IngestionConfig parseQos
+AVERTISSEMENT: MQTT_QOS is not a number; using 1
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.687 s -- in com.smartcare.ingestion.IngestionConfigTest
+[INFO] Running com.smartcare.ingestion.IngestionCountersTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.037 s -- in com.smartcare.ingestion.IngestionCountersTest
+[INFO] Running com.smartcare.ingestion.MeasurementMessageHandlerTest
+nov. 21, 2026 4:01:04 PM com.smartcare.ingestion.MeasurementMessageHandler handle
+AVERTISSEMENT: Measurement store failure for deviceId=sc-001, sequence=7: IllegalStateException
+[INFO] Tests run: 19, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.353 s -- in com.smartcare.ingestion.MeasurementMessageHandlerTest
+[INFO] Running com.smartcare.ingestion.MqttReceiverDownTest
+nov. 21, 2026 4:01:04 PM com.smartcare.ingestion.MqttReceiver connect
+INFOS: Connecting MQTT receiver to tcp://127.0.0.1:1 as receiver-c92ee5f3-2e2a-42c5-912c-be7d06bfad43
+nov. 21, 2026 4:01:04 PM com.smartcare.ingestion.MqttReceiver connect
+AVERTISSEMENT: MQTT connection failed: MqttException; retrying in 100 ms
+nov. 21, 2026 4:01:05 PM com.smartcare.ingestion.MqttReceiver connect
+INFOS: Connecting MQTT receiver to tcp://127.0.0.1:1 as receiver-c92ee5f3-2e2a-42c5-912c-be7d06bfad43
+nov. 21, 2026 4:01:05 PM com.smartcare.ingestion.MqttReceiver connect
+AVERTISSEMENT: MQTT connection failed: MqttException; retrying in 100 ms
+nov. 21, 2026 4:01:05 PM com.smartcare.ingestion.MqttReceiver connect
+INFOS: Connecting MQTT receiver to tcp://127.0.0.1:1 as receiver-c92ee5f3-2e2a-42c5-912c-be7d06bfad43
+nov. 21, 2026 4:01:05 PM com.smartcare.ingestion.MqttReceiver connect
+AVERTISSEMENT: MQTT connection failed: MqttException; retrying in 100 ms
+nov. 21, 2026 4:01:05 PM com.smartcare.ingestion.MqttReceiver connect
+INFOS: Connecting MQTT receiver to tcp://127.0.0.1:1 as receiver-c92ee5f3-2e2a-42c5-912c-be7d06bfad43
+nov. 21, 2026 4:01:05 PM com.smartcare.ingestion.MqttReceiver connect
+AVERTISSEMENT: MQTT connection failed: MqttException; retrying in 100 ms
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.588 s -- in com.smartcare.ingestion.MqttReceiverDownTest
+[INFO] Running com.smartcare.ingestion.MqttReceiverIntegrationTest
+nov. 21, 2026 4:01:05 PM com.mongodb.internal.diagnostics.logging.Loggers shouldUseSLF4J
+AVERTISSEMENT: SLF4J not found on the classpath.  Logging is disabled for the 'org.mongodb.driver' component
+nov. 21, 2026 4:01:06 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:01:07 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:01:07 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:01:07 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:01:07 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:01:07 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:01:07 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:01:07 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:01:08 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:01:08 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:01:09 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:01:09 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:01:09 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:01:09 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:01:09 PM com.smartcare.ingestion.MqttReceiver connect
+INFOS: Connecting MQTT receiver to tcp://127.0.0.1:1883 as receiver-2a8efcb4-7dde-4516-84a4-0a6b4800f3d8
+nov. 21, 2026 4:01:10 PM com.smartcare.ingestion.MqttReceiver connect
+INFOS: Subscribed to smartcare/v1/validated/# with QoS 1
+nov. 21, 2026 4:01:10 PM com.smartcare.persistence.MeasurementRepository save
+INFOS: Duplicate measurement rejected: deviceId=it-0662b428-ab18-448b-82c7-74c5b6690d76, sequence=1
+nov. 21, 2026 4:01:10 PM com.smartcare.ingestion.MqttReceiver$ReceiverCallback connectionLost
+AVERTISSEMENT: MQTT connection lost: MqttException
+nov. 21, 2026 4:01:11 PM com.smartcare.ingestion.MqttReceiver connect
+INFOS: Connecting MQTT receiver to tcp://127.0.0.1:1883 as receiver-2a8efcb4-7dde-4516-84a4-0a6b4800f3d8
+nov. 21, 2026 4:01:11 PM com.smartcare.ingestion.MqttReceiver connect
+INFOS: Subscribed to smartcare/v1/validated/# with QoS 1
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.245 s -- in com.smartcare.ingestion.MqttReceiverIntegrationTest
+[INFO] Running com.smartcare.persistence.MeasurementOwnershipRepositoryTest
+nov. 21, 2026 4:01:11 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:01:11 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:01:12 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:01:12 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:01:12 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:01:12 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:01:12 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:01:12 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:01:12 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:01:12 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:01:12 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:01:13 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:01:13 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:01:13 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:01:13 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:01:13 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:01:13 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:01:13 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:01:13 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:01:13 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:01:14 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:01:14 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:01:14 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:01:14 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:01:14 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:01:14 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:01:14 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:01:14 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:01:14 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:01:14 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:01:14 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:01:14 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:01:15 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:01:15 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:01:15 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:01:15 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:01:15 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:01:15 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:01:15 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:01:15 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:01:15 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:01:15 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:01:15 PM com.smartcare.ownership.DeviceOwnershipResolver resolve
+AVERTISSEMENT: Ownership conflict for deviceId=sc-001, acquiredAt=2026-11-01T12:00:01Z, matches=2, selectedPatientId=patient-new
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.336 s -- in com.smartcare.persistence.MeasurementOwnershipRepositoryTest
+[INFO] Running com.smartcare.persistence.MeasurementRepositoryTest
+nov. 21, 2026 4:01:16 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:01:16 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:01:16 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:01:16 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:01:16 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:01:16 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:01:16 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:01:16 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:01:16 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:01:16 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:01:17 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:01:17 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:01:17 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:01:17 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:01:17 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:01:17 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:01:17 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:01:17 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:01:17 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:01:18 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:01:18 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:01:18 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:01:18 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:01:18 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:01:18 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:01:18 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:01:18 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:01:18 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:01:18 PM com.smartcare.persistence.MeasurementRepository save
+INFOS: Duplicate measurement rejected: deviceId=sc-001, sequence=1
+nov. 21, 2026 4:01:19 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:01:19 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:01:19 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:01:19 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:01:19 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:01:19 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:01:19 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:01:19 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:01:20 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:01:20 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:01:20 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:01:20 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:01:20 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:01:20 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:01:21 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:01:21 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:01:21 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:01:21 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:01:21 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:01:21 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:01:21 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:01:21 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:01:21 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:01:22 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:01:22 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:01:22 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:01:22 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:01:22 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:01:22 PM com.smartcare.persistence.SchemaInitializer initialize
+AVERTISSEMENT: Schema initialization skipped: simulated MongoDB outage
+nov. 21, 2026 4:01:22 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:01:22 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:01:22 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:01:22 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:01:22 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:01:22 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:01:22 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:01:22 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:01:23 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:01:23 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:01:23 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:01:23 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:01:23 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:01:23 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:01:23 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:01:23 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:01:23 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:01:23 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:01:23 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:01:23 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:01:24 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:01:24 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:01:24 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:01:24 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:01:24 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:01:24 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:01:24 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:01:24 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:01:24 PM com.smartcare.persistence.MeasurementRepository save
+INFOS: Duplicate measurement rejected: deviceId=sc-001, sequence=1
+nov. 21, 2026 4:01:24 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:01:24 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:01:24 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:01:24 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:01:24 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:01:25 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:01:25 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:01:25 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:01:25 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:01:25 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:01:25 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:01:25 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:01:25 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:01:25 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:01:25 PM com.smartcare.persistence.SchemaInitializer initialize
+AVERTISSEMENT: Schema initialization skipped: simulated MongoDB outage
+nov. 21, 2026 4:01:25 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:01:25 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:01:25 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.MeasurementRepository save
+INFOS: Duplicate measurement rejected: deviceId=sc-001, sequence=42
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.MeasurementRepository save
+INFOS: Duplicate measurement rejected: deviceId=sc-001, sequence=42
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.MeasurementRepository save
+INFOS: Duplicate measurement rejected: deviceId=sc-001, sequence=42
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.MeasurementRepository save
+INFOS: Duplicate measurement rejected: deviceId=sc-001, sequence=42
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.MeasurementRepository save
+INFOS: Duplicate measurement rejected: deviceId=sc-001, sequence=42
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.MeasurementRepository save
+INFOS: Duplicate measurement rejected: deviceId=sc-001, sequence=42
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.MeasurementRepository save
+INFOS: Duplicate measurement rejected: deviceId=sc-001, sequence=42
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.MeasurementRepository save
+INFOS: Duplicate measurement rejected: deviceId=sc-001, sequence=42
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.MeasurementRepository save
+INFOS: Duplicate measurement rejected: deviceId=sc-001, sequence=42
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.MeasurementRepository save
+INFOS: Duplicate measurement rejected: deviceId=sc-001, sequence=42
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.MeasurementRepository save
+INFOS: Duplicate measurement rejected: deviceId=sc-001, sequence=42
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.MeasurementRepository save
+INFOS: Duplicate measurement rejected: deviceId=sc-001, sequence=42
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.MeasurementRepository save
+INFOS: Duplicate measurement rejected: deviceId=sc-001, sequence=42
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.MeasurementRepository save
+INFOS: Duplicate measurement rejected: deviceId=sc-001, sequence=42
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.MeasurementRepository save
+INFOS: Duplicate measurement rejected: deviceId=sc-001, sequence=42
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.MeasurementRepository save
+INFOS: Duplicate measurement rejected: deviceId=sc-001, sequence=42
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.MeasurementRepository save
+INFOS: Duplicate measurement rejected: deviceId=sc-001, sequence=42
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.MeasurementRepository save
+INFOS: Duplicate measurement rejected: deviceId=sc-001, sequence=42
+nov. 21, 2026 4:01:26 PM com.smartcare.persistence.MeasurementRepository save
+INFOS: Duplicate measurement rejected: deviceId=sc-001, sequence=42
+nov. 21, 2026 4:01:27 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:01:27 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:01:27 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:01:27 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:01:27 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:01:27 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:01:27 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:01:27 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:01:27 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:01:27 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:01:27 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:01:28 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:01:28 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:01:28 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:01:28 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:01:28 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:01:28 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:01:28 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:01:28 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:01:28 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:01:28 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:01:28 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:01:28 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:01:28 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:01:28 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:01:28 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:01:28 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:01:28 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:01:29 PM com.smartcare.persistence.MeasurementRepository save
+INFOS: Duplicate measurement rejected: deviceId=sc-001, sequence=3
+nov. 21, 2026 4:01:29 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:01:29 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:01:29 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:01:29 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:01:29 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:01:29 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:01:29 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:01:29 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:01:29 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:01:29 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:01:29 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:01:29 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:01:29 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:01:29 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:01:30 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:01:30 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:01:30 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:01:30 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:01:30 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:01:30 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:01:30 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:01:30 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:01:30 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:01:30 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:01:30 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:01:30 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:01:30 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:01:31 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 15.10 s -- in com.smartcare.persistence.MeasurementRepositoryTest
+[INFO] Running com.smartcare.persistence.MeasurementTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s -- in com.smartcare.persistence.MeasurementTest
+[INFO] Running com.smartcare.persistence.MongoProviderTest
+nov. 21, 2026 4:01:31 PM com.smartcare.persistence.MongoProvider parseServerSelectionTimeout
+AVERTISSEMENT: MONGODB_SERVER_SELECTION_TIMEOUT_MS is not a number: not-a-number
+nov. 21, 2026 4:01:31 PM com.smartcare.persistence.MongoProvider parseServerSelectionTimeout
+AVERTISSEMENT: MONGODB_SERVER_SELECTION_TIMEOUT_MS must be positive: 0
+nov. 21, 2026 4:01:31 PM com.smartcare.persistence.MongoProvider parseServerSelectionTimeout
+AVERTISSEMENT: MONGODB_SERVER_SELECTION_TIMEOUT_MS must be positive: -500
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 s -- in com.smartcare.persistence.MongoProviderTest
+[INFO] Running com.smartcare.persistence.SchemaInitializerTest
+nov. 21, 2026 4:01:31 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:01:31 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:01:31 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:01:31 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:01:31 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:01:31 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:01:31 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:01:31 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:01:31 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:01:31 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:01:31 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:01:31 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:01:32 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:01:32 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:01:32 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:01:32 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:01:32 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:01:32 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:01:32 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:01:32 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:01:32 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:01:33 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:01:33 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:01:33 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:01:33 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:01:33 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:01:33 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:01:33 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:01:33 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:01:33 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:01:33 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:01:33 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:01:33 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:01:34 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:01:34 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:01:34 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:01:34 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:01:34 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:01:34 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:01:34 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:01:34 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:01:34 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:01:34 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:01:34 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:01:34 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:01:34 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:01:34 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:01:35 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:01:35 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:01:35 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:01:35 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:01:35 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:01:35 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:01:35 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:01:35 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:01:35 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:01:35 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:01:35 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:01:35 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:01:36 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:01:36 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:01:36 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:01:36 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:01:36 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:01:36 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:01:36 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:01:36 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:01:36 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:01:36 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:01:36 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:01:36 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:01:36 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:01:36 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:01:37 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:01:38 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:01:38 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:01:38 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:01:38 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:01:38 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:01:38 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:01:38 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:01:38 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:01:38 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:01:39 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:01:39 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:01:39 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:01:39 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:01:39 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 8.290 s -- in com.smartcare.persistence.SchemaInitializerTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 54, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ smartcare-core ---
+[INFO] Building jar: <REPO>\middleware\core\target\smartcare-core-1.0.0.jar
+[INFO] 
+[INFO] --------------------< com.smartcare:smartcare-iam >---------------------
+[INFO] Building SmartCare IAM 1.0.0                                       [3/4]
+[INFO]   from iam\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.5.0:clean (default-clean) @ smartcare-iam ---
+[INFO] Deleting <REPO>\middleware\iam\target
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ smartcare-iam ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ smartcare-iam ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 10 source files with javac [debug release 25] to target\classes
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ smartcare-iam ---
+[INFO] skip non existing resourceDirectory <REPO>\middleware\iam\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ smartcare-iam ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 4 source files with javac [debug release 25] to target\test-classes
+[INFO] 
+[INFO] --- surefire:3.5.2:test (default-test) @ smartcare-iam ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.smartcare.iam.auth.AuthServiceTest
+nov. 21, 2026 4:01:46 PM com.mongodb.internal.diagnostics.logging.Loggers shouldUseSLF4J
+AVERTISSEMENT: SLF4J not found on the classpath.  Logging is disabled for the 'org.mongodb.driver' component
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 12.37 s -- in com.smartcare.iam.auth.AuthServiceTest
+[INFO] Running com.smartcare.iam.auth.PasswordHasherTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.663 s -- in com.smartcare.iam.auth.PasswordHasherTest
+[INFO] Running com.smartcare.iam.session.SessionServiceTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.948 s -- in com.smartcare.iam.session.SessionServiceTest
+[INFO] Running com.smartcare.iam.session.SessionSettingsTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 s -- in com.smartcare.iam.session.SessionSettingsTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ smartcare-iam ---
+[INFO] Building jar: <REPO>\middleware\iam\target\smartcare-iam-1.0.0.jar
+[INFO] 
+[INFO] --------------------< com.smartcare:smartcare-api >---------------------
+[INFO] Building SmartCare API 1.0.0                                       [4/4]
+[INFO]   from api\pom.xml
+[INFO] --------------------------------[ war ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.5.0:clean (default-clean) @ smartcare-api ---
+[INFO] Deleting <REPO>\middleware\api\target
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ smartcare-api ---
+[INFO] skip non existing resourceDirectory <REPO>\middleware\api\src\main\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ smartcare-api ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 8 source files with javac [debug release 25] to target\classes
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ smartcare-api ---
+[INFO] skip non existing resourceDirectory <REPO>\middleware\api\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ smartcare-api ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 4 source files with javac [debug release 25] to target\test-classes
+[INFO] /<REPO>/middleware/api/src/test/java/com/smartcare/api/auth/PatientMeasurementsResourceTest.java: <REPO>\middleware\api\src\test\java\com\smartcare\api\auth\PatientMeasurementsResourceTest.java uses or overrides a deprecated API.
+[INFO] /<REPO>/middleware/api/src/test/java/com/smartcare/api/auth/PatientMeasurementsResourceTest.java: Recompile with -Xlint:deprecation for details.
+[INFO] 
+[INFO] --- surefire:3.5.2:test (default-test) @ smartcare-api ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.smartcare.api.auth.PatientMeasurementsResourceTest
+nov. 21, 2026 4:02:08 PM com.mongodb.internal.diagnostics.logging.Loggers shouldUseSLF4J
+AVERTISSEMENT: SLF4J not found on the classpath.  Logging is disabled for the 'org.mongodb.driver' component
+nov. 21, 2026 4:02:09 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:02:09 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:02:09 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:02:09 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:02:09 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:02:09 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:02:09 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:02:10 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:02:10 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:02:10 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:02:10 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:02:10 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:02:10 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:02:10 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:02:12 PM com.smartcare.persistence.SchemaInitializer initialize
+AVERTISSEMENT: Schema initialization failed: Timed out while waiting for a server that matches WritableServerSelector. Client view of cluster state is {type=UNKNOWN, servers=[{address=127.0.0.1:1, type=UNKNOWN, state=CONNECTING, exception={com.mongodb.MongoSocketOpenException: Exception opening socket}, caused by {java.net.ConnectException: Connection refused: getsockopt}}]
+nov. 21, 2026 4:02:12 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:02:12 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:02:12 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:02:12 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:02:12 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:02:13 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:02:13 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:02:13 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:02:13 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:02:13 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:02:13 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:02:13 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:02:13 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:02:13 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:02:14 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:02:14 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:02:14 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:02:14 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:02:14 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:02:14 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:02:14 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:02:14 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:02:14 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:02:15 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:02:15 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:02:15 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:02:15 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:02:15 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:02:16 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:02:16 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:02:16 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:02:16 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:02:16 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:02:16 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:02:16 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:02:16 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:02:16 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:02:16 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:02:16 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:02:16 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:02:16 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:02:16 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:02:17 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:02:17 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:02:17 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:02:17 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:02:17 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:02:18 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:02:18 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:02:18 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:02:18 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:02:18 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:02:18 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:02:18 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:02:18 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:02:18 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:02:19 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:02:19 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:02:19 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:02:19 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:02:19 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:02:19 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:02:19 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:02:19 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:02:19 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:02:19 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:02:20 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:02:20 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:02:20 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:02:20 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+nov. 21, 2026 4:02:21 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'measurements' with validator
+nov. 21, 2026 4:02:21 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_boot_sequence' on collection 'measurements'
+nov. 21, 2026 4:02:21 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_patient_time' on collection 'measurements'
+nov. 21, 2026 4:02:21 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'devices' with validator
+nov. 21, 2026 4:02:21 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_id' on collection 'devices'
+nov. 21, 2026 4:02:21 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'device_ownership' with validator
+nov. 21, 2026 4:02:21 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_ownership_device_time' on collection 'device_ownership'
+nov. 21, 2026 4:02:21 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_device_open_ownership' on collection 'device_ownership'
+nov. 21, 2026 4:02:21 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'users' with validator
+nov. 21, 2026 4:02:21 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_id' on collection 'users'
+nov. 21, 2026 4:02:21 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_user_email' on collection 'users'
+nov. 21, 2026 4:02:22 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Created collection 'assignments' with validator
+nov. 21, 2026 4:02:22 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'uq_professional_patient' on collection 'assignments'
+nov. 21, 2026 4:02:22 PM com.smartcare.persistence.SchemaInitializer ensureCollection
+INFOS: Ensured index 'ix_assignment_patient' on collection 'assignments'
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 14.97 s -- in com.smartcare.api.auth.PatientMeasurementsResourceTest
+[INFO] Running com.smartcare.api.auth.SecurityFilterTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.646 s -- in com.smartcare.api.auth.SecurityFilterTest
+[INFO] Running com.smartcare.api.DatabaseHealthSourceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.017 s -- in com.smartcare.api.DatabaseHealthSourceTest
+[INFO] Running com.smartcare.api.IngestionHealthSourceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.030 s -- in com.smartcare.api.IngestionHealthSourceTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- war:3.4.0:war (default-war) @ smartcare-api ---
+[INFO] Packaging webapp
+[INFO] Assembling webapp [smartcare-api] in [<REPO>\middleware\api\target\smartcare]
+[INFO] Processing war project
+[INFO] Copying webapp webResources [<REPO>\middleware\api/../../frontends] to [<REPO>\middleware\api\target\smartcare]
+[INFO] Copying webapp resources [<REPO>\middleware\api\src\main\webapp]
+[INFO] Building war: <REPO>\middleware\api\target\smartcare.war
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for SmartCare middleware 1.0.0:
+[INFO] 
+[INFO] SmartCare middleware ............................... SUCCESS [  0.724 s]
+[INFO] SmartCare core ..................................... SUCCESS [ 50.396 s]
+[INFO] SmartCare IAM ...................................... SUCCESS [ 19.650 s]
+[INFO] SmartCare API ...................................... SUCCESS [ 32.491 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:43 min
+[INFO] Finished at: 2026-11-21T16:02:33+01:00
+[INFO] ------------------------------------------------------------------------
+

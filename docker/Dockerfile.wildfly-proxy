@@ -1,0 +1,10 @@
+FROM quay.io/wildfly/wildfly:42.0.0.Final-jdk25
+
+COPY --chown=jboss:root scripts/wildfly-proxy.cli /opt/jboss/wildfly/bin/wildfly-proxy.cli
+COPY --chown=jboss:root scripts/wildfly-entrypoint.sh /opt/jboss/wildfly/bin/smartcare-entrypoint.sh
+RUN chmod 0755 /opt/jboss/wildfly/bin/smartcare-entrypoint.sh
+
+ENV SMARTCARE_SESSION_SECURE=true
+
+ENTRYPOINT ["/opt/jboss/wildfly/bin/smartcare-entrypoint.sh"]
+CMD ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0"]

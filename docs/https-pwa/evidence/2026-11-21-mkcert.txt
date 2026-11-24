@@ -1,0 +1,29 @@
+# Evidence — 03 local certificates (B2)
+
+STATUS: UNVERIFIED — `mkcert -install` requires UAC and was not executed by the AI agent. No private key or `rootCA-key.pem` content may be pasted here.
+
+Run the commands from `docs/https-pwa/03-local-certificates.md` in an elevated PowerShell and paste outputs below.
+
+```text
+Command: mkcert -version
+PASTE OUTPUT HERE
+
+Command: $env:CAROOT = (Resolve-Path .\certs\ca).Path ; mkcert -install
+PASTE OUTPUT HERE
+
+Command: PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\gen-certs.ps1
+PASTE OUTPUT HERE
+
+Command: git check-ignore -v -- certs/smartcare.local-key.pem certs/ca/rootCA-key.pem
+PASTE OUTPUT HERE
+
+Command: git status --short --ignored --untracked-files=all certs
+PASTE OUTPUT HERE
+
+Command: mkcert -CAROOT
+PASTE OUTPUT HERE
+```
+
+Recorded SHA256 file hash of `certs/smartcare.local.pem`: `PASTE HERE`
+
+Screenshot to add: `docs/img/03-mkcert-install-output.png` (crop to non-secret output only).

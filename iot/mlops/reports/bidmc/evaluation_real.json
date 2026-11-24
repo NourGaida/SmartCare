@@ -1,0 +1,57 @@
+{
+  "dataset": "BIDMC",
+  "model": "IsolationForest",
+  "seed": 42,
+  "feature_columns": [
+    "hr_mean",
+    "hr_std",
+    "hr_min",
+    "hr_max",
+    "hr_delta",
+    "spo2_mean",
+    "spo2_std",
+    "spo2_min",
+    "spo2_max",
+    "spo2_delta"
+  ],
+  "window_size_seconds": 5,
+  "threshold": 0.020116262726020958,
+  "threshold_method": "validation_score_p95",
+  "threshold_is_clinically_validated": false,
+  "train": {
+    "windows": 17525,
+    "recordings": 37,
+    "flagged_windows": 2687,
+    "flagged_fraction": 0.15332382310984308,
+    "score_mean": -0.05966410291831196,
+    "score_median": -0.08394680212899591,
+    "score_p95": 0.0657421242642805,
+    "score_p99": 0.11277403816277465,
+    "recording_flagged_fraction_mean": 0.15226229876618336,
+    "recording_flagged_fraction_max": 1.0
+  },
+  "validation": {
+    "windows": 3802,
+    "recordings": 8,
+    "flagged_windows": 191,
+    "flagged_fraction": 0.05023671751709626,
+    "score_mean": -0.08631579726711586,
+    "score_median": -0.10020384993600034,
+    "score_p95": 0.020116262726020958,
+    "score_p99": 0.062494271960724886,
+    "recording_flagged_fraction_mean": 0.050313907846023465,
+    "recording_flagged_fraction_max": 0.15513626834381553
+  },
+  "test": {
+    "windows": 3816,
+    "recordings": 8,
+    "flagged_windows": 132,
+    "flagged_fraction": 0.03459119496855346,
+    "score_mean": -0.08318048036810786,
+    "score_median": -0.09803314830809223,
+    "score_p95": 0.008644850667254178,
+    "score_p99": 0.057540273441805144,
+    "recording_flagged_fraction_mean": 0.03459119496855346,
+    "recording_flagged_fraction_max": 0.19077568134171907
+  }
+}

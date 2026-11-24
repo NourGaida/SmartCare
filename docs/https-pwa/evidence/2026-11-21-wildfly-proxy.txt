@@ -1,0 +1,53 @@
+# Evidence — 06 WildFly proxy forwarding (B5)
+
+## Build (VERIFIED 2026-11-21)
+
+```text
+Command: docker build -f docker/Dockerfile.wildfly-proxy -t smartcare-wildfly-proxy:test .
+Result: DONE; image smartcare-wildfly-proxy:test named.
+```
+
+## First boot (VERIFIED)
+
+```text
+Command: docker run -d --name smartcare-wildfly-proxy-test -p 8085:8080 -p 9995:9990 -e SMARTCARE_SESSION_SECURE=true smartcare-wildfly-proxy:test
+Relevant log lines:
+    "operation-requires-reload" => true,
+    "process-state" => "reload-required"
+Proxy CLI returned non-zero; verifying final state.
+SmartCare WildFly proxy forwarding verified.
+
+Command: docker exec smartcare-wildfly-proxy-test /opt/jboss/wildfly/bin/jboss-cli.sh --connect --command='/subsystem=undertow/server=default-server/http-listener=default:read-attribute(name=proxy-address-forwarding)'
+{
+    "outcome" => "success",
+    "result" => true
+}
+
+Command: docker exec smartcare-wildfly-proxy-test printenv SMARTCARE_SESSION_SECURE
+true
+```
+
+## Recreate/idempotence (VERIFIED)
+
+```text
+Command: docker restart smartcare-wildfly-proxy-test
+Relevant log lines:
+Already configured or embedded mode: no reload required.
+SmartCare WildFly proxy forwarding verified.
+No new "operation-requires-reload" entry on second boot.
+```
+
+## Embedded CLI test (VERIFIED)
+
+```text
+Command: docker run --rm -v <TEMP>/wildfly-proxy-embedded.cli:/tmp/probe.cli:ro --entrypoint /bin/bash quay.io/wildfly/wildfly:42.0.0.Final-jdk25 -c '/opt/jboss/wildfly/bin/jboss-cli.sh --file=/tmp/probe.cli'
+{
+    "outcome" => "success",
+    "result" => true
+}
+SmartCare proxy-address-forwarding check complete.
+```
+
+## Not verified
+
+- Replacing the real `smartcare-wildfly` container with this image; intentionally deferred to Phase C so legacy 8081/8082 keeps working.

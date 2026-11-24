@@ -40,3 +40,14 @@ mlruns/
 # Local authentication test files
 cookies*.txt
 login*.json
+
+*.pem
+*.key
+*.crt
+*.csr
+*.pfx
+*.p12
+rootCA*
+certs/*
+!certs/README.md
+!certs/.gitkeep

@@ -10,6 +10,8 @@
     SMARTCARE_MONGO_CONTAINER       Docker container name
     SMARTCARE_RECOVERY_WAIT_SECONDS seconds to wait after docker start
 #>
+param([switch]$DryRun)
+
 $ErrorActionPreference = 'Stop'
 
 $healthUrl = if ($env:SMARTCARE_HEALTH_URL) {
@@ -72,6 +74,11 @@ function Write-Health {
 Write-Host "Health endpoint : $healthUrl"
 Write-Host "Mongo container : $container"
 Write-Host ''
+if ($DryRun) {
+    Write-Host "DRY RUN: would probe health, stop/start $container, wait $recoveryWait s, and probe again."
+    Write-Host 'DRY RUN: no HTTP request or Docker command was made.'
+    return
+}
 
 $before = Get-Health -Url $healthUrl
 Write-Health -Label 'before stop' -Result $before

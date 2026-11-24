@@ -80,11 +80,11 @@ jobs:
         run: |
           node --check frontends/frontoffice/app.js
           node --check frontends/frontoffice/sw.js
-          for file in frontends/shared/*.mjs frontends/frontoffice/*.mjs frontends/backoffice/*.mjs frontends/backoffice/sw.js frontends/backoffice/fixtures/*.mjs frontends/tests/*.mjs frontends/tests/fixtures/*.mjs frontends/tests/integration/*.mjs; do
+          for file in frontends/shared/*.js frontends/shared/*.mjs frontends/frontoffice/*.mjs frontends/backoffice/*.mjs frontends/backoffice/sw.js frontends/backoffice/fixtures/*.mjs frontends/tests/*.mjs frontends/tests/fixtures/*.mjs frontends/tests/integration/*.mjs; do
             node --check "$file" || exit 1
           done
 
-      - name: Test frontend roles, episodes and static resources
+      - name: Test frontend roles, episodes, server routing and static resources
         run: node --test frontends/tests/*.test.mjs
 
       - name: Report server access scenarios awaiting Person B

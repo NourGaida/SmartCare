@@ -1,0 +1,96 @@
+# Evidence — PowerShell script runtime checks (2026-11-21)
+
+All commands were run from `<REPO>` in PowerShell 5.1. Personal clone paths in captured output are replaced with `<REPO>`.
+
+## Syntax/condition review
+
+```text
+Command: parser scan over scripts/*.ps1
+PARSE OK: check-recovery.ps1
+PARSE OK: gen-certs.ps1
+PARSE OK: publish-test-message.ps1
+PARSE OK: seed-dev-users.ps1
+PARSE OK: setup-hosts.ps1
+
+Review result: only gen-certs.ps1:22 had the unparenthesized cmdlet-in-boolean pattern. All other conditions in scripts/*.ps1 use valid comparisons.
+Post-fix scan for `Test-Path ... -or|-and Test-Path ...` found only the corrected line:
+  if (((Test-Path -LiteralPath $cert) -or (Test-Path -LiteralPath $key)) -and -not $Force) {
+```
+
+## `setup-hosts.ps1 -DryRun`
+
+```text
+Command: PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-hosts.ps1 -DryRun
+DRY RUN: would write 34 lines to C:\Windows\System32\drivers\etc\hosts
+DRY RUN: managed block would be:
+  # >>> SmartCare HTTPS (managed by scripts/setup-hosts.ps1)
+  192.168.1.4	app.smartcare.local
+  192.168.1.4	staff.smartcare.local
+  192.168.1.4	api.smartcare.local
+  # <<< SmartCare HTTPS
+DRY RUN: no hosts file or DNS cache was modified.
+
+Command: PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-hosts.ps1 -Remove -DryRun
+DRY RUN: would write 29 lines to C:\Windows\System32\drivers\etc\hosts
+DRY RUN: managed SmartCare host entries would be removed.
+DRY RUN: no hosts file or DNS cache was modified.
+```
+
+## `seed-dev-users.ps1 -DryRun`
+
+Dummy passwords were set in the process only; no MongoDB write was performed.
+
+```text
+DRY RUN: would upsert patient@smartcare.local [PATIENT] into smartcare via smartcare-mongodb
+DRY RUN: would upsert professional@smartcare.local [PROFESSIONAL] into smartcare via smartcare-mongodb
+DRY RUN: would upsert admin@smartcare.local [ADMIN] into smartcare via smartcare-mongodb
+DRY RUN: no MongoDB write was performed.
+```
+
+## `publish-test-message.ps1 -DryRun`
+
+```text
+DRY RUN: would publish to smartcare/v1/validated/sc-test : {"schemaVersion":1,...,"quality":"good",...}
+DRY RUN: would publish to smartcare/v1/validated/sc-dryrun : {"schemaVersion":1,...,"quality":"invalid","reason":"no_finger",...}
+```
+
+## `check-recovery.ps1 -DryRun`
+
+```text
+Health endpoint : http://localhost:8080/smartcare/api/health/database
+Mongo container : smartcare-mongodb
+
+DRY RUN: would probe health, stop/start smartcare-mongodb, wait 5 s, and probe again.
+DRY RUN: no HTTP request or Docker command was made.
+```
+
+## `gen-certs.ps1` condition fix
+
+The project CA already exists; no real leaf certificate existed. Temporary dummy leaf files were created only to exercise the fixed condition, then removed.
+
+```text
+Command: PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\gen-certs.ps1 -DryRun
+(initial, no leaf files)
+DRY RUN: would run mkcert -cert-file <REPO>\certs\smartcare.local.pem -key-file <REPO>\certs\smartcare.local-key.pem smartcare.local *.smartcare.local localhost 127.0.0.1 ::1
+DRY RUN: would restrict private key ACL with icacls on <REPO>\certs\smartcare.local-key.pem
+DRY RUN: no certificate or key was generated or modified.
+
+Command: ... -DryRun                    (with dummy leaf files)
+Certificate files already exist. Re-run with -Force to replace them.
+EXIT=1
+No LiteralPath binding error.
+
+Command: ... -DryRun -Force            (with dummy leaf files)
+DRY RUN: would run mkcert -cert-file <REPO>\certs\smartcare.local.pem -key-file <REPO>\certs\smartcare.local-key.pem smartcare.local *.smartcare.local localhost 127.0.0.1 ::1
+DRY RUN: would restrict private key ACL with icacls on <REPO>\certs\smartcare.local-key.pem
+DRY RUN: existing certificate SHA256 file hash: 2095609190F43B9510F271489771F730903A42D4EF45759031B9F94383ADFA61
+DRY RUN: no certificate or key was generated or modified.
+EXIT=0
+
+Command: ... (real invocation, no -Force, with dummy leaf files)
+Certificate files already exist. Re-run with -Force to replace them.
+EXIT=1
+No mkcert call and no LiteralPath binding error.
+
+DUMMY_LEAF_FILES_REMOVED=True
+```

@@ -51,6 +51,7 @@ The split into `frontoffice` and `backoffice`, the `core` / `iam` / `api` Maven 
 2. Start the broker and gateway, if MQTT ingestion is needed: `docker compose -f iot/broker/docker-compose.yml up -d`.
 3. Build the backend, then deploy the WAR through `jboss-cli`:
    `mvn -f middleware/pom.xml clean package`
+   Maven uses `JAVA_HOME`. On the lab PC, set `$env:JAVA_HOME='C:\Program Files\Amazon Corretto\jdk25.0.5_0'` before `mvn` if Maven reports Java 17. CI uses `actions/setup-java` with Java 25 and a `mongo:8` service container; integration tests fail when MongoDB is unreachable. See [`middleware/README.md`](../middleware/README.md).
 4. Serve the repository root over HTTP and open:
    - `http://127.0.0.1:8080/frontends/frontoffice/`
    - `http://127.0.0.1:8080/frontends/backoffice/`
@@ -75,3 +76,32 @@ The PWAs currently use in-memory demo fixtures. REST and WebSocket integration i
 - [Access verification](../frontends/docs/access-verification.md)
 
 Historical task prompts are kept verbatim in [`prompts/`](prompts/). They describe the state of the repository at the time they were executed.
+
+## HTTPS/PWA rollout index
+
+Reading order for the `feature/https-pwa` work. Documents marked **planned** are created when their step is executed; anything not yet run is marked `UNVERIFIED` inside the document.
+
+1. [00 — Overview and request flow](https-pwa/00-overview.md)
+2. [01 — Phase A audit](https-pwa/01-audit.md)
+3. [02 — Hostnames](https-pwa/02-hostnames.md) — **planned (B1)**
+4. [03 — Certificates](https-pwa/03-certificates.md) — **planned (B2)**
+5. [04 — nginx TLS](https-pwa/04-nginx-tls.md) — **planned (B3)**
+6. [05 — WildFly proxy and cookies](https-pwa/05-wildfly-proxy-cookies.md) — **planned (B4)**
+7. [06 — Firewall](https-pwa/06-firewall.md) — **planned (B5)**
+8. [07 — HTTPS verification](https-pwa/07-https-verification.md) — **planned (B6)**
+9. [08 — PWA manifest and icons](https-pwa/08-pwa-manifest-icons.md) — **planned (C1/C2)**
+10. [09 — Service worker](https-pwa/09-service-worker.md) — **planned (C3)**
+11. [10 — Registration and install UX](https-pwa/10-registration-install-ux.md) — **planned (C4)**
+12. [11 — Login in installed mode](https-pwa/11-login-installed-mode.md) — **planned (C5)**
+13. [12 — PWA verification](https-pwa/12-pwa-verification.md) — **planned (C6)**
+14. [13 — Phone access](https-pwa/13-phone-access.md) — **planned (Phase D)**
+15. [14 — Consolidated troubleshooting](https-pwa/14-troubleshooting.md)
+16. [Clearing browser state and local DNS routing](https-pwa/clear-browser-state.md)
+17. [Backend live verification through HTTPS](https-pwa/backend-live-verification.md)
+18. [Security hygiene audit](https-pwa/security-hygiene.md)
+19. [Screenshots to capture](https-pwa/screenshots-todo.md)
+20. [Phase B PR draft](https-pwa/PR-phase-b.md)
+21. [Evidence](https-pwa/evidence/)
+22. [CHANGELOG](CHANGELOG.md) · [GLOSSARY](GLOSSARY.md) · [Decision records](decisions/) · [Prompt log](prompts/00-master-prompt.md)
+
+Also available: [short HTTPS/PWA architecture note](../https-pwa.md). Planned later: `docs/pwa-audit/` (Lighthouse reports) and `docs/pwa-test-checklist.md` (manual phone checklist).
