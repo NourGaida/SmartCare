@@ -56,7 +56,7 @@ public class PatientMeasurementsResource {
         }
     }
 
-    private static JsonObject toJson(Measurement measurement) {
+    static JsonObject toJson(Measurement measurement) {
         return Json.createObjectBuilder()
                 .add("acquiredAtUtc", measurement.acquiredAt().toString())
                 .add("heartRate", measurement.heartRate() == null ? JsonValue.NULL

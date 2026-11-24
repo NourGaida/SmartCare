@@ -38,6 +38,7 @@ def test_sustained_anomaly_confirmed():
 
     assert event is not None
     assert event.event_type == "SUSTAINED_ANOMALY_CONFIRMED"
+    assert event.started_sequence == 11
 
 
 def test_no_duplicate_confirmation():

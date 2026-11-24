@@ -3,7 +3,7 @@ from uuid import uuid5, NAMESPACE_URL
 
 
 def serialize_event(event, boot_id):
-    return {
+    payload = {
         "schemaVersion": 1,
         "eventId": str(
             uuid5(
@@ -20,3 +20,6 @@ def serialize_event(event, boot_id):
         "detectedAtUtc": datetime.now(timezone.utc).isoformat(),
         "source": "smartcare-detector",
     }
+    if event.started_sequence is not None:
+        payload["startedSequence"] = event.started_sequence
+    return payload

@@ -14,6 +14,9 @@
 > [!IMPORTANT]
 > **Academic prototype, not a medical device.** Simulated vital signs, anomaly labels and model predictions are for engineering evaluation only, not diagnosis, clinical triage or patient care.
 
+The connected patient and supervision portals, registration, local test accounts
+and MQTT sensor scenarios are available through the [connected Windows setup](docs/connected-care.md).
+
 ## Contents
 
 - [Overview](#overview)

@@ -1,5 +1,13 @@
 # Frontoffice — portail patient et historique
 
+Le parcours connecté s'ouvre sur http://localhost:8085/smartcare/frontends/frontoffice/
+avec **Sign in** ou **Sign up**. Après connexion, **History**, **Alerts** et
+**Device** utilisent la session SmartCare et les données MongoDB. Voir le
+[guide de lancement et de vérification](../../docs/connected-care.md).
+
+Les notes ci-dessous retracent la préparation et la validation du premier
+historique patient avant le raccordement complet.
+
 HTML/CSS/JavaScript natifs ; aucune installation npm ni compilation frontend.
 
 ## Ouvrir localement avec le JSON fictif

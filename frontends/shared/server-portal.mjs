@@ -1,6 +1,10 @@
 import { createServerAuth } from './server-auth.mjs';
 
-export function mountServerPortal(portal, { auth, loadPatientHistory = () => import('../frontoffice/server-history.mjs') } = {}) {
+export function mountServerPortal(portal, {
+  auth,
+  loadPatientHistory = () => import('../frontoffice/server-history.mjs'),
+  loadStaffCare = () => import('../backoffice/server-care.mjs')
+} = {}) {
   const isPatientPortal = portal === 'frontoffice';
   const allowedRoles = isPatientPortal ? ['patient'] : ['professional', 'administrator'];
   const apiBaseUrl = new URL('../../api/', import.meta.url);
@@ -11,6 +15,8 @@ export function mountServerPortal(portal, { auth, loadPatientHistory = () => imp
   const message = form.querySelector('[role="status"]');
   const intro = card.querySelector('p');
   const password = form.elements.namedItem('password');
+  const signup = isPatientPortal ? card.querySelector('#signup-form') : null;
+  const signupLink = isPatientPortal ? card.querySelector('#show-signup') : null;
   const otherPortal = document.createElement('a');
   otherPortal.href = isPatientPortal ? '../backoffice/' : '../frontoffice/';
   otherPortal.textContent = isPatientPortal ? 'Open supervision' : 'Open patient portal';
@@ -22,7 +28,8 @@ export function mountServerPortal(portal, { auth, loadPatientHistory = () => imp
   intro.textContent = 'Sign in with your SmartCare server account.';
   password.labels[0].firstChild.textContent = 'Password';
   submit.textContent = 'Sign in';
-  card.querySelector('.demo-access').hidden = true;
+  const demoAccess = card.querySelector('.demo-access');
+  if (demoAccess) demoAccess.hidden = true;
   const demoNote = card.querySelector(':scope > small');
   if (demoNote) demoNote.hidden = true;
 
@@ -43,11 +50,23 @@ export function mountServerPortal(portal, { auth, loadPatientHistory = () => imp
   card.append(sessionPanel, otherPortal);
 
   let currentSession = null;
-  let patientApp = null;
+  let workspace = null;
+  function showSignup(open) {
+    if (!signup || !signupLink) return;
+    form.hidden = open;
+    signup.hidden = !open;
+    signupLink.hidden = open;
+    if (!open) {
+      signup.reset();
+      signup.querySelector('[role="status"]').textContent = '';
+    }
+  }
+
   function showLogin(note) {
     currentSession = null;
-    patientApp?.dispose(); patientApp = null;
+    workspace?.dispose(); workspace = null;
     heading.textContent = ''; details.textContent = '';
+    showSignup(false);
     sessionPanel.hidden = true; intro.hidden = false; form.hidden = false;
     card.closest('.welcome-screen').hidden = false;
     form.reset(); message.textContent = note;
@@ -61,22 +80,24 @@ export function mountServerPortal(portal, { auth, loadPatientHistory = () => imp
   }
   async function showSession(session) {
     currentSession = session;
-    if (isPatientPortal) {
-      const { mountServerHistory } = await loadPatientHistory();
+    if (isPatientPortal || session.role === 'professional') {
+      const mount = isPatientPortal ? (await loadPatientHistory()).mountServerHistory
+        : (await loadStaffCare()).mountServerCare;
       if (currentSession !== session) return;
-      patientApp?.dispose();
+      workspace?.dispose();
       form.reset(); message.textContent = '';
-      patientApp = mountServerHistory({
+      workspace = mount({
         session, apiBaseUrl, onSignOut: signOut, onSessionExpired: showLogin
       });
       return;
     }
-    heading.textContent = 'Signed in as ' + session.userId;
-    details.textContent = `Role: ${session.role}. Measurements and alerts will appear when their server endpoints are available.`;
+    heading.textContent = 'Signed in as ' + (session.displayName || session.userId);
+    details.textContent = 'Administrator account. Clinical records are available to patients and assigned professionals.';
     form.reset();
     message.textContent = '';
     intro.hidden = true;
     form.hidden = true;
+    if (signupLink) signupLink.hidden = true;
     sessionPanel.hidden = false;
     heading.focus();
   }
@@ -96,6 +117,45 @@ export function mountServerPortal(portal, { auth, loadPatientHistory = () => imp
     }
   });
 
+  if (signup && signupLink) {
+    const signupMessage = signup.querySelector('[role="status"]');
+    const signupSubmit = signup.querySelector('[type="submit"]');
+    const back = signup.querySelector('[data-back-to-login]');
+    signupLink.addEventListener('click', () => {
+      showSignup(true);
+      signup.elements.namedItem('name').focus();
+    });
+    back.addEventListener('click', () => {
+      showSignup(false);
+      form.elements.namedItem('email').focus();
+    });
+    signup.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (signupSubmit.disabled) return;
+      const fields = Object.fromEntries(new FormData(signup));
+      if (fields.password !== fields.confirmPassword) {
+        signupMessage.textContent = 'The passwords do not match.';
+        return;
+      }
+      signupSubmit.disabled = true;
+      back.disabled = true;
+      signupMessage.textContent = 'Creating your account…';
+      try {
+        await auth.signUp(fields);
+        showLogin('Account created. Sign in with your new patient account.');
+        form.elements.namedItem('email').value = fields.email.trim();
+        password.focus();
+      } catch (error) {
+        signupMessage.textContent = error.message;
+        signup.elements.namedItem('password').value = '';
+        signup.elements.namedItem('confirmPassword').value = '';
+      } finally {
+        signupSubmit.disabled = false;
+        back.disabled = false;
+      }
+    });
+  }
+
   logout.addEventListener('click', async () => {
     logout.disabled = true;
     sessionMessage.textContent = '';
@@ -109,11 +169,15 @@ export function mountServerPortal(portal, { auth, loadPatientHistory = () => imp
   });
 
   submit.disabled = true;
+  if (signupLink) signupLink.disabled = true;
   const ready = auth.readSession().then(session => {
     if (!session) return;
     if (allowedRoles.includes(session.role)) return showSession(session);
     else message.textContent = 'Your session is active in the other SmartCare portal.';
   }).catch(error => { message.textContent = error.message; })
-    .finally(() => { submit.disabled = false; });
+    .finally(() => {
+      submit.disabled = false;
+      if (signupLink) signupLink.disabled = false;
+    });
   return { ready };
 }

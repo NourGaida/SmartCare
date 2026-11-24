@@ -34,7 +34,7 @@ export function historyStatus(state) {
   return {
     originLabel: state.origin === 'demo'
       ? 'FICTIONAL DEMO · JSON example response, fixed example dates. No server health data.'
-      : 'SERVER HISTORY · Measurements supplied by the current session API.',
+      : 'Measurements saved to your account.',
     message: {
       idle: 'Sign in to load measurement history.',
       loading: 'Loading measurements…',

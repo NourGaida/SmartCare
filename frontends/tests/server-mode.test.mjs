@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { isServerMode } from '../shared/server-mode.mjs';
+import { isServerMode, showServerRequired } from '../shared/server-mode.mjs';
 
 test('legacy paths stay in server mode on any hostname', () => {
   assert.equal(isServerMode({ pathname: '/smartcare/frontends/frontoffice/', hostname: '192.168.1.4' }), true);
@@ -26,6 +26,20 @@ test('both portal entries call the single shared helper', () => {
     const source = readFileSync(new URL('../' + relative, import.meta.url), 'utf8');
     assert.match(source, /import\s*\{[^}]*isServerMode[^}]*\}\s*from/, relative);
     assert.match(source, /if\s*\(isServerMode\(\)\)/, relative);
+    assert.match(source, /else\s*\{\s*showServerRequired\(\)/, relative);
+    assert.match(source, /serviceWorker\.register\('\.\/sw\.js', \{ updateViaCache: 'none' \}\)/, relative);
     assert.doesNotMatch(source, /location\.pathname\.startsWith\('/, relative);
+  }
+});
+
+test('static previews without a server show where to sign in', () => {
+  for (const signup of [{ hidden: false }, null]) {
+    const intro = { textContent: '' };
+    const form = { hidden: false };
+    const nodes = { '.welcome-card > p': intro, '#login-form': form, '#show-signup': signup };
+    showServerRequired({ querySelector: selector => nodes[selector] });
+    assert.match(intro.textContent, /from your SmartCare server to sign in/);
+    assert.equal(form.hidden, true);
+    if (signup) assert.equal(signup.hidden, true);
   }
 });

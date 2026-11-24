@@ -327,7 +327,7 @@ test('professional detail and alert list views render the selected data and pagi
   assert.match(list, /name="patientId"/);
 });
 
-function worker(app) {
+function worker(app, scope = 'https://demo.test/frontends/' + app + '/') {
   const listeners = {};
   const writes = [];
   const cached = new Map();
@@ -335,7 +335,7 @@ function worker(app) {
     put: async (key, value) => { writes.push(key); cached.set(key, value); },
     match: async key => cached.get(key),
     delete: async key => cached.delete(key) };
-  const context = { URL, self: { registration: { scope: 'https://demo.test/frontends/' + app + '/' },
+  const context = { URL, self: { registration: { scope },
     addEventListener: (type, handler) => { listeners[type] = handler; },
     skipWaiting: () => {}, clients: { claim: () => {} } },
     caches: { open: async () => cache, keys: async () => [], delete: async () => true },
@@ -416,6 +416,28 @@ test('service workers cache distinct static resources, handle root offline and i
     runtime.listeners.fetch({ request: { method: 'GET', url: 'https://demo.test/frontends/' + app + '/' },
       respondWith: promise => { response = promise; } });
     assert.equal((await response).status, 200);
+  }
+});
+
+test('HTTPS portals cache the connected entry modules and local fonts at their requested URLs', async () => {
+  const deployments = [
+    ['frontoffice', 'https://app.smartcare.local/', [
+      '/portal.mjs', '/frontoffice/server-history.mjs', '/frontoffice/history.mjs',
+      '/frontoffice/measurements-adapter.mjs', '/fonts/dm-sans-latin-v17.woff2'
+    ]],
+    ['backoffice', 'https://staff.smartcare.local/', [
+      '/shared/portal.mjs', '/backoffice/server-care.mjs', '/backoffice/simulation-view.mjs',
+      '/frontoffice/styles.css', '/frontoffice/fonts/dm-sans-latin-v17.woff2'
+    ]]
+  ];
+  for (const [app, scope, assets] of deployments) {
+    const runtime = worker(app, scope);
+    let installation;
+    runtime.listeners.install({ waitUntil: promise => { installation = promise; } });
+    await installation;
+    for (const path of [...assets, '/index.html', '/shared/server-mode.mjs', '/shared/care-api.mjs']) {
+      assert.ok(runtime.cached.has(new URL(path, scope).href), app + ': ' + path);
+    }
   }
 });
 

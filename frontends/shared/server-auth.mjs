@@ -36,7 +36,9 @@ export function createServerAuth(baseUrl, request = globalThis.fetch) {
         typeof data.csrfToken !== 'string' || !data.csrfToken) {
       throw new Error('The SmartCare server returned an invalid session.');
     }
-    return { userId: data.userId, role, csrfToken: data.csrfToken };
+    const session = { userId: data.userId, role, csrfToken: data.csrfToken };
+    if (typeof data.displayName === 'string' && data.displayName.trim()) session.displayName = data.displayName;
+    return session;
   }
 
   async function signOut(session) {
@@ -46,6 +48,17 @@ export function createServerAuth(baseUrl, request = globalThis.fetch) {
 
   return {
     readSession,
+    async signUp({ name, email, password }) {
+      const response = await call('auth/signup', {
+        method: 'POST', body: { name: name.trim(), email: email.trim(), password }
+      });
+      if (response.status === 400 || response.status === 409) {
+        const data = await response.json().catch(() => null);
+        throw new Error(data?.message || 'Check your sign-up details and try again.');
+      }
+      check(response);
+      if (response.status !== 201) throw new Error('SmartCare did not confirm the registration.');
+    },
     async signIn({ email, password }, allowedRoles) {
       const response = await call('auth/login', { method: 'POST', body: { email: email.trim(), password } });
       if (response.status === 401) throw new Error('Email address or password is incorrect.');

@@ -30,6 +30,7 @@ public class MqttReceiver {
     private final IngestionConfig config;
     private final MeasurementMessageHandler handler;
     private final IngestionCounters counters;
+    private final DetectionEventHandler detectorEvents;
     private final long reconnectDelayMs;
     private final AtomicBoolean running = new AtomicBoolean();
     private final AtomicBoolean reconnectScheduled = new AtomicBoolean();
@@ -41,6 +42,7 @@ public class MqttReceiver {
         this.config = null;
         this.handler = null;
         this.counters = null;
+        this.detectorEvents = null;
         this.reconnectDelayMs = DEFAULT_RECONNECT_DELAY_MS;
     }
 
@@ -48,8 +50,9 @@ public class MqttReceiver {
     public MqttReceiver(
             IngestionConfig config,
             MeasurementMessageHandler handler,
-            IngestionCounters counters) {
-        this(config, handler, counters, DEFAULT_RECONNECT_DELAY_MS);
+            IngestionCounters counters,
+            DetectionEventHandler detectorEvents) {
+        this(config, handler, counters, detectorEvents, DEFAULT_RECONNECT_DELAY_MS);
     }
 
     MqttReceiver(
@@ -57,9 +60,15 @@ public class MqttReceiver {
             MeasurementMessageHandler handler,
             IngestionCounters counters,
             long reconnectDelayMs) {
+        this(config, handler, counters, null, reconnectDelayMs);
+    }
+
+    private MqttReceiver(IngestionConfig config, MeasurementMessageHandler handler, IngestionCounters counters,
+                         DetectionEventHandler detectorEvents, long reconnectDelayMs) {
         this.config = config;
         this.handler = handler;
         this.counters = counters;
+        this.detectorEvents = detectorEvents;
         this.reconnectDelayMs = reconnectDelayMs;
     }
 
@@ -143,6 +152,9 @@ public class MqttReceiver {
                 current.connect(options).waitForCompletion(CONNECT_TIMEOUT_MS);
             }
             current.subscribe(config.topic(), config.qos()).waitForCompletion(CONNECT_TIMEOUT_MS);
+            if (detectorEvents != null) {
+                current.subscribe(DetectionEventHandler.EVENTS_TOPIC, 1).waitForCompletion(CONNECT_TIMEOUT_MS);
+            }
             counters.setConnected(true);
             LOG.info("Subscribed to " + config.topic() + " with QoS " + config.qos());
         } catch (MqttException | RuntimeException e) {
@@ -182,11 +194,22 @@ public class MqttReceiver {
 
         @Override
         public void messageArrived(String topic, MqttMessage message) {
+            if (detectorEvents != null && DetectionEventHandler.EVENTS_TOPIC.equals(topic)) {
+                try {
+                    detectorEvents.handle(message.getPayload());
+                } catch (RuntimeException e) {
+                    LOG.warning("Detection event persistence failed: " + e.getClass().getSimpleName());
+                }
+                return;
+            }
             counters.messageReceived();
             try {
                 IngestionResult result = handler.handle(topic, message.getPayload());
                 switch (result.status()) {
-                    case SAVED -> counters.saved();
+                    case SAVED -> {
+                        counters.saved();
+                        notifyDetector(result, message);
+                    }
                     case DUPLICATE -> counters.duplicate();
                     case REJECTED -> {
                         if ("store_failed".equals(result.reason())) {
@@ -204,6 +227,16 @@ public class MqttReceiver {
 
         @Override
         public void deliveryComplete(IMqttDeliveryToken token) {
+        }
+    }
+
+    private void notifyDetector(IngestionResult result, MqttMessage message) {
+        if (detectorEvents == null) return;
+        try {
+            // The detector only receives measurements after a successful MongoDB write.
+            client.publish(DetectionEventHandler.PERSISTED_PREFIX + result.deviceId(), message.getPayload(), 1, false);
+        } catch (MqttException e) {
+            LOG.warning("Could not notify the detector about a persisted measurement: " + e.getReasonCode());
         }
     }
 }

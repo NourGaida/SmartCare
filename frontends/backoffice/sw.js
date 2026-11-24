@@ -1,5 +1,19 @@
-const CACHE = 'smartcare-supervision-static-v8';
-const STATIC = ["index.html","app.mjs","adapter.mjs","views.mjs","styles.css","fonts/dm-sans-latin-v17.woff2","fonts/dm-sans-latin-ext-v17.woff2","fonts/manrope-latin-v23.woff2","fonts/manrope-latin-ext-v23.woff2","icon.svg","icon-192.png","icon-512.png","manifest.webmanifest","fixtures/administrative.mjs","fixtures/clinical.mjs","../frontoffice/styles.css","../frontoffice/icon.svg","../shared/portal.mjs","../shared/server-mode.mjs","../shared/server-portal.mjs","../shared/server-auth.mjs","../shared/auth.mjs","../shared/demo-updates.mjs","../shared/connectivity.mjs","../shared/domain.mjs","../shared/ui.mjs","../shared/forms.css"].map(file => new URL(file, self.registration.scope).href);
+// Exact static allowlist only: no API, WebSocket, session, CSV or measurement caching.
+const CACHE = 'smartcare-supervision-static-v9';
+const STATIC = [
+  'index.html', 'styles.css', '../backoffice/server-care.mjs',
+  '../backoffice/simulation-view.mjs', '../backoffice/views.mjs',
+  'icon.svg', 'icon-192.png', 'icon-512.png', 'manifest.webmanifest',
+  '../frontoffice/styles.css', '../frontoffice/icon.svg', '../frontoffice/measurements-adapter.mjs',
+  '../frontoffice/fonts/dm-sans-latin-v17.woff2', '../frontoffice/fonts/dm-sans-latin-ext-v17.woff2',
+  '../frontoffice/fonts/manrope-latin-v23.woff2', '../frontoffice/fonts/manrope-latin-ext-v23.woff2',
+  '../shared/portal.mjs', '../shared/server-mode.mjs',
+  '../shared/server-portal.mjs', '../shared/server-auth.mjs', '../shared/care-api.mjs',
+  '../shared/connected-views.mjs', '../shared/connectivity.mjs', '../shared/domain.mjs',
+  '../shared/poll-care.mjs', '../shared/scenario-view.mjs',
+  '../shared/ui.mjs', '../shared/forms.css'
+].map(file => new URL(file, self.registration.scope).href);
+
 async function precacheStatic() {
   const cache = await caches.open(CACHE);
   await Promise.all(STATIC.map(async target => {
@@ -9,6 +23,7 @@ async function precacheStatic() {
     } catch { }
   }));
 }
+
 self.addEventListener('install', event => {
   event.waitUntil(precacheStatic().then(() => self.skipWaiting()));
 });

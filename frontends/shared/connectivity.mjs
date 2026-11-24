@@ -4,10 +4,12 @@ export function connectivityMessage(online) {
 }
 
 export function mountConnectivity(element, {
-  network = navigator, events = window
+  network = navigator, events = window, connected = false
 } = {}) {
   const render = () => {
-    const message = connectivityMessage(network.onLine);
+    const message = connected && !network.onLine
+      ? 'Offline · Connect to the server to load current measurements and alerts.'
+      : connectivityMessage(network.onLine);
     element.textContent = message;
     element.hidden = !message;
     if (element.ownerDocument) {

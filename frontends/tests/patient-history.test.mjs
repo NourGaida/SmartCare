@@ -91,7 +91,7 @@ for (const payload of [[], { measurements: [] }]) {
     assert.deepEqual(model.getState().rows, []);
     assert.equal(historyStatus(model.getState()).showContent, false);
     assert.match(historyStatus(model.getState()).message, /No measurements/);
-    assert.match(historyStatus(model.getState()).originLabel, /SERVER HISTORY/);
+    assert.match(historyStatus(model.getState()).originLabel, /saved to your account/);
   });
 }
 
@@ -417,12 +417,26 @@ test('a fresh patient login mounts History; expiry disposes it and returns to lo
   });
 });
 
-test('supervision keeps its session screen and does not mount the patient application', async () => {
+test('the administrator keeps a session screen without mounting either clinical workspace', async () => {
   await withLoginDocument(async () => {
     const controller = mountServerPortal('backoffice', {
-      auth: { readSession: async () => ({ userId: 'pro-1', role: 'professional' }) },
-      loadPatientHistory: async () => { assert.fail('Supervision must not mount patient history'); }
+      auth: { readSession: async () => ({ userId: 'admin-1', role: 'administrator' }) },
+      loadPatientHistory: async () => { assert.fail('Supervision must not mount patient history'); },
+      loadStaffCare: async () => { assert.fail('Administrators must not mount professional care'); }
     });
     await controller.ready;
+  });
+});
+
+test('a restored professional session opens the assigned care workspace', async () => {
+  await withLoginDocument(async () => {
+    const session = { userId: 'pro-1', role: 'professional', displayName: 'Dr Test' };
+    let passed;
+    const controller = mountServerPortal('backoffice', {
+      auth: { readSession: async () => session },
+      loadStaffCare: async () => ({ mountServerCare: options => { passed = options.session; return { dispose() {} }; } })
+    });
+    await controller.ready;
+    assert.equal(passed, session);
   });
 });

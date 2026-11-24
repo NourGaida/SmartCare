@@ -1,0 +1,27 @@
+name: smartcare-connected
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    ports:
+      - "127.0.0.1:1885:1883"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mqtt-data:/mosquitto/data
+    networks:
+      default:
+        aliases:
+          - smartcare-mosquitto
+    restart: unless-stopped
+  nodered:
+    image: nodered/node-red:latest
+    ports:
+      - "127.0.0.1:1886:1880"
+    volumes:
+      - ../gateway/flows/flows.json:/data/flows.json:ro
+    environment:
+      FLOWS: flows.json
+    depends_on:
+      - mosquitto
+    restart: unless-stopped
+volumes:
+  mqtt-data:

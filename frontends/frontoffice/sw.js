@@ -1,5 +1,17 @@
-const CACHE = 'smartcare-patient-static-v9';
-const STATIC = ["index.html","portal.mjs","app.js","adapter.mjs","measurements-adapter.mjs","history.mjs","server-history.mjs","fixtures.mjs","styles.css","fonts/dm-sans-latin-v17.woff2","fonts/dm-sans-latin-ext-v17.woff2","fonts/manrope-latin-v23.woff2","fonts/manrope-latin-ext-v23.woff2","icon.svg","icon-192.png","icon-512.png","manifest.webmanifest","../shared/portal.mjs","../shared/server-mode.mjs","../shared/server-portal.mjs","../shared/server-auth.mjs","../shared/auth.mjs","../shared/demo-updates.mjs","../shared/connectivity.mjs","../shared/domain.mjs","../shared/ui.mjs","../shared/forms.css"].map(file => new URL(file, self.registration.scope).href);
+// Exact static allowlist only: no API, WebSocket, session, CSV or measurement caching.
+const CACHE = 'smartcare-patient-static-v10';
+const STATIC = [
+  'index.html', 'portal.mjs', '../frontoffice/measurements-adapter.mjs',
+  '../frontoffice/history.mjs', '../frontoffice/server-history.mjs',
+  'styles.css', 'icon.svg', 'icon-192.png', 'icon-512.png', 'manifest.webmanifest',
+  'fonts/dm-sans-latin-v17.woff2', 'fonts/dm-sans-latin-ext-v17.woff2',
+  'fonts/manrope-latin-v23.woff2', 'fonts/manrope-latin-ext-v23.woff2',
+  '../shared/portal.mjs', '../shared/server-mode.mjs', '../shared/server-portal.mjs',
+  '../shared/server-auth.mjs', '../shared/care-api.mjs',
+  '../shared/connected-views.mjs', '../shared/connectivity.mjs', '../shared/domain.mjs',
+  '../shared/ui.mjs', '../shared/forms.css', '../shared/poll-care.mjs', '../shared/scenario-view.mjs'
+].map(file => new URL(file, self.registration.scope).href);
+
 async function precacheStatic() {
   const cache = await caches.open(CACHE);
   await Promise.all(STATIC.map(async target => {
@@ -9,6 +21,7 @@ async function precacheStatic() {
     } catch { }
   }));
 }
+
 self.addEventListener('install', event => {
   event.waitUntil(precacheStatic().then(() => self.skipWaiting()));
 });

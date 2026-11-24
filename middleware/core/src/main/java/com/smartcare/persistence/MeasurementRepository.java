@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Sorts.ascending;
+import static com.mongodb.client.model.Sorts.descending;
 
 @ApplicationScoped
 public class MeasurementRepository implements MeasurementStore {
@@ -128,6 +129,17 @@ public class MeasurementRepository implements MeasurementStore {
                 .sort(ascending("acquiredAt", "deviceId", "bootId", "sequence"))
                 .map(MeasurementMapper::fromDocument)
                 .into(new ArrayList<>());
+    }
+
+    public Optional<Measurement> findLatestForPatient(String patientId) {
+        Document document = collection.find(eq("patientId", patientId))
+                .sort(descending("acquiredAt")).first();
+        return Optional.ofNullable(document).map(MeasurementMapper::fromDocument);
+    }
+
+    public List<Measurement> findForRun(String patientId, String deviceId, String bootId) {
+        return collection.find(and(eq("patientId", patientId), eq("deviceId", deviceId), eq("bootId", bootId)))
+                .sort(ascending("sequence")).map(MeasurementMapper::fromDocument).into(new ArrayList<>());
     }
 
     public long countByDevice(String deviceId) {

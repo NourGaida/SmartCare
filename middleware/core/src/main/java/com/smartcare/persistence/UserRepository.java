@@ -10,6 +10,7 @@ import jakarta.inject.Inject;
 import org.bson.Document;
 
 import java.util.Optional;
+import java.util.Locale;
 
 @ApplicationScoped
 public class UserRepository {
@@ -30,7 +31,7 @@ public class UserRepository {
 
     public Optional<Document> findByEmail(String email) {
         if (email == null) return Optional.empty();
-        return Optional.ofNullable(collection.find(Filters.eq("email", email.toLowerCase())).first());
+        return Optional.ofNullable(collection.find(Filters.eq("email", email.toLowerCase(Locale.ROOT))).first());
     }
 
     public Optional<Document> findByUserId(String userId) {

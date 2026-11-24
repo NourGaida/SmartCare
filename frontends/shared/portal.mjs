@@ -1,12 +1,12 @@
 import { mountServerPortal } from './server-portal.mjs';
-import { isServerMode } from './server-mode.mjs';
+import { isServerMode, showServerRequired } from './server-mode.mjs';
 
-// Legacy shared entry remains available for supervision and previously opened pages.
-const portal = document.querySelector('script[data-portal]').dataset.portal;
 if (isServerMode()) {
-  mountServerPortal(portal);
-} else if (portal === 'frontoffice') {
-  import('../frontoffice/app.js');
+  mountServerPortal(document.querySelector('script[data-portal]').dataset.portal);
 } else {
-  import('../backoffice/app.mjs');
+  showServerRequired();
+}
+
+if ('serviceWorker' in navigator && window.isSecureContext) {
+  navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).catch(() => {});
 }
