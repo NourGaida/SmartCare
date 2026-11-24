@@ -1,5 +1,14 @@
 # Backoffice — portail professionnel et administrateur
 
+Le parcours connecté s'ouvre sur http://localhost:8085/smartcare/frontends/backoffice/.
+**Assigned patients** affiche les affectations du professionnel. **View details**
+ouvre les courbes et les alertes de règle. **Simulation des capteurs** permet de
+lancer le simulateur sur les appareils de test affectés. Le compte administrateur
+ouvre une session administrative et l'API réserve les dossiers au rôle professionnel
+affecté. Voir le [guide du parcours connecté](../../docs/connected-care.md).
+
+Les notes suivantes décrivent l'ancien prototype statique et ses données fictives.
+
 PWA statique pour le suivi des patients et l'administration. Le professionnel
 consulte ses patients affectés, les alertes, l'historique et les graphiques ;
 l'administrateur gère les comptes, les affectations et les appareils. Aucune

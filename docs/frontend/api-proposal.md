@@ -8,32 +8,54 @@ Le WAR préfixe les chemins par `/smartcare`. Les routes de santé sont `GET /ap
 | Méthode / chemin | Contrat utilisé par le frontend |
 | --- | --- |
 | `POST /api/auth/login` | JSON `{email,password}`. Le serveur renvoie un cookie de session HttpOnly. |
-| `GET /api/session` | Renvoie `userId`, `role`, `csrfToken` et `expiresAt`. Les portails vérifient cette réponse après la connexion. |
+| `POST /api/auth/signup` | JSON `{name,email,password}`. Crée un PATIENT et renvoie 201. Entrée invalide 400, adresse déjà utilisée 409. |
+| `GET /api/session` | Renvoie `userId`, `role`, `csrfToken`, `expiresAt` et `displayName` si disponible. Les portails vérifient cette réponse après la connexion. |
 | `POST /api/auth/logout` | Invalide la session avec le cookie et l'en-tête `X-CSRF-Token`. |
 
-L'historique patient décrit ci-dessous est implémenté. Les autres routes métier
-et le WebSocket restent à implémenter. La connexion serveur est
+L'historique patient et le parcours connecté décrit ci-dessous sont implémentés.
+La connexion serveur est
 ouverte depuis les portails servis par le WAR sur la même origine que l'API.
 
 Les scénarios d'accès et les dépendances précises de la personne A envers la
 personne B sont dans [access-verification.md](access-verification.md).
 
-## Routes proposées, non implémentées
+## Routes du parcours connecté
+
+| Méthode / chemin | Accès et données |
+| --- | --- |
+| GET /api/me/devices | Appareils actuellement associés au patient de la session. |
+| GET /api/me/alerts | Alertes de règle du patient de la session. |
+| GET /api/me/latest-simulation | Dernière exécution du patient de la session ou `{"run":null}`. Le tableau de bord charge cet état toutes les secondes. |
+| GET /api/patients | Patients actifs affectés au professionnel de la session, appareils et dernières mesures. |
+| GET /api/patients/{id}/measurements | Mesures du patient, avec la même enveloppe que /me/measurements. Affectation obligatoire. |
+| GET /api/patients/{id}/alerts | Épisodes de règle du patient affecté, avec l'acquittement et sa note. |
+| POST /api/patients/{id}/alerts/{alertId}/acknowledgements | JSON `{note}`, cookie professionnel affecté et CSRF. Le premier acquittement est conservé. |
+| POST /api/patients/{id}/simulations | JSON `{deviceId,scenario}`, cookie professionnel affecté et CSRF. État initial 202 et `{id}`. |
+| GET /api/patients/{id}/simulations/{idExécution} | État et mesures enregistrées de l'exécution, avec contrôle de l'affectation. |
+| GET /api/patients/{id}/latest-simulation | Même état que côté patient. Le paramètre facultatif `deviceId` restreint la sélection à un appareil. Affectation obligatoire. |
+
+Les réponses de données sont `Cache-Control: no-store`. Une session absente ou
+expirée donne 401. Un rôle ou une affectation insuffisants donnent 403. Les
+listes vides sont renvoyées avec 200. Voir le [guide du parcours connecté](../connected-care.md).
+
+Les exécutions et leurs mesures restent dans MongoDB. La réponse `run` contient
+`id`, `deviceId`, `scenario`, `startedAt`, `status`, `expected` et `measurements`.
+Le scénario `invalid` enregistre les valeurs nulles pour les trois mesures
+indisponibles. Les alertes possèdent un `startedAt` lorsqu'il a été retrouvé
+dans les mesures de l'épisode, et un `confirmedAt` distinct. Les alertes anciennes
+sans heure de début gardent leur heure de confirmation.
+
+## Routes proposées
 
 Toutes les lignes suivantes sont **à valider avec la personne B**, y compris
 DTO, erreurs, paramètres, pagination et transport.
 
 | Méthode / chemin proposé | Usage / adaptateur |
 | --- | --- |
-| GET /api/me/device | Appareil et fraîcheur du patient de la session. |
 | GET /api/me/measurements/export | CSV des mêmes filtres, autorisé côté serveur. |
-| GET /api/me/alerts | Épisodes du patient de la session. |
-| GET /api/patients | getAssignedPatients(), uniquement les patients affectés. |
 | GET /api/patients/{id} | getPatient(id), contrôle d'affectation. |
-| GET /api/patients/{id}/measurements | getMeasurements/getHistory, période, qualité et pagination. |
 | GET /api/patients/{id}/measurements/export | Export de la sélection, après autorisation. |
 | GET /api/alerts | getAlerts(patientId,state), limité aux patients autorisés. |
-| POST /api/alerts/{id}/acknowledgements | acknowledgeAlert(id,note), auteur et heure côté serveur ; aucune résolution implicite. |
 | GET / POST /api/admin/accounts | Liste et création de compte. |
 | PATCH /api/admin/accounts/{id} | Rôle et activation. |
 | GET / POST /api/admin/assignments | Liste et association patient-professionnel. |

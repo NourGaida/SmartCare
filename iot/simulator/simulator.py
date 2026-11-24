@@ -190,6 +190,7 @@ def parse_args(argv=None):
     parser.add_argument("--port", type=int, default=1883)
     parser.add_argument("--device-id", default="sc-001")
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--boot-id", type=uuid.UUID, help="UUID used to correlate this run with persisted measurements")
     args = parser.parse_args(argv)
     if not 1 <= args.port <= 65535:
         parser.error("--port must be between 1 and 65535")
@@ -202,7 +203,8 @@ def main(argv=None):
     args = parse_args(argv)
     try:
         Simulator(MqttTransport(args.host, args.port),
-                  device_id=args.device_id, seed=args.seed).run(args.scenario)
+                  device_id=args.device_id, seed=args.seed,
+                  boot_id=str(args.boot_id) if args.boot_id else None).run(args.scenario)
     except KeyboardInterrupt:
         print("Simulator interrupted", file=sys.stderr)
         return 130

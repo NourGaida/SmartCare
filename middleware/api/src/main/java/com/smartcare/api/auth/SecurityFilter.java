@@ -28,6 +28,7 @@ public class SecurityFilter implements ContainerRequestFilter {
     private static final Set<String> SAFE = Set.of("GET", "HEAD", "OPTIONS");
     private static final Set<String> PUBLIC_GET_PATHS = Set.of(
             "health", "health/database", "health/ingestion");
+    private static final Set<String> PUBLIC_POST_PATHS = Set.of("auth/login", "auth/signup");
 
     @Inject SessionService sessionService;
 
@@ -57,7 +58,7 @@ public class SecurityFilter implements ContainerRequestFilter {
 
     static boolean isPublicRoute(String rawPath, String method) {
         String normalized = normalizePath(rawPath);
-        if ("POST".equalsIgnoreCase(method) && "auth/login".equals(normalized)) {
+        if ("POST".equalsIgnoreCase(method) && PUBLIC_POST_PATHS.contains(normalized)) {
             return true;
         }
         if ("GET".equalsIgnoreCase(method) && PUBLIC_GET_PATHS.contains(normalized)) {

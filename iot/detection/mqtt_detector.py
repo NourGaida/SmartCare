@@ -19,7 +19,8 @@ logger = logging.getLogger("smartcare.detector")
 
 MQTT_HOST = os.getenv("MQTT_HOST", "127.0.0.1")
 MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
-MQTT_TOPIC = "smartcare/v1/validated/+"
+MQTT_PREFIX = os.getenv("SMARTCARE_DETECTION_INPUT", "smartcare/v1/validated").rstrip("/")
+MQTT_TOPIC = f"{MQTT_PREFIX}/+"
 MQTT_EVENTS_TOPIC = "smartcare/v1/detection/events"
 
 detector = DurationDetector(
@@ -49,7 +50,7 @@ def on_message(client, userdata, msg):
             raise ValueError("Expected a JSON object")
 
         expected_topic = (
-            f"smartcare/v1/validated/{measurement['deviceId']}"
+            f"{MQTT_PREFIX}/{measurement['deviceId']}"
         )
 
         if msg.topic != expected_topic:

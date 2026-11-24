@@ -41,6 +41,10 @@ Options : `--scenario` (défaut : `all`), `--host` (défaut : `localhost`),
 .\.venv-simulator\Scripts\python.exe iot/simulator/simulator.py --scenario normal --host localhost --port 1883 --device-id sc-002 --seed 123
 ```
 
+Le serveur peut fournir `--boot-id <UUID>` pour relier une exécution aux mesures
+qui arrivent dans MongoDB. Le profil connecté utilise MQTT sur le port 1885 et la
+chaîne décrite dans le [guide SmartCare connecté](../../docs/connected-care.md).
+
 | Scénario | Résultat attendu |
 | --- | --- |
 | `normal` | 15 mesures valides à une seconde d'intervalle, fréquence cardiaque entre 72 et 78 bpm, SpO2 entre 97 et 99 %. |

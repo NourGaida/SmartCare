@@ -347,18 +347,21 @@ class CliTests(unittest.TestCase):
         args = simulator.parse_args([])
         self.assertEqual((args.scenario, args.host, args.port, args.device_id, args.seed),
                          ("all", "localhost", 1883, "sc-001", 42))
+        self.assertIsNone(args.boot_id)
 
     def test_cli_options_are_forwarded(self):
+        run_id = "f17eb3f0-26e7-47e0-8b33-eaa846f3c880"
         with patch.object(simulator, "MqttTransport") as transport, patch.object(
                 simulator, "Simulator") as runner:
             result = simulator.main([
                 "--scenario", "missing", "--host", "broker.test", "--port", "1884",
                 "--device-id", "sc-test", "--seed", "123",
+                "--boot-id", run_id,
             ])
             self.assertEqual(result, 0)
             transport.assert_called_once_with("broker.test", 1884)
             runner.assert_called_once_with(transport.return_value,
-                                           device_id="sc-test", seed=123)
+                                           device_id="sc-test", seed=123, boot_id=run_id)
             runner.return_value.run.assert_called_once_with("missing")
 
     def test_invalid_arguments_are_rejected(self):
@@ -366,6 +369,7 @@ class CliTests(unittest.TestCase):
             ["--scenario", "unknown"], ["--port", "0"], ["--port", "65536"],
             ["--device-id", ""], ["--device-id", "sc/001"],
             ["--device-id", "sc+"], ["--device-id", "sc#"],
+            ["--boot-id", "not-a-uuid"],
         ]
         for args in cases:
             with self.subTest(args=args), patch("sys.stderr", io.StringIO()):

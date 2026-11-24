@@ -8,6 +8,7 @@ class DetectionEvent:
     sequence: int
     event_type: str
     anomaly_type: Optional[str]
+    started_sequence: Optional[int] = None
 
 
 class EventManager:
@@ -74,6 +75,7 @@ class EventManager:
             if episode["anomaly_type"] != anomaly_type:
                 episode["anomaly_type"] = anomaly_type
                 episode["confirmed"] = False
+                episode["started_sequence"] = result.sequence
 
                 return DetectionEvent(
                     device_id,
@@ -90,6 +92,7 @@ class EventManager:
                     result.sequence,
                     "SUSTAINED_ANOMALY_CONFIRMED",
                     anomaly_type,
+                    episode["started_sequence"],
                 )
 
             return None

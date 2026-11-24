@@ -2,18 +2,20 @@
 
 Deux applications HTML/CSS/JavaScript natifs, sans installation npm ni compilation.
 
-L'historique patient utilise GET /smartcare/api/me/measurements, implémenté avec le
-cookie de la session existante. Le [guide frontoffice](frontoffice/README.md)
-explique l'ouverture locale, le JSON fictif partagé avec les tests, les deux
-courbes et les états disponibles. La route serveur lit uniquement les mesures
-MongoDB du patient de la session. Les erreurs affichent un état réessayable.
+Ouvrir les portails depuis WildFly avec la [procédure du parcours connecté](../docs/connected-care.md).
+Le patient consulte son historique et ses alertes. Le professionnel voit ses
+patients affectés et joue les scénarios MQTT depuis **Simulation des capteurs**.
+Les écrans utilisent la session SmartCare et les données du serveur.
 `frontends/frontoffice/` sert le portail patient ; `frontends/backoffice/` sert
 le portail professionnel et administrateur. L'interface reste en anglais, comme le
 patient existant. Le backoffice reprend ses couleurs turquoise, cartes, typographies,
 icônes et espacements.
 
 Le code partagé est dans `frontends/shared/`, les suites Node dans
-`frontends/tests/` et les documents de conception dans `frontends/docs/`.
+`frontends/tests/` et les documents de conception dans `docs/frontend/`.
+
+Les sections qui suivent documentent les précédents essais du prototype et ses
+fixtures. La procédure connectée ci-dessus remplace le lancement statique.
 
 ## Lancer sous Windows
 

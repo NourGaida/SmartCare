@@ -1,5 +1,6 @@
 package com.smartcare.api.auth;
 
+import com.mongodb.MongoException;
 import com.smartcare.iam.auth.AuthService;
 import com.smartcare.iam.auth.LoginException;
 import com.smartcare.iam.session.Session;
@@ -7,6 +8,7 @@ import com.smartcare.iam.session.SessionService;
 import jakarta.inject.Inject;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
+import jakarta.json.JsonException;
 import jakarta.json.JsonReader;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.*;
@@ -21,6 +23,32 @@ public class AuthResource {
 
     @Inject AuthService authService;
     @Inject SessionService sessionService;
+
+    @POST
+    @Path("/signup")
+    public Response signup(String body) {
+        if (body == null || body.length() > 4096) {
+            return signupError(400, "invalid_request", "Enter your name, email and password.");
+        }
+        try (JsonReader reader = Json.createReader(new StringReader(body))) {
+            JsonObject input = reader.readObject();
+            String id = authService.registerPatient(input.getString("name", null),
+                    input.getString("email", null), input.getString("password", null));
+            return Response.status(201).header("Cache-Control", "no-store")
+                    .entity(Json.createObjectBuilder().add("userId", id).add("role", "PATIENT").build().toString()).build();
+        } catch (JsonException | ClassCastException error) {
+            return signupError(400, "invalid_request", "Enter your name, email and password.");
+        } catch (LoginException error) {
+            return signupError(error.status(), error.code(), error.getMessage());
+        } catch (MongoException error) {
+            return signupError(503, "signup_unavailable", "Registration is unavailable. Please try again.");
+        }
+    }
+
+    private static Response signupError(int status, String code, String message) {
+        return Response.status(status).header("Cache-Control", "no-store").entity(Json.createObjectBuilder()
+                .add("error", code).add("message", message).build().toString()).build();
+    }
 
     @POST
     @Path("/login")

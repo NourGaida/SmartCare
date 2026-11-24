@@ -19,6 +19,7 @@ def test_serialize_detection_event():
         sequence=22,
         event_type="SUSTAINED_ANOMALY_CONFIRMED",
         anomaly_type="LOW_SPO2",
+        started_sequence=11,
     )
 
     payload = serialize_event(event, "boot-001")
@@ -27,6 +28,7 @@ def test_serialize_detection_event():
     assert payload["deviceId"] == "sc-001"
     assert payload["bootId"] == "boot-001"
     assert payload["sequence"] == 22
+    assert payload["startedSequence"] == 11
     assert payload["eventType"] == "SUSTAINED_ANOMALY_CONFIRMED"
     assert payload["anomalyType"] == "LOW_SPO2"
     assert payload["source"] == "smartcare-detector"
